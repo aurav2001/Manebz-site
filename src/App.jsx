@@ -1,18 +1,75 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense, Component } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import SEOHead from './components/SEOHead';
 import { CompanyProvider } from './context/CompanyContext';
 
-// Code-split dynamic page loading for maximum performance & fast FCP/LCP
-const HomePage = lazy(() => import('./pages/HomePage'));
-const AboutPage = lazy(() => import('./pages/AboutPage'));
-const ServicesPage = lazy(() => import('./pages/ServicesPage'));
-const PayrollPage = lazy(() => import('./pages/PayrollPage'));
-const CareersPage = lazy(() => import('./pages/CareersPage'));
-const ContactPage = lazy(() => import('./pages/ContactPage'));
-const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
-const DynamicPage = lazy(() => import('./pages/DynamicPage'));
+// Resilient Lazy Import helper: Automatically refreshes the page when a new deployment invalidates old chunks
+const lazyRetry = (componentImport) =>
+  lazy(async () => {
+    try {
+      return await componentImport();
+    } catch (error) {
+      console.warn('Dynamic chunk import error detected, auto-refreshing cache...', error);
+      const isRefreshed = sessionStorage.getItem('chunk_retry_refreshed');
+      if (!isRefreshed) {
+        sessionStorage.setItem('chunk_retry_refreshed', 'true');
+        window.location.reload();
+        return new Promise(() => {});
+      }
+      sessionStorage.removeItem('chunk_retry_refreshed');
+      throw error;
+    }
+  });
+
+// Code-split dynamic page loading with resilient auto-retry
+const HomePage = lazyRetry(() => import('./pages/HomePage'));
+const AboutPage = lazyRetry(() => import('./pages/AboutPage'));
+const ServicesPage = lazyRetry(() => import('./pages/ServicesPage'));
+const PayrollPage = lazyRetry(() => import('./pages/PayrollPage'));
+const CareersPage = lazyRetry(() => import('./pages/CareersPage'));
+const ContactPage = lazyRetry(() => import('./pages/ContactPage'));
+const AdminDashboardPage = lazyRetry(() => import('./pages/AdminDashboardPage'));
+const DynamicPage = lazyRetry(() => import('./pages/DynamicPage'));
+
+// Error Boundary for seamless chunk recovery
+class ChunkErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error) {
+    console.error('Page render error:', error);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-[60vh] flex flex-col items-center justify-center pt-32 pb-20 px-4 text-center space-y-4">
+          <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-xl">
+            !
+          </div>
+          <h2 className="text-xl font-bold text-gray-900">New Version Available</h2>
+          <p className="text-sm text-gray-500 max-w-md">
+            The application has received an update. Please reload to load the latest version.
+          </p>
+          <button
+            onClick={() => {
+              sessionStorage.clear();
+              window.location.reload();
+            }}
+            className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer"
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Optimized Skeleton Loader during lazy route transition
 const PageLoadingFallback = () => (
@@ -113,11 +170,13 @@ function AppContent() {
         />
       )}
 
-      {/* Code-split Main Content with Suspense */}
+      {/* Code-split Main Content with Suspense & Chunk Error Boundary */}
       <main className="flex-grow" role="main">
-        <Suspense fallback={<PageLoadingFallback />}>
-          {renderCurrentPage()}
-        </Suspense>
+        <ChunkErrorBoundary>
+          <Suspense fallback={<PageLoadingFallback />}>
+            {renderCurrentPage()}
+          </Suspense>
+        </ChunkErrorBoundary>
       </main>
 
       {/* Clean Optimized Footer */}
