@@ -29,7 +29,19 @@ const ApplicationModal = ({ job, isFutureOpening, onClose }) => {
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData({ ...formData, resumeName: e.target.files[0].name });
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        setFormData(prev => ({
+          ...prev,
+          resumeName: file.name,
+          resumeFileName: file.name,
+          resumeDataUrl: reader.result,
+          resumeFileType: file.type || 'application/pdf',
+          resumeFileSize: `${(file.size / 1024).toFixed(1)} KB`
+        }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 

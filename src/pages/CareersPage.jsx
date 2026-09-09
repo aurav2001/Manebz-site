@@ -70,6 +70,9 @@ const CareersPage = ({ onNavigate }) => {
     currentLocation: '',
     message: '',
     resumeFileName: '',
+    resumeDataUrl: '',
+    resumeFileType: '',
+    resumeFileSize: '',
   });
   const [applySubmitted, setApplySubmitted] = useState(false);
   const [applyRefId, setApplyRefId] = useState('');
@@ -86,6 +89,9 @@ const CareersPage = ({ onNavigate }) => {
     noticePeriod: 'Immediate / < 15 Days',
     keySkills: '',
     resumeFileName: '',
+    resumeDataUrl: '',
+    resumeFileType: '',
+    resumeFileSize: '',
     consent: true
   });
   const [talentSubmitted, setTalentSubmitted] = useState(false);
@@ -686,15 +692,26 @@ const CareersPage = ({ onNavigate }) => {
                         <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                           Attach Resume / CV (PDF / DOCX)
                         </label>
-                        <div className="border-2 border-dashed border-gray-300 hover:border-red-500 rounded-2xl p-4 text-center cursor-pointer bg-gray-50 transition-colors">
+                        <div className="border-2 border-dashed border-gray-300 hover:border-red-500 rounded-2xl p-4 text-center cursor-pointer bg-gray-50 hover:bg-red-50/20 transition-all">
                           <input
                             type="file"
                             id="direct-resume-upload"
-                            accept=".pdf,.doc,.docx"
+                            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
                             className="hidden"
                             onChange={(e) => {
                               if (e.target.files && e.target.files[0]) {
-                                setApplyForm({ ...applyForm, resumeFileName: e.target.files[0].name });
+                                const file = e.target.files[0];
+                                const reader = new FileReader();
+                                reader.onload = () => {
+                                  setApplyForm(prev => ({
+                                    ...prev,
+                                    resumeFileName: file.name,
+                                    resumeDataUrl: reader.result,
+                                    resumeFileType: file.type || 'application/pdf',
+                                    resumeFileSize: `${(file.size / 1024).toFixed(1)} KB`
+                                  }));
+                                };
+                                reader.readAsDataURL(file);
                               }
                             }}
                           />
@@ -704,8 +721,8 @@ const CareersPage = ({ onNavigate }) => {
                               {applyForm.resumeFileName || 'Click to Select Resume File (PDF, DOCX up to 10MB)'}
                             </span>
                             {applyForm.resumeFileName && (
-                              <span className="text-[10px] text-emerald-600 font-bold block">
-                                ✓ File Selected: {applyForm.resumeFileName}
+                              <span className="text-[11px] text-emerald-600 font-bold block">
+                                ✓ File Attached: {applyForm.resumeFileName} {applyForm.resumeFileSize ? `(${applyForm.resumeFileSize})` : ''}
                               </span>
                             )}
                           </label>
@@ -717,11 +734,11 @@ const CareersPage = ({ onNavigate }) => {
                           Cover Note / Why you are a good fit
                         </label>
                         <textarea
-                          rows={2}
-                          placeholder="Briefly state your relevant experience..."
+                          rows={4}
+                          placeholder="Type or paste your cover letter, background details, experience breakdown..."
                           value={applyForm.message}
                           onChange={(e) => setApplyForm({ ...applyForm, message: e.target.value })}
-                          className="w-full px-3.5 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-red-500 text-xs"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-red-500 text-xs leading-relaxed font-sans"
                         />
                       </div>
 
@@ -881,15 +898,26 @@ const CareersPage = ({ onNavigate }) => {
                         <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                           Attach Resume / CV File
                         </label>
-                        <div className="border-2 border-dashed border-gray-300 hover:border-red-500 rounded-2xl p-4 text-center cursor-pointer bg-gray-50 transition-colors">
+                        <div className="border-2 border-dashed border-gray-300 hover:border-red-500 rounded-2xl p-4 text-center cursor-pointer bg-gray-50 hover:bg-red-50/20 transition-all">
                           <input
                             type="file"
                             id="vault-resume-upload"
-                            accept=".pdf,.doc,.docx"
+                            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
                             className="hidden"
                             onChange={(e) => {
                               if (e.target.files && e.target.files[0]) {
-                                setTalentForm({ ...talentForm, resumeFileName: e.target.files[0].name });
+                                const file = e.target.files[0];
+                                const reader = new FileReader();
+                                reader.onload = () => {
+                                  setTalentForm(prev => ({
+                                    ...prev,
+                                    resumeFileName: file.name,
+                                    resumeDataUrl: reader.result,
+                                    resumeFileType: file.type || 'application/pdf',
+                                    resumeFileSize: `${(file.size / 1024).toFixed(1)} KB`
+                                  }));
+                                };
+                                reader.readAsDataURL(file);
                               }
                             }}
                           />
@@ -899,8 +927,8 @@ const CareersPage = ({ onNavigate }) => {
                               {talentForm.resumeFileName || 'Click to Select Resume File (PDF, DOCX)'}
                             </span>
                             {talentForm.resumeFileName && (
-                              <span className="text-[10px] text-emerald-600 font-bold block">
-                                ✓ File: {talentForm.resumeFileName}
+                              <span className="text-[11px] text-emerald-600 font-bold block">
+                                ✓ File Attached: {talentForm.resumeFileName} {talentForm.resumeFileSize ? `(${talentForm.resumeFileSize})` : ''}
                               </span>
                             )}
                           </label>

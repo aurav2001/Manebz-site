@@ -38,7 +38,9 @@ import {
   IndianRupee,
   Calendar,
   Zap,
-  CheckSquare
+  CheckSquare,
+  Paperclip,
+  AlertCircle
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
 
@@ -104,6 +106,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
   // Modals State
   const [modalType, setModalType] = useState(null); // 'service', 'job', 'stat', 'milestone', 'compliance', 'testimonial'
   const [editingItem, setEditingItem] = useState(null);
+  const [previewResumeModal, setPreviewResumeModal] = useState(null);
 
   // Service Form State
   const [serviceForm, setServiceForm] = useState({
@@ -961,16 +964,89 @@ const AdminDashboardPage = ({ onNavigate }) => {
                         </div>
 
                         {app.resumeFileName && (
-                          <div className="flex items-center gap-2 text-xs sm:text-sm text-sky-800 bg-sky-50 p-3 rounded-xl border border-sky-200 font-bold">
-                            <FileText className="w-4 h-4 text-sky-600" />
-                            <span>Resume Attached: {app.resumeFileName}</span>
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200">
+                            <div className="flex items-center gap-2.5 text-xs sm:text-sm text-sky-900 font-bold min-w-0">
+                              <div className="w-8 h-8 rounded-xl bg-sky-100 flex items-center justify-center shrink-0 text-sky-700">
+                                <FileText className="w-4 h-4" />
+                              </div>
+                              <div className="truncate">
+                                <span className="block truncate font-bold text-sky-950">{app.resumeFileName}</span>
+                                <span className="text-[11px] text-sky-600 font-medium">
+                                  {app.resumeFileSize ? `Attached File • ${app.resumeFileSize}` : 'Attached Resume / CV Document'}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => setPreviewResumeModal({
+                                  applicantName: app.fullName,
+                                  role: app.jobTitle,
+                                  refId: app.refId,
+                                  date: app.date,
+                                  phone: app.phone,
+                                  email: app.email,
+                                  experience: app.experience,
+                                  currentLocation: app.currentLocation,
+                                  fileName: app.resumeFileName,
+                                  dataUrl: app.resumeDataUrl,
+                                  fileType: app.resumeFileType,
+                                  message: app.message,
+                                  type: 'job-application'
+                                })}
+                                className="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>View Resume</span>
+                              </button>
+
+                              {app.resumeDataUrl ? (
+                                <a
+                                  href={app.resumeDataUrl}
+                                  download={app.resumeFileName || `${app.fullName.replace(/\s+/g, '_')}_Resume.pdf`}
+                                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
+                                >
+                                  <Download className="w-3.5 h-3.5 text-sky-700" />
+                                  <span>Download</span>
+                                </a>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewResumeModal({
+                                    applicantName: app.fullName,
+                                    role: app.jobTitle,
+                                    refId: app.refId,
+                                    date: app.date,
+                                    phone: app.phone,
+                                    email: app.email,
+                                    experience: app.experience,
+                                    currentLocation: app.currentLocation,
+                                    fileName: app.resumeFileName,
+                                    dataUrl: null,
+                                    message: app.message,
+                                    type: 'job-application'
+                                  })}
+                                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                                >
+                                  <Download className="w-3.5 h-3.5 text-sky-700" />
+                                  <span>Download</span>
+                                </button>
+                              )}
+                            </div>
                           </div>
                         )}
 
                         {app.message && (
-                          <p className="text-xs sm:text-sm text-gray-700 italic bg-slate-50 p-3 rounded-xl border border-gray-200">
-                            "{app.message}"
-                          </p>
+                          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-1.5">
+                            <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                              <MessageSquare className="w-3.5 h-3.5 text-red-600" />
+                              <span>Candidate Message / Description:</span>
+                            </div>
+                            <div className="text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words pl-0.5">
+                              {app.message}
+                            </div>
+                          </div>
                         )}
 
                         <div className="flex justify-end pt-1">
@@ -1039,16 +1115,92 @@ const AdminDashboardPage = ({ onNavigate }) => {
                         </div>
 
                         {t.resumeFileName && (
-                          <div className="flex items-center gap-2 text-xs sm:text-sm text-sky-800 bg-sky-50 p-3 rounded-xl border border-sky-200 font-bold">
-                            <FileText className="w-4 h-4 text-sky-600" />
-                            <span>Resume Attached: {t.resumeFileName}</span>
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200">
+                            <div className="flex items-center gap-2.5 text-xs sm:text-sm text-sky-900 font-bold min-w-0">
+                              <div className="w-8 h-8 rounded-xl bg-sky-100 flex items-center justify-center shrink-0 text-sky-700">
+                                <FileText className="w-4 h-4" />
+                              </div>
+                              <div className="truncate">
+                                <span className="block truncate font-bold text-sky-950">{t.resumeFileName}</span>
+                                <span className="text-[11px] text-sky-600 font-medium">
+                                  {t.resumeFileSize ? `Attached File • ${t.resumeFileSize}` : 'Attached Resume / CV Document'}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => setPreviewResumeModal({
+                                  applicantName: t.fullName,
+                                  role: t.targetDepartment,
+                                  refId: t.id,
+                                  date: t.date,
+                                  phone: t.phone,
+                                  email: t.email,
+                                  experience: t.experience,
+                                  preferredLocation: t.preferredLocation,
+                                  noticePeriod: t.noticePeriod,
+                                  expectedSalary: t.expectedSalary,
+                                  fileName: t.resumeFileName,
+                                  dataUrl: t.resumeDataUrl,
+                                  fileType: t.resumeFileType,
+                                  message: t.keySkills,
+                                  type: 'talent-vault'
+                                })}
+                                className="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>View Resume</span>
+                              </button>
+
+                              {t.resumeDataUrl ? (
+                                <a
+                                  href={t.resumeDataUrl}
+                                  download={t.resumeFileName || `${t.fullName.replace(/\s+/g, '_')}_Resume.pdf`}
+                                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
+                                >
+                                  <Download className="w-3.5 h-3.5 text-sky-700" />
+                                  <span>Download</span>
+                                </a>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewResumeModal({
+                                    applicantName: t.fullName,
+                                    role: t.targetDepartment,
+                                    refId: t.id,
+                                    date: t.date,
+                                    phone: t.phone,
+                                    email: t.email,
+                                    experience: t.experience,
+                                    preferredLocation: t.preferredLocation,
+                                    noticePeriod: t.noticePeriod,
+                                    expectedSalary: t.expectedSalary,
+                                    fileName: t.resumeFileName,
+                                    dataUrl: null,
+                                    message: t.keySkills,
+                                    type: 'talent-vault'
+                                  })}
+                                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                                >
+                                  <Download className="w-3.5 h-3.5 text-sky-700" />
+                                  <span>Download</span>
+                                </button>
+                              )}
+                            </div>
                           </div>
                         )}
 
                         {t.keySkills && (
-                          <div className="text-xs sm:text-sm text-gray-800 bg-slate-50 p-3.5 rounded-xl border border-gray-200">
-                            <span className="font-bold text-gray-500 block mb-1">Skills Highlight:</span>
-                            <p className="leading-relaxed">{t.keySkills}</p>
+                          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-1.5">
+                            <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                              <Sparkles className="w-3.5 h-3.5 text-sky-600" />
+                              <span>Candidate Key Skills & Description:</span>
+                            </div>
+                            <div className="text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words pl-0.5">
+                              {t.keySkills}
+                            </div>
                           </div>
                         )}
 
@@ -1613,6 +1765,164 @@ const AdminDashboardPage = ({ onNavigate }) => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* RESUME PREVIEW & CANDIDATE DOSSIER MODAL */}
+      {previewResumeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-4xl max-h-[92vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+            
+            {/* Modal Header */}
+            <div className="p-4 sm:p-6 bg-slate-900 text-white flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-red-600 flex items-center justify-center text-white shrink-0 shadow-md">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-lg sm:text-xl font-black text-white">{previewResumeModal.applicantName}</h3>
+                    <span className="text-[11px] font-mono bg-white/10 px-2 py-0.5 rounded text-white/90 font-bold">
+                      {previewResumeModal.refId}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 font-medium mt-0.5">
+                    {previewResumeModal.role} • Phone: <span className="text-emerald-400 font-bold">{previewResumeModal.phone}</span> {previewResumeModal.email ? `• ${previewResumeModal.email}` : ''}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {previewResumeModal.dataUrl && (
+                  <a
+                    href={previewResumeModal.dataUrl}
+                    download={previewResumeModal.fileName || `${previewResumeModal.applicantName.replace(/\s+/g, '_')}_Resume.pdf`}
+                    className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors shadow-sm"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download File</span>
+                  </a>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setPreviewResumeModal(null)}
+                  className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 bg-slate-50">
+              
+              {/* Candidate Info Grid */}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-medium shadow-2xs">
+                <div>
+                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Applied Position</span>
+                  <span className="font-extrabold text-slate-900 mt-0.5 block">{previewResumeModal.role}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Total Experience</span>
+                  <span className="font-extrabold text-slate-900 mt-0.5 block">{previewResumeModal.experience || 'Not specified'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Contact Phone</span>
+                  <span className="font-extrabold text-emerald-700 mt-0.5 block">{previewResumeModal.phone}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Submission Date</span>
+                  <span className="font-extrabold text-slate-900 mt-0.5 block">
+                    {previewResumeModal.date ? new Date(previewResumeModal.date).toLocaleDateString() : 'Recent'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Uploaded File Viewer */}
+              {previewResumeModal.dataUrl ? (
+                <div className="bg-white p-4 rounded-2xl border border-slate-200 space-y-3 shadow-2xs">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                      <Paperclip className="w-4 h-4 text-red-600" />
+                      <span>Uploaded Resume File: {previewResumeModal.fileName}</span>
+                    </div>
+                    <a
+                      href={previewResumeModal.dataUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center gap-1 hover:underline"
+                    >
+                      <span>Open in Full Tab</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+
+                  {previewResumeModal.dataUrl.startsWith('data:image/') ? (
+                    <img
+                      src={previewResumeModal.dataUrl}
+                      alt="Resume preview"
+                      className="w-full max-h-[500px] object-contain rounded-xl border border-slate-200 bg-slate-100"
+                    />
+                  ) : (
+                    <iframe
+                      src={previewResumeModal.dataUrl}
+                      title="Resume Preview"
+                      className="w-full h-[450px] rounded-xl border border-slate-200 bg-white"
+                    />
+                  )}
+                </div>
+              ) : (
+                <div className="bg-amber-50/90 p-4 rounded-2xl border border-amber-200 flex items-start gap-3 text-xs text-amber-900 shadow-2xs">
+                  <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold">Attached Document: {previewResumeModal.fileName || 'Candidate Document'}</p>
+                    <p className="mt-1 text-amber-800 leading-relaxed">
+                      Candidate attached "{previewResumeModal.fileName}". Below is the full description and profile details submitted with this application.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Candidate Formatted Message / Description Note */}
+              {previewResumeModal.message && (
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-2 shadow-2xs">
+                  <div className="flex items-center gap-2 pb-2 border-b border-slate-100 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                    <MessageSquare className="w-4 h-4 text-red-600" />
+                    <span>Candidate Message & Cover Note (Original Formatting Preserved)</span>
+                  </div>
+                  <div className="text-xs sm:text-sm text-slate-800 whitespace-pre-wrap font-sans leading-relaxed break-words pt-1">
+                    {previewResumeModal.message}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-between shrink-0">
+              <span className="text-xs text-slate-500 font-medium hidden sm:inline">
+                MANABS Central Resource Cell • HR Candidate Review
+              </span>
+              <div className="flex items-center gap-3 ml-auto">
+                {previewResumeModal.dataUrl && (
+                  <a
+                    href={previewResumeModal.dataUrl}
+                    download={previewResumeModal.fileName || `${previewResumeModal.applicantName.replace(/\s+/g, '_')}_Resume.pdf`}
+                    className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download Resume</span>
+                  </a>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setPreviewResumeModal(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
