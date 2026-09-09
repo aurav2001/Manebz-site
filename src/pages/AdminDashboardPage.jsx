@@ -307,6 +307,8 @@ const AdminDashboardPage = ({ onNavigate }) => {
   });
 
   const [isEditingPage, setIsEditingPage] = useState(false);
+  const [isEditingService, setIsEditingService] = useState(false);
+  const [isEditingJob, setIsEditingJob] = useState(false);
 
   const openPageEditor = (p = null) => {
     if (p) {
@@ -414,13 +416,13 @@ const AdminDashboardPage = ({ onNavigate }) => {
     setModalType(null);
   };
 
-  // 1. Service Modals
+  // 1. Service Studio Handlers
   const openServiceModal = (s = null) => {
     if (s) {
       setEditingItem(s);
       setServiceForm({
-        title: s.title,
-        category: s.category,
+        title: s.title || '',
+        category: s.category || 'Workforce Solutions',
         tagline: s.tagline || '',
         shortDesc: s.shortDesc || '',
         description: s.description || '',
@@ -436,18 +438,18 @@ const AdminDashboardPage = ({ onNavigate }) => {
         category: 'Workforce Solutions',
         tagline: 'Delivering Next-Gen Corporate Operations',
         shortDesc: 'Comprehensive enterprise workforce & facility support.',
-        description: 'Dedicated management system with SOP-compliant execution.',
+        description: 'Dedicated management system with SOP-compliant execution and 100% statutory adherence.',
         accentColor: 'sky',
         icon: 'Building2',
-        featuresText: 'Dedicated site manager\n24/7 emergency roster\n100% statutory adherence',
-        faqsText: 'How soon can deployment occur? | Deployment starts within 48 to 72 business hours.\nAre personnel insured? | Yes, 100% ESI, PF, and statutory insurance compliance.',
+        featuresText: 'Dedicated on-site operations manager\n24/7 emergency rapid response roster\n100% statutory PF & ESI adherence',
+        faqsText: 'How soon can deployment occur? | Deployment starts within 24 to 48 business hours.\nAre personnel insured? | Yes, 100% ESI, PF, and statutory insurance compliance.',
       });
     }
-    setModalType('service');
+    setIsEditingService(true);
   };
 
   const handleSaveService = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!serviceForm.title.trim()) return;
 
     const features = serviceForm.featuresText.split('\n').map(f => f.trim()).filter(Boolean);
@@ -478,25 +480,26 @@ const AdminDashboardPage = ({ onNavigate }) => {
       });
       showToast(`New service "${serviceForm.title}" created successfully!`);
     }
-    setModalType(null);
+    setIsEditingService(false);
+    setEditingItem(null);
   };
 
-  // 2. Job Modals
+  // 2. Job Studio Handlers
   const openJobModal = (job = null) => {
     if (job) {
       setEditingItem(job);
       setJobForm({
-        title: job.title,
-        department: job.department,
-        location: job.location,
+        title: job.title || '',
+        department: job.department || 'Integrated Facilities',
+        location: job.location || 'Delhi NCR',
         type: job.type || 'Full-Time',
-        experience: job.experience,
-        salary: job.salary,
-        description: job.description,
+        experience: job.experience || '2 - 5 Years',
+        salary: job.salary || '₹3.5L - ₹5.5L / Annum',
+        description: job.description || '',
         responsibilitiesText: Array.isArray(job.responsibilities) ? job.responsibilities.join('\n') : '',
         qualificationsText: Array.isArray(job.qualifications) ? job.qualifications.join('\n') : '',
         skillsText: Array.isArray(job.skills) ? job.skills.join(', ') : '',
-        workingHours: job.workingHours || 'General Shift',
+        workingHours: job.workingHours || 'General Shift (9:30 AM - 6:30 PM)',
         openingsCount: job.openingsCount || 2,
         isHot: !!job.isHot,
       });
@@ -509,7 +512,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
         type: 'Full-Time',
         experience: '2 - 5 Years',
         salary: '₹3.5L - ₹5.5L / Annum',
-        description: '',
+        description: 'Overseeing daily operations, resource coordination, and statutory compliance across corporate client sites.',
         responsibilitiesText: 'Oversee daily operational standards.\nCoordinate with client supervisors.\nEnsure 100% statutory compliance.',
         qualificationsText: 'Graduate / Diploma in relevant domain.\nStrong field leadership and communication.',
         skillsText: 'Operations Management, SLA Tracking, Vendor Coordination',
@@ -518,11 +521,11 @@ const AdminDashboardPage = ({ onNavigate }) => {
         isHot: true,
       });
     }
-    setModalType('job');
+    setIsEditingJob(true);
   };
 
   const handleSaveJob = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!jobForm.title.trim()) return;
 
     const responsibilities = jobForm.responsibilitiesText.split('\n').map(r => r.trim()).filter(Boolean);
@@ -536,7 +539,8 @@ const AdminDashboardPage = ({ onNavigate }) => {
       addJob({ ...jobForm, responsibilities, qualifications, skills });
       showToast(`New job opening "${jobForm.title}" published!`);
     }
-    setModalType(null);
+    setIsEditingJob(false);
+    setEditingItem(null);
   };
 
   // 3. Testimonial Modals
@@ -701,7 +705,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
 
       {/* LEFT SIDEBAR (Matching User's Reference Screenshot) */}
       <aside className="w-full md:w-64 lg:w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 md:sticky md:top-0 md:h-screen z-30 shadow-xs">
-        
+
         {/* Admin Panel Branding Header */}
         <div className="p-5 border-b border-slate-100 flex items-center gap-3.5">
           <div className="w-10 h-10 rounded-xl bg-[#0f172a] text-white flex items-center justify-center shadow-md shrink-0">
@@ -709,7 +713,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
           </div>
           <div>
             <h2 className="text-base font-extrabold text-slate-900 leading-tight">Admin Panel</h2>
-            <p className="text-xs text-slate-400 font-semibold">UnioTech CMS</p>
+            <p className="text-xs text-slate-400 font-semibold">Manabz CMS</p>
           </div>
         </div>
 
@@ -737,20 +741,18 @@ const AdminDashboardPage = ({ onNavigate }) => {
                   setActiveSection(tab.id);
                   setSubSearch('');
                 }}
-                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-between transition-all cursor-pointer ${
-                  isActive
+                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-between transition-all cursor-pointer ${isActive
                     ? 'bg-[#0f172a] text-white shadow-sm'
                     : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
                   <span>{tab.label}</span>
                 </div>
                 {tab.badge !== null && (
-                  <span className={`text-[11px] font-black px-2 py-0.5 rounded-full ${
-                    isActive ? 'bg-white/20 text-white' : tab.badgeColor || 'bg-slate-100 text-slate-700'
-                  }`}>
+                  <span className={`text-[11px] font-black px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20 text-white' : tab.badgeColor || 'bg-slate-100 text-slate-700'
+                    }`}>
                     {tab.badge}
                   </span>
                 )}
@@ -773,21 +775,21 @@ const AdminDashboardPage = ({ onNavigate }) => {
 
       {/* RIGHT MAIN VIEW AREA */}
       <div className="flex-1 flex flex-col min-w-0 bg-[#f8fafc]">
-        
+
         {/* Top Header Bar across main area */}
         <header className="bg-white border-b border-slate-200 px-6 sm:px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sticky top-0 z-20 shadow-2xs">
           <div>
             <h1 className="text-2xl font-black text-slate-900 capitalize">
               {activeSection === 'overview' ? 'Dashboard' :
-               activeSection === 'inquiries' ? 'Requests & RFQs' :
-               activeSection === 'services' ? 'Client Accounts / Services' :
-               activeSection === 'jobs' ? 'Careers & Vacancies' :
-               activeSection === 'applications' ? 'Job Applications' :
-               activeSection === 'talent-vault' ? 'Future Talent Bank' :
-               activeSection === 'navigation' ? 'Navigation Menu Manager' :
-               activeSection === 'pages' ? 'Custom Pages & CMS' :
-               activeSection === 'company-info' ? 'Company Heritage & Content' :
-               activeSection === 'testimonials' ? 'Client Testimonials' : 'System Settings'}
+                activeSection === 'inquiries' ? 'Requests & RFQs' :
+                  activeSection === 'services' ? 'Client Accounts / Services' :
+                    activeSection === 'jobs' ? 'Careers & Vacancies' :
+                      activeSection === 'applications' ? 'Job Applications' :
+                        activeSection === 'talent-vault' ? 'Future Talent Bank' :
+                          activeSection === 'navigation' ? 'Navigation Menu Manager' :
+                            activeSection === 'pages' ? 'Custom Pages & CMS' :
+                              activeSection === 'company-info' ? 'Company Heritage & Content' :
+                                activeSection === 'testimonials' ? 'Client Testimonials' : 'System Settings'}
             </h1>
           </div>
 
@@ -840,1576 +842,2067 @@ const AdminDashboardPage = ({ onNavigate }) => {
                 </button>
               </div>
 
-                {/* 6 Quick Metric Cards with Large Numbers and Clear Labels */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  <div
-                    onClick={() => setActiveSection('services')}
-                    className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-sky-500 hover:shadow-md transition-all group"
-                  >
-                    <span className="text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider block">Active Services</span>
-                    <span className="text-4xl sm:text-5xl font-black text-sky-600 mt-2 block">{services.length}</span>
-                    <span className="text-xs sm:text-sm font-bold text-gray-600 mt-2 flex items-center gap-1.5 group-hover:text-sky-600">
-                      <span>5 Core Pillars</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </span>
-                  </div>
-
-                  <div
-                    onClick={() => setActiveSection('jobs')}
-                    className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-red-500 hover:shadow-md transition-all group"
-                  >
-                    <span className="text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider block">Open Vacancies</span>
-                    <span className="text-4xl sm:text-5xl font-black text-red-600 mt-2 block">{jobs.length}</span>
-                    <span className="text-xs sm:text-sm font-bold text-gray-600 mt-2 flex items-center gap-1.5 group-hover:text-red-600">
-                      <span>Live in Delhi NCR/UP</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </span>
-                  </div>
-
-                  <div
-                    onClick={() => setActiveSection('inquiries')}
-                    className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-emerald-500 hover:shadow-md transition-all group"
-                  >
-                    <span className="text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider block">Client RFQ Leads</span>
-                    <span className="text-4xl sm:text-5xl font-black text-emerald-600 mt-2 block">{inquiries.length}</span>
-                    <span className="text-xs sm:text-sm font-bold text-gray-600 mt-2 flex items-center gap-1.5 group-hover:text-emerald-600">
-                      <span>Pending Proposals</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </span>
-                  </div>
-
-                  <div
-                    onClick={() => setActiveSection('applications')}
-                    className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-purple-500 hover:shadow-md transition-all group"
-                  >
-                    <span className="text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider block">Job Applications</span>
-                    <span className="text-4xl sm:text-5xl font-black text-purple-600 mt-2 block">{jobApplications.length}</span>
-                    <span className="text-xs sm:text-sm font-bold text-gray-600 mt-2 flex items-center gap-1.5 group-hover:text-purple-600">
-                      <span>Direct Candidate CVs</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </span>
-                  </div>
-
-                  <div
-                    onClick={() => setActiveSection('talent-vault')}
-                    className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-amber-500 hover:shadow-md transition-all group"
-                  >
-                    <span className="text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider block">Future Talent Pool</span>
-                    <span className="text-4xl sm:text-5xl font-black text-amber-600 mt-2 block">{talentVaultApplications.length}</span>
-                    <span className="text-xs sm:text-sm font-bold text-gray-600 mt-2 flex items-center gap-1.5 group-hover:text-amber-600">
-                      <span>Resource Cell Bank</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </span>
-                  </div>
-
-                  <div
-                    onClick={() => setActiveSection('testimonials')}
-                    className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-sky-500 hover:shadow-md transition-all group"
-                  >
-                    <span className="text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider block">Client Reviews</span>
-                    <span className="text-4xl sm:text-5xl font-black text-sky-600 mt-2 block">{testimonials.length}</span>
-                    <span className="text-xs sm:text-sm font-bold text-gray-600 mt-2 flex items-center gap-1.5 group-hover:text-sky-600">
-                      <span>5-Star Verified</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </span>
-                  </div>
+              {/* 6 Quick Metric Cards with Large Numbers and Clear Labels */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div
+                  onClick={() => setActiveSection('services')}
+                  className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-sky-500 hover:shadow-md transition-all group"
+                >
+                  <span className="text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider block">Active Services</span>
+                  <span className="text-4xl sm:text-5xl font-black text-sky-600 mt-2 block">{services.length}</span>
+                  <span className="text-xs sm:text-sm font-bold text-gray-600 mt-2 flex items-center gap-1.5 group-hover:text-sky-600">
+                    <span>5 Core Pillars</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </span>
                 </div>
 
-                {/* Recent Leads & Talent Feed with Enhanced Typography */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                  {/* Recent Inquiries */}
-                  <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-                    <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-                      <h3 className="text-base sm:text-lg font-black text-gray-900 uppercase tracking-wide">
-                        Recent Client Proposals
-                      </h3>
-                      <button onClick={() => setActiveSection('inquiries')} className="text-sm text-sky-600 font-bold hover:underline">
-                        View All ({inquiries.length})
-                      </button>
-                    </div>
-
-                    <div className="space-y-3">
-                      {inquiries.slice(0, 3).map((inq) => (
-                        <div key={inq.id} className="p-4 rounded-2xl bg-slate-50 border border-gray-200 space-y-1.5 hover:border-sky-300 transition-colors">
-                          <div className="flex items-center justify-between">
-                            <span className="text-base font-bold text-gray-950">{inq.name}</span>
-                            <span className="text-xs font-black px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">{inq.status}</span>
-                          </div>
-                          <p className="text-xs sm:text-sm text-gray-600 font-medium">{inq.service} • <span className="font-bold text-gray-800">{inq.phone}</span></p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Recent Talent Bank Registrations */}
-                  <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-                    <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-                      <h3 className="text-base sm:text-lg font-black text-gray-900 uppercase tracking-wide">
-                        Future Talent Bank Additions
-                      </h3>
-                      <button onClick={() => setActiveSection('talent-vault')} className="text-sm text-sky-600 font-bold hover:underline">
-                        View All ({talentVaultApplications.length})
-                      </button>
-                    </div>
-
-                    <div className="space-y-3">
-                      {talentVaultApplications.slice(0, 3).map((t) => (
-                        <div key={t.id} className="p-4 rounded-2xl bg-slate-50 border border-gray-200 space-y-1.5 hover:border-purple-300 transition-colors">
-                          <div className="flex items-center justify-between">
-                            <span className="text-base font-bold text-gray-950">{t.fullName}</span>
-                            <span className="text-xs font-mono font-bold text-gray-500 bg-white px-2 py-0.5 rounded border border-gray-200">{t.id}</span>
-                          </div>
-                          <p className="text-xs sm:text-sm text-gray-600 font-medium">{t.targetDepartment} • {t.experience} • <span className="font-bold text-gray-800">{t.phone}</span></p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
+                <div
+                  onClick={() => setActiveSection('jobs')}
+                  className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-red-500 hover:shadow-md transition-all group"
+                >
+                  <span className="text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider block">Open Vacancies</span>
+                  <span className="text-4xl sm:text-5xl font-black text-red-600 mt-2 block">{jobs.length}</span>
+                  <span className="text-xs sm:text-sm font-bold text-gray-600 mt-2 flex items-center gap-1.5 group-hover:text-red-600">
+                    <span>Live in Delhi NCR/UP</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </span>
                 </div>
 
-              </div>
-            )}
-
-            {/* SECTION 2: SERVICES SPECTRUM MANAGER */}
-            {activeSection === 'services' && (
-              <div className="space-y-6">
-
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-gray-950">Services Spectrum ({services.length} Verticals)</h3>
-                    <p className="text-sm text-gray-600 mt-1 font-medium">Edit descriptions, capabilities, FAQs, and SLA metrics for each corporate vertical.</p>
-                  </div>
-                  <button
-                    onClick={() => openServiceModal(null)}
-                    className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-black text-sm uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 shrink-0 transition-transform active:scale-95"
-                  >
-                    <Plus className="w-5 h-5" />
-                    <span>Add New Service</span>
-                  </button>
+                <div
+                  onClick={() => setActiveSection('inquiries')}
+                  className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-emerald-500 hover:shadow-md transition-all group"
+                >
+                  <span className="text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider block">Client RFQ Leads</span>
+                  <span className="text-4xl sm:text-5xl font-black text-emerald-600 mt-2 block">{inquiries.length}</span>
+                  <span className="text-xs sm:text-sm font-bold text-gray-600 mt-2 flex items-center gap-1.5 group-hover:text-emerald-600">
+                    <span>Pending Proposals</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </span>
                 </div>
 
-                <div className="space-y-4">
-                  {services.map((srv) => (
-                    <div
-                      key={srv.id}
-                      className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-sky-400 hover:shadow-md transition-all"
-                    >
-                      <div className="space-y-2.5 max-w-2xl">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-black uppercase px-3 py-1 rounded-lg bg-gray-100 text-gray-700 border border-gray-200">
-                            {srv.category}
-                          </span>
-                          <span className={`text-xs font-bold px-3 py-1 rounded-lg border ${srv.accentColor === 'red' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-sky-50 text-sky-700 border-sky-200'
-                            }`}>
-                            Accent: {srv.accentColor}
-                          </span>
-                        </div>
-                        <h4 className="text-lg sm:text-xl font-black text-gray-950">{srv.title}</h4>
-                        <p className="text-sm sm:text-base text-gray-700 leading-relaxed font-normal">{srv.shortDesc}</p>
-                        <div className="flex flex-wrap gap-2 pt-1">
-                          {srv.features?.slice(0, 3).map((f, i) => (
-                            <span key={i} className="text-xs font-semibold bg-slate-50 text-gray-700 px-3 py-1 rounded-lg border border-gray-200">
-                              ✓ {f}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2.5 shrink-0">
-                        <button
-                          onClick={() => openServiceModal(srv)}
-                          className="px-4 py-2.5 bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold text-sm rounded-xl flex items-center gap-2 transition-colors border border-sky-200"
-                        >
-                          <Edit3 className="w-4 h-4 text-sky-600" />
-                          <span>Edit</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (window.confirm(`Delete service vertical "${srv.title}"?`)) {
-                              deleteService(srv.id);
-                              showToast(`Deleted ${srv.title}`);
-                            }
-                          }}
-                          className="p-2.5 bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-xl transition-colors border border-gray-200"
-                          title="Delete Service"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                <div
+                  onClick={() => setActiveSection('applications')}
+                  className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-purple-500 hover:shadow-md transition-all group"
+                >
+                  <span className="text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider block">Job Applications</span>
+                  <span className="text-4xl sm:text-5xl font-black text-purple-600 mt-2 block">{jobApplications.length}</span>
+                  <span className="text-xs sm:text-sm font-bold text-gray-600 mt-2 flex items-center gap-1.5 group-hover:text-purple-600">
+                    <span>Direct Candidate CVs</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </span>
                 </div>
 
-              </div>
-            )}
-
-            {/* SECTION 3: CAREERS & VACANCIES MANAGER */}
-            {activeSection === 'jobs' && (
-              <div className="space-y-6">
-
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-gray-950">Job Vacancies ({jobs.length} Active Positions)</h3>
-                    <p className="text-sm text-gray-600 mt-1 font-medium">Manage all job openings, salaries, experience requirements, and urgent hiring badges.</p>
-                  </div>
-                  <button
-                    onClick={() => openJobModal(null)}
-                    className="px-5 py-3 bg-gradient-to-r from-red-600 to-sky-600 hover:from-red-700 hover:to-sky-700 text-white font-black text-sm uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 shrink-0 transition-transform active:scale-95"
-                  >
-                    <Plus className="w-5 h-5" />
-                    <span>Post New Vacancy</span>
-                  </button>
+                <div
+                  onClick={() => setActiveSection('talent-vault')}
+                  className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-amber-500 hover:shadow-md transition-all group"
+                >
+                  <span className="text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider block">Future Talent Pool</span>
+                  <span className="text-4xl sm:text-5xl font-black text-amber-600 mt-2 block">{talentVaultApplications.length}</span>
+                  <span className="text-xs sm:text-sm font-bold text-gray-600 mt-2 flex items-center gap-1.5 group-hover:text-amber-600">
+                    <span>Resource Cell Bank</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </span>
                 </div>
 
-                <div className="space-y-4">
-                  {jobs.map((job) => (
-                    <div
-                      key={job.id}
-                      className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-red-400 hover:shadow-md transition-all"
-                    >
-                      <div className="space-y-2.5 max-w-2xl">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-black uppercase px-3 py-1 rounded-lg bg-gray-100 text-gray-700 border border-gray-200">
-                            {job.department}
-                          </span>
-                          {job.isHot && (
-                            <span className="text-xs font-black uppercase px-3 py-1 rounded-full bg-red-100 text-red-700 border border-red-200">
-                              🔥 Urgent Hiring
-                            </span>
-                          )}
-                          <span className="text-xs sm:text-sm font-black text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">{job.salary}</span>
-                        </div>
-                        <h4 className="text-lg sm:text-xl font-black text-gray-950">{job.title}</h4>
-                        <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm font-bold text-gray-600">
-                          <span>📍 {job.location}</span>
-                          <span>⏳ {job.experience}</span>
-                          <span>🕒 {job.workingHours || 'Rotational'}</span>
-                        </div>
-                        <p className="text-sm text-gray-700 line-clamp-2 leading-relaxed font-normal">{job.description}</p>
-                      </div>
-
-                      <div className="flex items-center gap-2.5 shrink-0">
-                        <button
-                          onClick={() => openJobModal(job)}
-                          className="px-4 py-2.5 bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold text-sm rounded-xl flex items-center gap-2 transition-colors border border-sky-200"
-                        >
-                          <Edit3 className="w-4 h-4 text-sky-600" />
-                          <span>Edit</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (window.confirm(`Delete job opening "${job.title}"?`)) {
-                              deleteJob(job.id);
-                              showToast(`Deleted ${job.title}`);
-                            }
-                          }}
-                          className="p-2.5 bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-xl transition-colors border border-gray-200"
-                          title="Delete Job"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-              </div>
-            )}
-
-            {/* SECTION 4: RFQ QUOTE LEADS INBOX */}
-            {activeSection === 'inquiries' && (
-              <div className="space-y-6">
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-gray-950">Client Quotation Inquiries ({inquiries.length})</h3>
-                    <p className="text-sm text-gray-600 mt-1 font-medium">Live proposal requests submitted from website quote buttons & modals.</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  {inquiries.length > 0 ? (
-                    inquiries.map((inq) => (
-                      <div key={inq.id} className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
-                          <div>
-                            <span className="text-xs font-mono font-bold text-gray-400 block">{inq.id} • {new Date(inq.date).toLocaleDateString()}</span>
-                            <h4 className="text-lg font-black text-gray-950 mt-0.5">{inq.name}</h4>
-                          </div>
-
-                          {/* Status Switcher */}
-                          <select
-                            value={inq.status}
-                            onChange={(e) => updateInquiryStatus(inq.id, e.target.value)}
-                            className="px-3.5 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm font-bold bg-white focus:outline-none shadow-xs"
-                          >
-                            <option value="New Lead">🟢 New Lead</option>
-                            <option value="Contacted">🟡 Contacted</option>
-                            <option value="Proposal Sent">🔵 Proposal Sent</option>
-                            <option value="Contract Signed">⭐ Contract Signed</option>
-                            <option value="Closed / Archived">⚪ Closed / Archived</option>
-                          </select>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm text-gray-700 font-medium">
-                          <div><span className="font-bold text-gray-400">Phone:</span> <span className="text-emerald-700 font-bold ml-1">{inq.phone}</span></div>
-                          <div><span className="font-bold text-gray-400">Email:</span> <span className="ml-1 font-semibold">{inq.email || 'N/A'}</span></div>
-                          <div><span className="font-bold text-gray-400">Location:</span> <span className="ml-1 font-semibold">{inq.location || inq.city || 'Delhi NCR'}</span></div>
-                        </div>
-
-                        <div className="text-xs sm:text-sm text-gray-800 bg-slate-50 p-4 rounded-2xl border border-gray-200">
-                          <span className="font-black text-sky-800 block mb-1">Service Requested: {inq.service}</span>
-                          <p className="leading-relaxed">{inq.scope || inq.requirements || inq.message || 'Standard quote proposal requested.'}</p>
-                        </div>
-
-                        <div className="flex justify-end pt-1">
-                          <button
-                            onClick={() => {
-                              if (window.confirm('Delete this inquiry?')) {
-                                deleteInquiry(inq.id);
-                                showToast('Inquiry deleted.');
-                              }
-                            }}
-                            className="text-xs sm:text-sm text-red-600 hover:text-red-700 hover:underline flex items-center gap-1.5 font-bold"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            <span>Remove Lead</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-16 bg-white rounded-3xl border border-gray-200">
-                      <p className="text-sm text-gray-500 font-medium">No client quotation inquiries logged yet.</p>
-                    </div>
-                  )}
+                <div
+                  onClick={() => setActiveSection('testimonials')}
+                  className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-sky-500 hover:shadow-md transition-all group"
+                >
+                  <span className="text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider block">Client Reviews</span>
+                  <span className="text-4xl sm:text-5xl font-black text-sky-600 mt-2 block">{testimonials.length}</span>
+                  <span className="text-xs sm:text-sm font-bold text-gray-600 mt-2 flex items-center gap-1.5 group-hover:text-sky-600">
+                    <span>5-Star Verified</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </span>
                 </div>
               </div>
-            )}
 
-            {/* SECTION 5: JOB APPLICATIONS INBOX */}
-            {activeSection === 'applications' && (
-              <div className="space-y-6">
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-gray-950">Direct Job Applications ({jobApplications.length})</h3>
-                    <p className="text-sm text-gray-600 mt-1 font-medium">Candidates who applied directly to specific job openings.</p>
-                  </div>
-                </div>
+              {/* Recent Leads & Talent Feed with Enhanced Typography */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                <div className="space-y-4">
-                  {jobApplications.length > 0 ? (
-                    jobApplications.map((app) => (
-                      <div key={app.refId} className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
-                          <div>
-                            <span className="text-xs font-mono font-bold text-gray-400 block">{app.refId} • {new Date(app.date).toLocaleDateString()}</span>
-                            <h4 className="text-lg font-black text-gray-950 mt-0.5">{app.fullName}</h4>
-                            <span className="text-xs sm:text-sm font-bold text-red-600">Applied for: {app.jobTitle}</span>
-                          </div>
-
-                          <select
-                            value={app.status}
-                            onChange={(e) => updateJobApplicationStatus(app.refId, e.target.value)}
-                            className="px-3.5 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm font-bold bg-white focus:outline-none shadow-xs"
-                          >
-                            <option value="Submitted">🟢 Submitted</option>
-                            <option value="Under Review">🟡 Under Review</option>
-                            <option value="Shortlisted">🔵 Shortlisted</option>
-                            <option value="Resource Cell Induction">🟣 Resource Cell Induction</option>
-                            <option value="Rejected">🔴 Rejected</option>
-                          </select>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm text-gray-700 font-medium">
-                          <div><span className="font-bold text-gray-400">Phone:</span> <span className="text-emerald-700 font-bold ml-1">{app.phone}</span></div>
-                          <div><span className="font-bold text-gray-400">Email:</span> <span className="ml-1 font-semibold">{app.email || 'N/A'}</span></div>
-                          <div><span className="font-bold text-gray-400">Experience:</span> <span className="ml-1 font-semibold">{app.experience}</span></div>
-                        </div>
-
-                        {app.resumeFileName && (
-                          <div className="space-y-4">
-                            {/* Resume Card Bar */}
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-sky-50/90 border border-sky-200">
-                              <div className="flex items-center gap-3 text-xs sm:text-sm text-sky-950 font-bold min-w-0">
-                                <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center shrink-0 text-sky-700 shadow-xs">
-                                  <FileText className="w-5 h-5" />
-                                </div>
-                                <div className="truncate">
-                                  <span className="block truncate font-extrabold text-slate-900 text-sm">{app.resumeFileName}</span>
-                                  <span className="text-xs text-sky-700 font-semibold flex items-center gap-1.5 mt-0.5">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                                    {app.resumeFileSize ? `Attached File • ${app.resumeFileSize}` : 'Attached Resume / CV Document'}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                                <button
-                                  type="button"
-                                  onClick={() => setExpandedResumeId(expandedResumeId === app.refId ? null : app.refId)}
-                                  className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                                >
-                                  <Eye className="w-3.5 h-3.5" />
-                                  <span>{expandedResumeId === app.refId ? 'Hide Resume' : 'View Resume'}</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => handleDownloadResume(app)}
-                                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-                                >
-                                  <Download className="w-3.5 h-3.5 text-sky-700" />
-                                  <span>Download</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => setPreviewResumeModal({
-                                    applicantName: app.fullName,
-                                    role: app.jobTitle,
-                                    refId: app.refId,
-                                    date: app.date,
-                                    phone: app.phone,
-                                    email: app.email,
-                                    experience: app.experience,
-                                    currentLocation: app.currentLocation,
-                                    fileName: app.resumeFileName,
-                                    dataUrl: app.resumeDataUrl,
-                                    fileType: app.resumeFileType,
-                                    message: app.message,
-                                    type: 'job-application'
-                                  })}
-                                  className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors cursor-pointer"
-                                  title="Open in Popup Modal"
-                                >
-                                  <ExternalLink className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-
-                            {/* INLINE EXPANDED RESUME DOCUMENT SHEET */}
-                            {expandedResumeId === app.refId && (
-                              <div className="bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-98 duration-200">
-                                {/* Resume Document Header */}
-                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b-2 border-slate-200">
-                                  <div>
-                                    <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                                      <span className={`text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border inline-block ${/\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')
-                                          ? 'bg-purple-50 text-purple-700 border-purple-200'
-                                          : /\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '')
-                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                            : 'bg-red-50 text-red-600 border-red-200'
-                                        }`}>
-                                        {/\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')
-                                          ? 'Image Resume / Document (JPEG/PNG)'
-                                          : /\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '')
-                                            ? 'Spreadsheet Resume File (Excel/CSV)'
-                                            : 'Official PDF Resume / Letter'}
-                                      </span>
-                                      <span className="text-xs font-mono font-bold text-slate-400">
-                                        ID: {app.refId}
-                                      </span>
-                                    </div>
-                                    <h3 className="text-2xl sm:text-3xl font-black text-slate-950 uppercase tracking-tight">
-                                      {app.fullName}
-                                    </h3>
-                                    <p className="text-sm font-bold text-red-600 mt-0.5">
-                                      Applied Position: {app.jobTitle}
-                                    </p>
-                                  </div>
-
-                                  <div className="flex items-center gap-2 flex-wrap shrink-0">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleDownloadResume(app)}
-                                      className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
-                                    >
-                                      <Download className="w-3.5 h-3.5" />
-                                      <span>Download File</span>
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => window.print()}
-                                      className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1.5 border border-slate-300 transition-colors cursor-pointer"
-                                    >
-                                      <span>🖨️ Print</span>
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => setExpandedResumeId(null)}
-                                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors cursor-pointer"
-                                      title="Close Resume View"
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </button>
-                                  </div>
-                                </div>
-
-                                {/* Matrix Info */}
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium">
-                                  <div>
-                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Contact Phone</span>
-                                    <span className="font-extrabold text-emerald-700 text-sm mt-0.5 block">{app.phone}</span>
-                                  </div>
-                                  <div>
-                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Email Address</span>
-                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block truncate">{app.email || 'N/A'}</span>
-                                  </div>
-                                  <div>
-                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Experience Level</span>
-                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block">{app.experience}</span>
-                                  </div>
-                                  <div>
-                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Submission Date</span>
-                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block">
-                                      {app.date ? new Date(app.date).toLocaleDateString() : 'Recent'}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {/* Attached Source File Box */}
-                                <div className="flex items-center justify-between p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200 text-xs font-bold text-sky-900">
-                                  <div className="flex items-center gap-2">
-                                    <Paperclip className="w-4 h-4 text-sky-600" />
-                                    <span>Attached File: {app.resumeFileName}</span>
-                                  </div>
-                                  <span className="text-[11px] bg-white px-2.5 py-0.5 rounded-md border border-sky-200 text-sky-700">
-                                    ✓ Verified Record
-                                  </span>
-                                </div>
-
-                                {/* FILE FORMAT SPECIFIC RENDERERS */}
-                                {/* 1. Image Viewer (JPEG / PNG / WEBP) */}
-                                {(app.resumeDataUrl?.startsWith('data:image/') || /\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')) && (
-                                  <div className="space-y-2">
-                                    <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
-                                      <span>Attached Image Document Preview</span>
-                                      {app.resumeDataUrl && (
-                                        <button
-                                          type="button"
-                                          onClick={() => handleOpenFileInNewTab(app.resumeDataUrl, app.resumeFileName)}
-                                          className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline cursor-pointer"
-                                        >
-                                          <span>open full image</span>
-                                          <ExternalLink className="w-3 h-3" />
-                                        </button>
-                                      )}
-                                    </div>
-                                    <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-center">
-                                      {app.resumeDataUrl ? (
-                                        <img
-                                          src={app.resumeDataUrl}
-                                          alt="Resume Attachment"
-                                          className="max-h-[550px] w-auto max-w-full object-contain rounded-xl shadow-lg"
-                                        />
-                                      ) : (
-                                        <div className="py-12 text-center text-slate-400 space-y-2">
-                                          <Eye className="w-8 h-8 mx-auto text-slate-500" />
-                                          <p className="text-sm font-bold">Image file: {app.resumeFileName}</p>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* 2. PDF Viewer */}
-                                {app.resumeDataUrl && (app.resumeDataUrl.startsWith('data:application/pdf') || /\.pdf$/i.test(app.resumeFileName || '')) && (
-                                  <div className="space-y-2">
-                                    <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
-                                      <span>Uploaded PDF Preview</span>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleOpenFileInNewTab(app.resumeDataUrl, app.resumeFileName)}
-                                        className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline cursor-pointer"
-                                      >
-                                        <span>open in new tab (PDF Viewer)</span>
-                                        <ExternalLink className="w-3 h-3" />
-                                      </button>
-                                    </div>
-                                    <iframe
-                                      src={getBlobUrlFromDataUrl(app.resumeDataUrl)}
-                                      title="PDF Preview"
-                                      className="w-full h-[550px] rounded-2xl border-2 border-slate-200 bg-white shadow-inner"
-                                    />
-                                  </div>
-                                )}
-
-                                {/* 3. Excel Spreadsheet Viewer */}
-                                {/\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '') && (
-                                  <div className="bg-white rounded-2xl border-2 border-emerald-300 shadow-md p-5 space-y-3">
-                                    <div className="flex items-center justify-between pb-3 border-b border-emerald-100">
-                                      <div className="flex items-center gap-2 text-emerald-800 font-extrabold text-sm">
-                                        <Table className="w-5 h-5 text-emerald-600" />
-                                        <span>Spreadsheet Data Grid: {app.resumeFileName}</span>
-                                      </div>
-                                      <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">
-                                        Excel / CSV
-                                      </span>
-                                    </div>
-                                    <div className="overflow-x-auto border border-slate-200 rounded-xl">
-                                      <table className="w-full text-xs text-left border-collapse">
-                                        <thead className="bg-emerald-700 text-white font-bold uppercase tracking-wider">
-                                          <tr>
-                                            <th className="p-2.5 border border-emerald-600">Row</th>
-                                            <th className="p-2.5 border border-emerald-600">Attribute</th>
-                                            <th className="p-2.5 border border-emerald-600">Candidate Submission Data</th>
-                                            <th className="p-2.5 border border-emerald-600">Verification</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-200 font-medium text-slate-800">
-                                          <tr className="bg-slate-50"><td className="p-2.5 font-bold font-mono text-slate-400">1</td><td className="p-2.5 font-bold">Candidate Name</td><td className="p-2.5">{app.fullName}</td><td className="p-2.5 text-emerald-600 font-bold">✓ Valid</td></tr>
-                                          <tr><td className="p-2.5 font-bold font-mono text-slate-400">2</td><td className="p-2.5 font-bold">Applied Vacancy</td><td className="p-2.5">{app.jobTitle}</td><td className="p-2.5 text-sky-600 font-bold">Active</td></tr>
-                                          <tr className="bg-slate-50"><td className="p-2.5 font-bold font-mono text-slate-400">3</td><td className="p-2.5 font-bold">Contact Phone</td><td className="p-2.5">{app.phone}</td><td className="p-2.5 text-emerald-600 font-bold">Direct</td></tr>
-                                          <tr><td className="p-2.5 font-bold font-mono text-slate-400">4</td><td className="p-2.5 font-bold">Email Address</td><td className="p-2.5">{app.email || 'N/A'}</td><td className="p-2.5">Primary</td></tr>
-                                          <tr className="bg-slate-50"><td className="p-2.5 font-bold font-mono text-slate-400">5</td><td className="p-2.5 font-bold">Experience Range</td><td className="p-2.5">{app.experience}</td><td className="p-2.5 text-indigo-600 font-bold">Indexed</td></tr>
-                                          <tr><td className="p-2.5 font-bold font-mono text-slate-400">6</td><td className="p-2.5 font-bold">Attached Document</td><td className="p-2.5 font-mono">{app.resumeFileName}</td><td className="p-2.5 text-emerald-600 font-bold">Attached</td></tr>
-                                        </tbody>
-                                      </table>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Cover Description in Exact Formatting */}
-                                <div className="space-y-2">
-                                  <div className="flex items-center gap-2 pb-2 border-b border-slate-200 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
-                                    <FileText className="w-4 h-4 text-red-600" />
-                                    <span>Candidate Statement & Cover Experience</span>
-                                  </div>
-                                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words">
-                                    {app.message || 'No additional note provided.'}
-                                  </div>
-                                </div>
-
-                                {/* Authenticated Stamp */}
-                                <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500">
-                                  <div className="flex items-center gap-1.5 font-bold text-emerald-700">
-                                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                                    <span>Authenticated Candidate Dossier • MANABS HR Resource Cell</span>
-                                  </div>
-                                  <span className="font-mono text-slate-400">LOG: {app.refId}</span>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {app.message && !expandedResumeId && (
-                          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-1.5">
-                            <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                              <MessageSquare className="w-3.5 h-3.5 text-red-600" />
-                              <span>Candidate Message / Description:</span>
-                            </div>
-                            <div className="text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words pl-0.5">
-                              {app.message}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex justify-end pt-1">
-                          <button
-                            onClick={() => {
-                              if (window.confirm('Delete this application?')) {
-                                deleteJobApplication(app.refId);
-                                showToast('Application removed.');
-                              }
-                            }}
-                            className="text-xs sm:text-sm text-red-600 hover:text-red-700 hover:underline flex items-center gap-1.5 font-bold"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            <span>Remove Application</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-16 bg-white rounded-3xl border border-gray-200">
-                      <p className="text-sm text-gray-500 font-medium">No direct job applications logged yet.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* SECTION 6: FUTURE TALENT BANK VAULT */}
-            {activeSection === 'talent-vault' && (
-              <div className="space-y-6">
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-gray-950">National Resource Cell Future Talent Bank ({talentVaultApplications.length})</h3>
-                    <p className="text-sm text-gray-600 mt-1 font-medium">Central resume registry for upcoming corporate facilities and logistics staff scout calls.</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  {talentVaultApplications.length > 0 ? (
-                    talentVaultApplications.map((t) => (
-                      <div key={t.id} className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
-                          <div>
-                            <span className="text-xs font-mono font-bold text-gray-400 block">{t.id} • {new Date(t.date).toLocaleDateString()}</span>
-                            <h4 className="text-lg font-black text-gray-950 mt-0.5">{t.fullName}</h4>
-                            <span className="text-xs sm:text-sm font-bold text-sky-800">Domain: {t.targetDepartment}</span>
-                          </div>
-
-                          <select
-                            value={t.status}
-                            onChange={(e) => updateTalentVaultStatus(t.id, e.target.value)}
-                            className="px-3.5 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm font-bold bg-white focus:outline-none shadow-xs"
-                          >
-                            <option value="Resource Cell Indexed">🟣 Resource Cell Indexed</option>
-                            <option value="Contacted for Project">🟢 Contacted for Project</option>
-                            <option value="Under Training">🟡 Under Training</option>
-                            <option value="Deployed on Site">⭐ Deployed on Site</option>
-                            <option value="Archived">⚪ Archived</option>
-                          </select>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm text-gray-700 font-medium">
-                          <div><span className="font-bold text-gray-400">Phone:</span> <span className="text-emerald-700 font-bold ml-1">{t.phone}</span></div>
-                          <div><span className="font-bold text-gray-400">Location:</span> <span className="ml-1 font-semibold">{t.preferredLocation}</span></div>
-                          <div><span className="font-bold text-gray-400">Notice:</span> <span className="ml-1 font-semibold">{t.noticePeriod || 'Immediate'}</span></div>
-                        </div>
-
-                        {t.resumeFileName && (
-                          <div className="space-y-4">
-                            {/* Resume Card Bar */}
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-sky-50/90 border border-sky-200">
-                              <div className="flex items-center gap-3 text-xs sm:text-sm text-sky-950 font-bold min-w-0">
-                                <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center shrink-0 text-sky-700 shadow-xs">
-                                  <FileText className="w-5 h-5" />
-                                </div>
-                                <div className="truncate">
-                                  <span className="block truncate font-extrabold text-slate-900 text-sm">{t.resumeFileName}</span>
-                                  <span className="text-xs text-sky-700 font-semibold flex items-center gap-1.5 mt-0.5">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                                    {t.resumeFileSize ? `Attached File • ${t.resumeFileSize}` : 'Attached Resume / CV Document'}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                                <button
-                                  type="button"
-                                  onClick={() => setExpandedResumeId(expandedResumeId === t.id ? null : t.id)}
-                                  className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                                >
-                                  <Eye className="w-3.5 h-3.5" />
-                                  <span>{expandedResumeId === t.id ? 'Hide Resume' : 'View Resume'}</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => handleDownloadResume(t)}
-                                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-                                >
-                                  <Download className="w-3.5 h-3.5 text-sky-700" />
-                                  <span>Download</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => setPreviewResumeModal({
-                                    applicantName: t.fullName,
-                                    role: t.targetDepartment,
-                                    refId: t.id,
-                                    date: t.date,
-                                    phone: t.phone,
-                                    email: t.email,
-                                    experience: t.experience,
-                                    preferredLocation: t.preferredLocation,
-                                    noticePeriod: t.noticePeriod,
-                                    expectedSalary: t.expectedSalary,
-                                    fileName: t.resumeFileName,
-                                    dataUrl: t.resumeDataUrl,
-                                    fileType: t.resumeFileType,
-                                    message: t.keySkills,
-                                    type: 'talent-vault'
-                                  })}
-                                  className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors cursor-pointer"
-                                  title="Open in Popup Modal"
-                                >
-                                  <ExternalLink className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-
-                            {/* INLINE EXPANDED RESUME DOCUMENT SHEET FOR TALENT VAULT */}
-                            {expandedResumeId === t.id && (
-                              <div className="bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-98 duration-200">
-                                {/* Resume Document Header */}
-                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b-2 border-slate-200">
-                                  <div>
-                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-sky-700 bg-sky-50 px-3 py-1 rounded-full border border-sky-200 inline-block mb-2">
-                                      National Resource Cell Talent Bank Profile
-                                    </span>
-                                    <h3 className="text-2xl sm:text-3xl font-black text-slate-950 uppercase tracking-tight">
-                                      {t.fullName}
-                                    </h3>
-                                    <p className="text-sm font-bold text-sky-700 mt-0.5">
-                                      Target Domain: {t.targetDepartment}
-                                    </p>
-                                  </div>
-
-                                  <div className="flex items-center gap-2 flex-wrap shrink-0">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleDownloadResume(t)}
-                                      className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
-                                    >
-                                      <Download className="w-3.5 h-3.5" />
-                                      <span>Download Resume</span>
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => window.print()}
-                                      className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1.5 border border-slate-300 transition-colors cursor-pointer"
-                                    >
-                                      <span>🖨️ Print</span>
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => setExpandedResumeId(null)}
-                                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors cursor-pointer"
-                                      title="Close Resume View"
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </button>
-                                  </div>
-                                </div>
-
-                                {/* Matrix Info */}
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium">
-                                  <div>
-                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Phone Number</span>
-                                    <span className="font-extrabold text-emerald-700 text-sm mt-0.5 block">{t.phone}</span>
-                                  </div>
-                                  <div>
-                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Preferred Location</span>
-                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block truncate">{t.preferredLocation}</span>
-                                  </div>
-                                  <div>
-                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Notice Period</span>
-                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block">{t.noticePeriod || 'Immediate'}</span>
-                                  </div>
-                                  <div>
-                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Profile Vault ID</span>
-                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block font-mono">{t.id}</span>
-                                  </div>
-                                </div>
-
-                                {/* Attached Source File Box */}
-                                <div className="flex items-center justify-between p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200 text-xs font-bold text-sky-900">
-                                  <div className="flex items-center gap-2">
-                                    <Paperclip className="w-4 h-4 text-sky-600" />
-                                    <span>Attached File: {t.resumeFileName}</span>
-                                  </div>
-                                  <span className="text-[11px] bg-white px-2.5 py-0.5 rounded-md border border-sky-200 text-sky-700">
-                                    ✓ Verified Record
-                                  </span>
-                                </div>
-
-                                {/* Embedded File Viewer if Base64 exists */}
-                                {t.resumeDataUrl && (
-                                  <div className="space-y-2">
-                                    <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
-                                      <span>Uploaded Document Preview</span>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleOpenFileInNewTab(t.resumeDataUrl, t.resumeFileName)}
-                                        className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline cursor-pointer"
-                                      >
-                                        <span>open in full tab</span>
-                                        <ExternalLink className="w-3 h-3" />
-                                      </button>
-                                    </div>
-                                    {t.resumeDataUrl.startsWith('data:image/') ? (
-                                      <img
-                                        src={t.resumeDataUrl}
-                                        alt="Resume preview"
-                                        className="w-full max-h-[450px] object-contain rounded-2xl border border-slate-200 bg-slate-100"
-                                      />
-                                    ) : (
-                                      <iframe
-                                        src={getBlobUrlFromDataUrl(t.resumeDataUrl)}
-                                        title="Resume Preview"
-                                        className="w-full h-[500px] rounded-2xl border border-slate-200 bg-white"
-                                      />
-                                    )}
-                                  </div>
-                                )}
-
-                                {/* Key Skills in Exact Formatting */}
-                                <div className="space-y-2">
-                                  <div className="flex items-center gap-2 pb-2 border-b border-slate-200 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
-                                    <Sparkles className="w-4 h-4 text-sky-600" />
-                                    <span>Candidate Key Skills & Experience Highlights</span>
-                                  </div>
-                                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words">
-                                    {t.keySkills || 'Profile indexed for scout matching.'}
-                                  </div>
-                                </div>
-
-                                {/* Authenticated Stamp */}
-                                <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500">
-                                  <div className="flex items-center gap-1.5 font-bold text-emerald-700">
-                                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                                    <span>National Resource Cell Indexed • MANABS HR Operations</span>
-                                  </div>
-                                  <span className="font-mono text-slate-400">VAULT: {t.id}</span>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {t.keySkills && !expandedResumeId && (
-                          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-1.5">
-                            <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                              <Sparkles className="w-3.5 h-3.5 text-sky-600" />
-                              <span>Candidate Key Skills & Description:</span>
-                            </div>
-                            <div className="text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words pl-0.5">
-                              {t.keySkills}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex justify-end pt-1">
-                          <button
-                            onClick={() => {
-                              if (window.confirm('Delete this profile from talent vault?')) {
-                                deleteTalentVaultApplication(t.id);
-                                showToast('Profile removed from vault.');
-                              }
-                            }}
-                            className="text-xs sm:text-sm text-red-600 hover:text-red-700 hover:underline flex items-center gap-1.5 font-bold"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            <span>Remove Profile</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-16 bg-white rounded-3xl border border-gray-200">
-                      <p className="text-sm text-gray-500 font-medium">No talent pool profiles registered yet.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* SECTION 7: COMPANY HERITAGE, STATS & STATUTORY COMPLIANCES */}
-            {activeSection === 'company-info' && (
-              <div className="space-y-6">
-
-                {/* Stats Grid */}
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-                  <div>
-                    <h3 className="text-xl font-black text-gray-950">Hero & Heritage Statistics</h3>
-                    <p className="text-sm text-gray-600 mt-1 font-medium">Key proof points displayed on Home & About pages.</p>
+                {/* Recent Inquiries */}
+                <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                    <h3 className="text-base sm:text-lg font-black text-gray-900 uppercase tracking-wide">
+                      Recent Client Proposals
+                    </h3>
+                    <button onClick={() => setActiveSection('inquiries')} className="text-sm text-sky-600 font-bold hover:underline">
+                      View All ({inquiries.length})
+                    </button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                    {companyStats.map((st) => (
-                      <div key={st.id} className="p-5 rounded-2xl bg-slate-50 border border-gray-200 space-y-2.5">
-                        <span className="text-2xl font-black text-sky-700 block">{st.value}</span>
-                        <label className="block text-xs font-bold text-gray-500 uppercase">Metric Label</label>
-                        <input
-                          type="text"
-                          value={st.label}
-                          onChange={(e) => updateStat(st.id, { label: e.target.value })}
-                          className="w-full px-3 py-2 text-sm font-bold rounded-xl border border-gray-300 bg-white shadow-2xs"
-                        />
-                        <label className="block text-xs font-bold text-gray-500 uppercase">Subtext</label>
-                        <input
-                          type="text"
-                          value={st.subtext}
-                          onChange={(e) => updateStat(st.id, { subtext: e.target.value })}
-                          className="w-full px-3 py-2 text-xs sm:text-sm text-gray-600 font-medium rounded-xl border border-gray-300 bg-white shadow-2xs"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Statutory Compliances */}
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-                  <div>
-                    <h3 className="text-xl font-black text-gray-950">Statutory Compliance Registrations</h3>
-                    <p className="text-sm text-gray-600 mt-1 font-medium">PF, ESI, PAN, and GST regulatory declarations.</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    {statutoryCompliances.map((c, i) => (
-                      <div key={i} className="p-5 rounded-2xl bg-slate-50 border border-gray-200 space-y-2.5">
-                        <label className="block text-xs font-bold text-gray-500 uppercase">Compliance Title</label>
-                        <input
-                          type="text"
-                          value={c.title}
-                          onChange={(e) => updateCompliance(i, { title: e.target.value })}
-                          className="w-full px-3 py-2 text-sm font-bold rounded-xl border border-gray-300 bg-white"
-                        />
-                        <label className="block text-xs font-bold text-gray-500 uppercase">Details</label>
-                        <textarea
-                          rows={2}
-                          value={c.desc}
-                          onChange={(e) => updateCompliance(i, { desc: e.target.value })}
-                          className="w-full px-3 py-2 text-xs sm:text-sm text-gray-700 font-medium rounded-xl border border-gray-300 bg-white"
-                        />
-                        <label className="block text-xs font-bold text-gray-500 uppercase">Registration Code / Standard</label>
-                        <input
-                          type="text"
-                          value={c.code}
-                          onChange={(e) => updateCompliance(i, { code: e.target.value })}
-                          className="w-full px-3 py-2 text-xs font-mono font-bold text-sky-800 bg-sky-50 rounded-xl border border-sky-200"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-              </div>
-            )}
-
-            {/* SECTION 8: CLIENT TESTIMONIALS */}
-            {activeSection === 'testimonials' && (
-              <div className="space-y-6">
-
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-gray-950">Client Reviews & Testimonials ({testimonials.length})</h3>
-                    <p className="text-sm text-gray-600 mt-1 font-medium">Manage client quotes, star ratings, and facility satisfaction metrics.</p>
-                  </div>
-                  <button
-                    onClick={() => openTestimonialModal(null)}
-                    className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-black text-sm uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 shrink-0 transition-transform active:scale-95"
-                  >
-                    <Plus className="w-5 h-5" />
-                    <span>Add Testimonial</span>
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {testimonials.map((t) => (
-                    <div key={t.id} className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm flex flex-col justify-between space-y-4 hover:border-sky-300 transition-colors">
-                      <div className="space-y-2.5">
+                  <div className="space-y-3">
+                    {inquiries.slice(0, 3).map((inq) => (
+                      <div key={inq.id} className="p-4 rounded-2xl bg-slate-50 border border-gray-200 space-y-1.5 hover:border-sky-300 transition-colors">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-black uppercase px-3 py-1 rounded-md bg-sky-50 text-sky-800 border border-sky-200">
-                            {t.serviceUsed}
-                          </span>
-                          <span className="text-amber-500 font-black text-base">{'★'.repeat(t.rating)}</span>
+                          <span className="text-base font-bold text-gray-950">{inq.name}</span>
+                          <span className="text-xs font-black px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">{inq.status}</span>
                         </div>
-                        <h4 className="text-base sm:text-lg font-black text-gray-950">{t.clientName}</h4>
-                        <p className="text-xs sm:text-sm text-gray-600 font-semibold">{t.designation} • {t.company} ({t.location})</p>
-                        <p className="text-xs sm:text-sm text-gray-700 leading-relaxed italic bg-slate-50 p-3 rounded-xl border border-gray-100">"{t.quote}"</p>
+                        <p className="text-xs sm:text-sm text-gray-600 font-medium">{inq.service} • <span className="font-bold text-gray-800">{inq.phone}</span></p>
                       </div>
+                    ))}
+                  </div>
+                </div>
 
-                      <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-                        <span className="text-xs sm:text-sm font-black text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">Metric: {t.metric}</span>
-                        <div className="flex items-center gap-2">
+                {/* Recent Talent Bank Registrations */}
+                <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                    <h3 className="text-base sm:text-lg font-black text-gray-900 uppercase tracking-wide">
+                      Future Talent Bank Additions
+                    </h3>
+                    <button onClick={() => setActiveSection('talent-vault')} className="text-sm text-sky-600 font-bold hover:underline">
+                      View All ({talentVaultApplications.length})
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {talentVaultApplications.slice(0, 3).map((t) => (
+                      <div key={t.id} className="p-4 rounded-2xl bg-slate-50 border border-gray-200 space-y-1.5 hover:border-purple-300 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <span className="text-base font-bold text-gray-950">{t.fullName}</span>
+                          <span className="text-xs font-mono font-bold text-gray-500 bg-white px-2 py-0.5 rounded border border-gray-200">{t.id}</span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-gray-600 font-medium">{t.targetDepartment} • {t.experience} • <span className="font-bold text-gray-800">{t.phone}</span></p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+          {/* SECTION 2: SERVICES SPECTRUM MANAGER */}
+          {activeSection === 'services' && (
+            <div className="space-y-6">
+              {!isEditingService ? (
+                <>
+                  <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+                    <div>
+                      <h3 className="text-xl sm:text-2xl font-black text-gray-950">Services Spectrum ({services.length} Verticals)</h3>
+                      <p className="text-sm text-gray-600 mt-1 font-medium">Edit descriptions, capabilities, FAQs, and SLA metrics for each corporate vertical.</p>
+                    </div>
+                    <button
+                      onClick={() => openServiceModal(null)}
+                      className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-black text-sm uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 shrink-0 transition-transform active:scale-95 cursor-pointer"
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span>Add New Service</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {services.map((srv) => (
+                      <div
+                        key={srv.id}
+                        className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-sky-400 hover:shadow-md transition-all"
+                      >
+                        <div className="space-y-2.5 max-w-2xl">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-black uppercase px-3 py-1 rounded-lg bg-gray-100 text-gray-700 border border-gray-200">
+                              {srv.category}
+                            </span>
+                            <span className={`text-xs font-bold px-3 py-1 rounded-lg border ${srv.accentColor === 'red' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-sky-50 text-sky-700 border-sky-200'
+                              }`}>
+                              Accent: {srv.accentColor === 'red' ? 'Coral Red' : 'Sky Blue'}
+                            </span>
+                          </div>
+                          <h4 className="text-lg sm:text-xl font-black text-gray-950">{srv.title}</h4>
+                          <p className="text-sm sm:text-base text-gray-700 leading-relaxed font-normal">{srv.shortDesc}</p>
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            {srv.features?.slice(0, 3).map((f, i) => (
+                              <span key={i} className="text-xs font-semibold bg-slate-50 text-gray-700 px-3 py-1 rounded-lg border border-gray-200">
+                                ✓ {f}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2.5 shrink-0">
                           <button
-                            onClick={() => openTestimonialModal(t)}
-                            className="p-2 bg-slate-100 hover:bg-sky-100 text-sky-700 rounded-xl transition-colors border border-gray-200"
-                            title="Edit Review"
+                            onClick={() => openServiceModal(srv)}
+                            className="px-4 py-2.5 bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold text-sm rounded-xl flex items-center gap-2 transition-colors border border-sky-200 cursor-pointer"
                           >
-                            <Edit3 className="w-4 h-4" />
+                            <Edit3 className="w-4 h-4 text-sky-600" />
+                            <span>Edit Service</span>
                           </button>
                           <button
                             onClick={() => {
-                              if (window.confirm(`Delete review from "${t.clientName}"?`)) {
-                                deleteTestimonial(t.id);
-                                showToast('Testimonial deleted.');
+                              if (window.confirm(`Delete service vertical "${srv.title}"?`)) {
+                                deleteService(srv.id);
+                                showToast(`Deleted ${srv.title}`);
                               }
                             }}
-                            className="p-2 bg-slate-100 hover:bg-red-50 text-red-600 rounded-xl transition-colors border border-gray-200"
-                            title="Delete Review"
+                            className="p-2.5 bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-xl transition-colors border border-gray-200 cursor-pointer"
+                            title="Delete Service"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-
-              </div>
-            )}
-
-            {/* SECTION: NAVIGATION MENU MANAGER */}
-            {activeSection === 'navigation' && (
-              <div className="space-y-6">
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-gray-950">Navbar Navigation Menu ({navItems?.length || 0} Items)</h3>
-                    <p className="text-sm text-gray-600 mt-1 font-medium">Manage top header and mobile navigation links, order, live hot badges, and visibility.</p>
+                    ))}
                   </div>
-                  <button
-                    onClick={() => openNavModal()}
-                    className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-2 shrink-0 cursor-pointer"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Menu Item</span>
-                  </button>
-                </div>
-
-                {/* Navigation Items List */}
-                <div className="space-y-3">
-                  {navItems && navItems.map((item, idx) => (
-                    <div
-                      key={item.id}
-                      className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-emerald-400 transition-all"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="flex flex-col gap-1">
-                          <button
-                            disabled={idx === 0}
-                            onClick={() => moveNavItem(idx, -1)}
-                            className="p-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
-                            title="Move Up"
-                          >
-                            <ArrowUp className="w-3.5 h-3.5 text-slate-700" />
-                          </button>
-                          <button
-                            disabled={idx === navItems.length - 1}
-                            onClick={() => moveNavItem(idx, 1)}
-                            className="p-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
-                            title="Move Down"
-                          >
-                            <ArrowDown className="w-3.5 h-3.5 text-slate-700" />
-                          </button>
-                        </div>
-
-                        <div className="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shrink-0">
-                          #{idx + 1}
-                        </div>
-
-                        <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="text-base font-extrabold text-slate-950">{item.label}</h4>
-                            {item.isHot && (
-                              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">
-                                HOT PIN
-                              </span>
-                            )}
-                            <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                              item.isVisible ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'
-                            }`}>
-                              {item.isVisible ? 'Visible in Navbar' : 'Hidden'}
-                            </span>
-                          </div>
-                          <p className="text-xs font-mono text-slate-500 mt-1">
-                            Target Route: <span className="text-sky-600 font-bold">{item.path}</span> ({item.type || 'internal'})
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 ml-auto sm:ml-0">
-                        <button
-                          onClick={() => toggleNavItemVisibility(item.id)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer ${
-                            item.isVisible ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                          }`}
-                        >
-                          {item.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                          <span>{item.isVisible ? 'Hide' : 'Show'}</span>
-                        </button>
-                        <button
-                          onClick={() => openNavModal(item)}
-                          className="p-2 bg-slate-100 hover:bg-sky-50 text-sky-700 rounded-xl transition-colors border border-gray-200 cursor-pointer"
-                          title="Edit Menu Item"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (window.confirm(`Delete navigation item "${item.label}"?`)) {
-                              deleteNavItem(item.id);
-                              showToast(`Deleted "${item.label}" from navbar`);
-                            }
-                          }}
-                          className="p-2 bg-slate-100 hover:bg-red-50 text-red-600 rounded-xl transition-colors border border-gray-200 cursor-pointer"
-                          title="Delete Menu Item"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                </>
+              ) : (
+                /* FULL WIDTH SERVICE STUDIO / CREATOR */
+                <div className="space-y-6 animate-in fade-in duration-150">
+                  {/* Top Action Header */}
+                  <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => { setIsEditingService(false); setEditingItem(null); }}
+                        className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+                        title="Back to Services List"
+                      >
+                        <ArrowRight className="w-5 h-5 rotate-180" />
+                      </button>
+                      <div>
+                        <h3 className="text-xl sm:text-2xl font-black text-gray-950">
+                          {editingItem ? `Edit Service: ${editingItem.title}` : 'Service Studio: Add New Vertical'}
+                        </h3>
+                        <p className="text-xs text-gray-500 font-medium mt-0.5">
+                          Full-width service architect with real-time card & capability preview.
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
-            {/* SECTION: CUSTOM PAGES & DYNAMIC CMS */}
-            {activeSection === 'pages' && (
-              <div className="space-y-6">
-                {!isEditingPage ? (
-                  <>
-                    {/* Header Bar */}
-                    <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-                      <div>
-                        <h3 className="text-xl sm:text-2xl font-black text-gray-950">Dynamic Custom Pages ({customPages?.length || 0} Pages)</h3>
-                        <p className="text-sm text-gray-600 mt-1 font-medium">Create and publish custom pages with rich content sections, hero banners, and direct links.</p>
-                      </div>
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
                       <button
-                        onClick={() => openPageEditor()}
-                        className="px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-2 shrink-0 cursor-pointer"
+                        type="button"
+                        onClick={() => { setIsEditingService(false); setEditingItem(null); }}
+                        className="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
                       >
-                        <Plus className="w-4 h-4" />
-                        <span>Create New Page</span>
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSaveService}
+                        className="px-7 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-red-600/20 flex items-center gap-2 cursor-pointer"
+                      >
+                        <Save className="w-4 h-4" />
+                        <span>Save Service</span>
                       </button>
                     </div>
+                  </div>
 
-                    {/* Custom Pages Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {customPages && customPages.map((page) => (
-                        <div
-                          key={page.id}
-                          className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between hover:border-sky-400 hover:shadow-md transition-all"
-                        >
-                          <div className="p-6 sm:p-7 space-y-4">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
-                                {page.badge || 'Custom Page'}
-                              </span>
-                              <span className="text-xs font-mono font-bold text-slate-400">
-                                #/p/{page.slug}
-                              </span>
-                            </div>
-
-                            <div>
-                              <h4 className="text-lg sm:text-xl font-black text-slate-950">{page.title}</h4>
-                              <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                                {page.heroTagline || page.content}
-                              </p>
-                            </div>
-
-                            <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs text-slate-600 flex items-center justify-between font-medium">
-                              <span>{page.sections?.length || 0} Content Blocks</span>
-                              <span className="text-emerald-700 font-bold">● Published Live</span>
-                            </div>
-                          </div>
-
-                          <div className="p-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-2">
-                            <button
-                              onClick={() => onNavigate(`p/${page.slug}`)}
-                              className="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
-                            >
-                              <Eye className="w-3.5 h-3.5 text-sky-600" />
-                              <span>View Live Page</span>
-                            </button>
-
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => openPageEditor(page)}
-                                className="p-2 bg-white hover:bg-sky-50 text-sky-700 rounded-xl transition-colors border border-gray-200 cursor-pointer"
-                                title="Edit Page"
-                              >
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (window.confirm(`Are you sure you want to delete custom page "${page.title}"?`)) {
-                                    deleteCustomPage(page.id);
-                                    showToast(`Page "${page.title}" deleted`);
-                                  }
-                                }}
-                                className="p-2 bg-white hover:bg-red-50 text-red-600 rounded-xl transition-colors border border-gray-200 cursor-pointer"
-                                title="Delete Page"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  /* FULL WIDTH DEDICATED PAGE STUDIO / CREATOR */
-                  <div className="space-y-6 animate-in fade-in duration-150">
-                    
-                    {/* Top Action Header */}
-                    <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setIsEditingPage(false)}
-                          className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
-                          title="Back to Pages List"
-                        >
-                          <ArrowRight className="w-5 h-5 rotate-180" />
-                        </button>
-                        <div>
-                          <h3 className="text-xl sm:text-2xl font-black text-gray-950">
-                            {editingItem ? `Edit Page: ${editingItem.title}` : 'Page Studio: Create New Page'}
-                          </h3>
-                          <p className="text-xs text-gray-500 font-medium mt-0.5">
-                            Full-width page architect with live interactive preview.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                        <button
-                          type="button"
-                          onClick={() => setIsEditingPage(false)}
-                          className="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleSavePage}
-                          className="px-7 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-red-600/20 flex items-center gap-2 cursor-pointer"
-                        >
-                          <Save className="w-4 h-4" />
-                          <span>Save & Publish</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Full Width Studio: Two Column Layout */}
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  {/* Two-Column Studio Layout */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    {/* Left Workspace Form (7 cols) */}
+                    <form onSubmit={handleSaveService} className="lg:col-span-7 space-y-6">
                       
-                      {/* Left Form Workspace (7 Cols) */}
-                      <form onSubmit={handleSavePage} className="lg:col-span-7 space-y-6">
-                        
-                        {/* 1. Basic Metadata Card */}
-                        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-                          <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 pb-2 border-b border-gray-100">
-                            1. Page Title & URL Routing
-                          </h4>
+                      {/* Card 1: Title, Category & Accent */}
+                      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                        <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 pb-2 border-b border-gray-100">
+                          1. Service Identity & Theming
+                        </h4>
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Service Title *</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. Integrated Facilities Management"
+                            value={serviceForm.title}
+                            onChange={(e) => setServiceForm({ ...serviceForm, title: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 font-bold text-base focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Page Title *</label>
-                              <input
-                                type="text"
-                                required
-                                placeholder="e.g. Quality & Environmental Policy"
-                                value={pageForm.title}
-                                onChange={(e) => setPageForm({ ...pageForm, title: e.target.value })}
-                                className="w-full px-4 py-3 rounded-xl border border-gray-300 font-bold text-sm focus:border-red-500 focus:outline-none"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">URL Slug</label>
-                              <div className="flex items-center">
-                                <span className="px-3 py-3 rounded-l-xl bg-slate-100 border border-r-0 border-gray-300 text-xs font-mono text-slate-500">
-                                  #/p/
-                                </span>
-                                <input
-                                  type="text"
-                                  placeholder="quality-policy"
-                                  value={pageForm.slug}
-                                  onChange={(e) => setPageForm({ ...pageForm, slug: e.target.value })}
-                                  className="w-full px-3.5 py-3 rounded-r-xl border border-gray-300 font-mono text-xs focus:border-red-500 focus:outline-none"
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                            <div>
-                              <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Header Badge Pill</label>
-                              <input
-                                type="text"
-                                placeholder="e.g. Statutory Assurance"
-                                value={pageForm.badge}
-                                onChange={(e) => setPageForm({ ...pageForm, badge: e.target.value })}
-                                className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Hero Background Image</label>
-                              <input
-                                type="url"
-                                placeholder="https://images.unsplash.com/..."
-                                value={pageForm.heroImage}
-                                onChange={(e) => setPageForm({ ...pageForm, heroImage: e.target.value })}
-                                className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs font-mono focus:border-red-500 focus:outline-none"
-                              />
-                            </div>
-                          </div>
-
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Hero Headline Tagline</label>
+                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Category / Domain</label>
                             <input
                               type="text"
-                              placeholder="e.g. 100% Statutory Compliant Facility & Manpower Governance across North India"
-                              value={pageForm.heroTagline}
-                              onChange={(e) => setPageForm({ ...pageForm, heroTagline: e.target.value })}
+                              placeholder="e.g. Facility Management (IFM)"
+                              value={serviceForm.category}
+                              onChange={(e) => setServiceForm({ ...serviceForm, category: e.target.value })}
+                              className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-semibold focus:border-red-500 focus:outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Accent Theme Color</label>
+                            <select
+                              value={serviceForm.accentColor}
+                              onChange={(e) => setServiceForm({ ...serviceForm, accentColor: e.target.value })}
+                              className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white font-bold text-sm focus:border-red-500 focus:outline-none cursor-pointer"
+                            >
+                              <option value="sky">Sky Blue (Primary Pillar)</option>
+                              <option value="red">Coral Red (Highlight Vertical)</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Tagline / Headline</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. 24/7 Corporate Facility Maintenance & Bio-Friendly Consumables"
+                            value={serviceForm.tagline}
+                            onChange={(e) => setServiceForm({ ...serviceForm, tagline: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Card 2: Short Description & Detailed Scope */}
+                      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                        <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 pb-2 border-b border-gray-100">
+                          2. Scope & Descriptions
+                        </h4>
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Short Card Description (1-2 lines)</label>
+                          <input
+                            type="text"
+                            placeholder="Summary shown on overview cards..."
+                            value={serviceForm.shortDesc}
+                            onChange={(e) => setServiceForm({ ...serviceForm, shortDesc: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Full Detailed Overview Description</label>
+                          <textarea
+                            rows={4}
+                            placeholder="Comprehensive description of equipment, standard operating procedures, personnel training..."
+                            value={serviceForm.description}
+                            onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm leading-relaxed font-medium focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Card 3: Features & FAQs */}
+                      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                        <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 pb-2 border-b border-gray-100">
+                          3. Features & FAQs
+                        </h4>
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-bold text-gray-700 uppercase">Key Features (1 per line)</label>
+                            <span className="text-[11px] text-gray-400 font-bold">1 feature per row</span>
+                          </div>
+                          <textarea
+                            rows={4}
+                            placeholder="State-of-the-art scrubbers and mechanized equipment&#10;100% Bio-friendly eco-safe chemicals&#10;Dedicated on-site facility managers and QA leads"
+                            value={serviceForm.featuresText}
+                            onChange={(e) => setServiceForm({ ...serviceForm, featuresText: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 font-mono text-xs leading-relaxed focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-bold text-gray-700 uppercase">Frequently Asked Questions</label>
+                            <span className="text-[11px] text-gray-400 font-mono">Question | Answer</span>
+                          </div>
+                          <textarea
+                            rows={4}
+                            placeholder="How soon can deployment begin? | Deployment starts within 24 to 48 business hours.&#10;Are personnel covered by insurance? | Yes, 100% PF, ESI, and statutory insurance compliance."
+                            value={serviceForm.faqsText}
+                            onChange={(e) => setServiceForm({ ...serviceForm, faqsText: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 font-mono text-xs leading-relaxed focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                    </form>
+
+                    {/* Right Sticky Preview (5 cols) */}
+                    <div className="lg:col-span-5 sticky top-24 space-y-4">
+                      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xl space-y-4">
+                        <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                          <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Live Service Card Preview
+                          </span>
+                          <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                            serviceForm.accentColor === 'red' ? 'bg-red-100 text-red-700' : 'bg-sky-100 text-sky-700'
+                          }`}>
+                            {serviceForm.accentColor === 'red' ? 'Coral Red' : 'Sky Blue'}
+                          </span>
+                        </div>
+
+                        <div className="space-y-3">
+                          <span className="text-xs font-black uppercase px-3 py-1 rounded-lg bg-gray-100 text-gray-700 inline-block">
+                            {serviceForm.category || 'Category'}
+                          </span>
+
+                          <h3 className="text-xl font-black text-gray-950 leading-tight">
+                            {serviceForm.title || 'Untitled Service'}
+                          </h3>
+
+                          {serviceForm.tagline && (
+                            <p className="text-xs font-bold text-red-600">
+                              {serviceForm.tagline}
+                            </p>
+                          )}
+
+                          <p className="text-xs text-gray-600 leading-relaxed font-normal">
+                            {serviceForm.shortDesc || serviceForm.description || 'Service description preview...'}
+                          </p>
+
+                          <div className="pt-2 border-t border-gray-100 space-y-1.5">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Key Highlights</span>
+                            {(serviceForm.featuresText ? serviceForm.featuresText.split('\n').filter(Boolean) : ['Dedicated On-Site Supervisor', '100% Statutory Adherence']).slice(0, 4).map((f, i) => (
+                              <div key={i} className="text-xs text-gray-700 flex items-center gap-2">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                <span className="truncate">{f}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <span className="text-xs font-bold text-sky-600">Explore Deep-Dive Specs →</span>
+                            <button
+                              type="button"
+                              onClick={handleSaveService}
+                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer"
+                            >
+                              Save & Apply
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SECTION 3: CAREERS & VACANCIES MANAGER */}
+          {activeSection === 'jobs' && (
+            <div className="space-y-6">
+              {!isEditingJob ? (
+                <>
+                  <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+                    <div>
+                      <h3 className="text-xl sm:text-2xl font-black text-gray-950">Job Vacancies ({jobs.length} Active Positions)</h3>
+                      <p className="text-sm text-gray-600 mt-1 font-medium">Manage all job openings, salaries, experience requirements, and urgent hiring badges.</p>
+                    </div>
+                    <button
+                      onClick={() => openJobModal(null)}
+                      className="px-5 py-3 bg-gradient-to-r from-red-600 to-sky-600 hover:from-red-700 hover:to-sky-700 text-white font-black text-sm uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 shrink-0 transition-transform active:scale-95 cursor-pointer"
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span>Post New Vacancy</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {jobs.map((job) => (
+                      <div
+                        key={job.id}
+                        className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-red-400 hover:shadow-md transition-all"
+                      >
+                        <div className="space-y-2.5 max-w-2xl">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-black uppercase px-3 py-1 rounded-lg bg-gray-100 text-gray-700 border border-gray-200">
+                              {job.department}
+                            </span>
+                            {job.isHot && (
+                              <span className="text-xs font-black uppercase px-3 py-1 rounded-full bg-red-100 text-red-700 border border-red-200">
+                                🔥 Urgent Hiring
+                              </span>
+                            )}
+                            <span className="text-xs sm:text-sm font-black text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">{job.salary}</span>
+                          </div>
+                          <h4 className="text-lg sm:text-xl font-black text-gray-950">{job.title}</h4>
+                          <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm font-bold text-gray-600">
+                            <span>📍 {job.location}</span>
+                            <span>⏳ {job.experience}</span>
+                            <span>🕒 {job.workingHours || 'Rotational'}</span>
+                          </div>
+                          <p className="text-sm text-gray-700 line-clamp-2 leading-relaxed font-normal">{job.description}</p>
+                        </div>
+
+                        <div className="flex items-center gap-2.5 shrink-0">
+                          <button
+                            onClick={() => openJobModal(job)}
+                            className="px-4 py-2.5 bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold text-sm rounded-xl flex items-center gap-2 transition-colors border border-sky-200 cursor-pointer"
+                          >
+                            <Edit3 className="w-4 h-4 text-sky-600" />
+                            <span>Edit Vacancy</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`Delete job opening "${job.title}"?`)) {
+                                deleteJob(job.id);
+                                showToast(`Deleted ${job.title}`);
+                              }
+                            }}
+                            className="p-2.5 bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-xl transition-colors border border-gray-200 cursor-pointer"
+                            title="Delete Job"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                /* FULL WIDTH JOB / VACANCY STUDIO */
+                <div className="space-y-6 animate-in fade-in duration-150">
+                  {/* Top Action Header */}
+                  <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => { setIsEditingJob(false); setEditingItem(null); }}
+                        className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+                        title="Back to Vacancies List"
+                      >
+                        <ArrowRight className="w-5 h-5 rotate-180" />
+                      </button>
+                      <div>
+                        <h3 className="text-xl sm:text-2xl font-black text-gray-950">
+                          {editingItem ? `Edit Vacancy: ${editingItem.title}` : 'Vacancy Studio: Post New Job'}
+                        </h3>
+                        <p className="text-xs text-gray-500 font-medium mt-0.5">
+                          Full-width job architect with live career card preview.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                      <button
+                        type="button"
+                        onClick={() => { setIsEditingJob(false); setEditingItem(null); }}
+                        className="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSaveJob}
+                        className="px-7 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-red-600/20 flex items-center gap-2 cursor-pointer"
+                      >
+                        <Save className="w-4 h-4" />
+                        <span>Publish Vacancy</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Two-Column Studio Layout */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    {/* Left Workspace Form (7 cols) */}
+                    <form onSubmit={handleSaveJob} className="lg:col-span-7 space-y-6">
+                      
+                      {/* Card 1: Job Info */}
+                      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                        <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 pb-2 border-b border-gray-100">
+                          1. Position Details & Package
+                        </h4>
+
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Job Title *</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. Corporate Account Executive (B2B Staffing)"
+                            value={jobForm.title}
+                            onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 font-bold text-base focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Department</label>
+                            <select
+                              value={jobForm.department}
+                              onChange={(e) => setJobForm({ ...jobForm, department: e.target.value })}
+                              className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white font-semibold text-sm focus:border-red-500 focus:outline-none cursor-pointer"
+                            >
+                              <option value="Integrated Facilities">Integrated Facilities</option>
+                              <option value="HR & Payroll">HR & Payroll</option>
+                              <option value="Engineering & Maintenance">Engineering & Maintenance</option>
+                              <option value="Logistics & Supply Chain">Logistics & Supply Chain</option>
+                              <option value="Quality & Compliance">Quality & Compliance</option>
+                              <option value="Sales & Client Relations">Sales & Client Relations</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Location</label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="e.g. Delhi NCR / Gurugram"
+                              value={jobForm.location}
+                              onChange={(e) => setJobForm({ ...jobForm, location: e.target.value })}
                               className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
                             />
                           </div>
                         </div>
 
-                        {/* 2. Overview Content Card */}
-                        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-                          <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 pb-2 border-b border-gray-100">
-                            2. Introduction & Scope Statement
-                          </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <textarea
-                              rows={4}
-                              placeholder="Write a clear statement of policies, certifications, workforce standards, or services overview..."
-                              value={pageForm.content}
-                              onChange={(e) => setPageForm({ ...pageForm, content: e.target.value })}
-                              className="w-full px-4 py-3.5 rounded-xl border border-gray-300 text-sm leading-relaxed font-medium focus:border-red-500 focus:outline-none"
+                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Experience Required</label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="e.g. 2 - 5 Years"
+                              value={jobForm.experience}
+                              onChange={(e) => setJobForm({ ...jobForm, experience: e.target.value })}
+                              className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Salary Range (CTC)</label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="e.g. ₹4.5L - ₹7.0L / Annum"
+                              value={jobForm.salary}
+                              onChange={(e) => setJobForm({ ...jobForm, salary: e.target.value })}
+                              className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-bold text-emerald-800 focus:border-red-500 focus:outline-none"
                             />
                           </div>
                         </div>
 
-                        {/* 3. Key Content Blocks Card */}
-                        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-                          <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-                            <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900">
-                              3. Key Content Blocks & Detailed Standards
-                            </h4>
-                            <span className="text-[11px] font-bold text-slate-400">Format: Heading | Description</span>
-                          </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <textarea
-                              rows={5}
-                              value={pageForm.sectionsText}
-                              onChange={(e) => setPageForm({ ...pageForm, sectionsText: e.target.value })}
-                              className="w-full px-4 py-3.5 rounded-xl border border-gray-300 font-mono text-xs leading-relaxed focus:border-red-500 focus:outline-none"
-                              placeholder="100% PF & ESI Adherence | All challans uploaded by the 15th of each month.&#10;ISO 9001 Quality Checklists | Mandatory daily audit reports and surprise inspections."
+                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Working Hours / Shift</label>
+                            <input
+                              type="text"
+                              placeholder="e.g. General Shift (9:30 AM - 6:30 PM)"
+                              value={jobForm.workingHours}
+                              onChange={(e) => setJobForm({ ...jobForm, workingHours: e.target.value })}
+                              className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
                             />
                           </div>
-                        </div>
 
-                        {/* 4. Navbar Publishing Settings */}
-                        <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 pt-6">
                             <input
                               type="checkbox"
-                              id="fullPageInNavbar"
-                              checked={pageForm.showInNavbar}
-                              onChange={(e) => setPageForm({ ...pageForm, showInNavbar: e.target.checked })}
+                              id="full-studio-hot-job"
+                              checked={jobForm.isHot}
+                              onChange={(e) => setJobForm({ ...jobForm, isHot: e.target.checked })}
                               className="w-5 h-5 text-red-600 rounded cursor-pointer"
                             />
-                            <label htmlFor="fullPageInNavbar" className="text-sm font-bold text-gray-800 cursor-pointer">
-                              Automatically add direct link to Top Header Navbar
+                            <label htmlFor="full-studio-hot-job" className="font-bold text-gray-800 cursor-pointer text-sm flex items-center gap-1.5">
+                              <span>🔥 Mark as Urgent Hiring (Hot Badge)</span>
                             </label>
-                          </div>
-                        </div>
-
-                      </form>
-
-                      {/* Right Sticky Real-Time Live Preview (5 Cols) */}
-                      <div className="lg:col-span-5 sticky top-24 space-y-4">
-                        <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
-                          <div className="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                              <span className="text-xs font-bold uppercase tracking-wider">Live Real-Time Preview</span>
-                            </div>
-                            <span className="text-[10px] font-mono text-slate-400">
-                              #/p/{pageForm.slug || 'page-slug'}
-                            </span>
-                          </div>
-
-                          {/* Hero Simulation */}
-                          <div className="relative bg-[#071324] text-white p-6 overflow-hidden">
-                            {pageForm.heroImage && (
-                              <img
-                                src={pageForm.heroImage}
-                                alt="Preview background"
-                                className="absolute inset-0 w-full h-full object-cover opacity-25"
-                              />
-                            )}
-                            <div className="relative z-10 space-y-3">
-                              <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/20 text-sky-300 border border-white/20">
-                                {pageForm.badge || 'Official Document'}
-                              </span>
-                              <h3 className="text-xl font-black text-white leading-tight">
-                                {pageForm.title || 'Page Title Preview'}
-                              </h3>
-                              <p className="text-xs text-slate-300 line-clamp-2">
-                                {pageForm.heroTagline || 'Hero headline subtitle preview...'}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Body Content Simulation */}
-                          <div className="p-5 space-y-4 bg-slate-50 max-h-[360px] overflow-y-auto text-xs">
-                            <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5 shadow-xs">
-                              <span className="text-[10px] font-bold uppercase text-red-600 block">Overview Statement</span>
-                              <p className="text-slate-700 leading-relaxed line-clamp-4">
-                                {pageForm.content || 'Overview description will be formatted here.'}
-                              </p>
-                            </div>
-
-                            <div className="space-y-2">
-                              <span className="text-[10px] font-bold uppercase text-slate-500 block">Content Blocks Preview</span>
-                              {pageForm.sectionsText.split('\n').filter(Boolean).map((line, idx) => {
-                                const [h, ...t] = line.split('|');
-                                return (
-                                  <div key={idx} className="p-3 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1">
-                                    <div className="font-bold text-slate-900">{h ? h.trim() : `Block #${idx + 1}`}</div>
-                                    <div className="text-[11px] text-slate-600 line-clamp-2">{t.join('|').trim()}</div>
-                                  </div>
-                                );
-                              })}
-                            </div>
                           </div>
                         </div>
                       </div>
 
-                    </div>
+                      {/* Card 2: Description, Responsibilities & Qualifications */}
+                      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                        <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 pb-2 border-b border-gray-100">
+                          2. Role Specs & Requirements
+                        </h4>
 
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Job Description Summary</label>
+                          <textarea
+                            rows={3}
+                            placeholder="Drive B2B enterprise client acquisition for facilities management and workforce staffing..."
+                            value={jobForm.description}
+                            onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm leading-relaxed font-medium focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-bold text-gray-700 uppercase">Key Responsibilities (1 per line)</label>
+                            <span className="text-[11px] text-gray-400 font-bold">1 per line</span>
+                          </div>
+                          <textarea
+                            rows={3}
+                            placeholder="Oversee daily operational standards.&#10;Coordinate with client supervisors.&#10;Ensure 100% statutory compliance."
+                            value={jobForm.responsibilitiesText}
+                            onChange={(e) => setJobForm({ ...jobForm, responsibilitiesText: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 font-mono text-xs leading-relaxed focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-bold text-gray-700 uppercase">Qualifications (1 per line)</label>
+                            <span className="text-[11px] text-gray-400 font-bold">1 per line</span>
+                          </div>
+                          <textarea
+                            rows={3}
+                            placeholder="Graduate / Diploma in relevant discipline.&#10;Strong communication and client handling."
+                            value={jobForm.qualificationsText}
+                            onChange={(e) => setJobForm({ ...jobForm, qualificationsText: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 font-mono text-xs leading-relaxed focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Required Skills (Comma separated)</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. B2B Sales, Staffing Deals, Client Relationship, Proposal Negotiation"
+                            value={jobForm.skillsText}
+                            onChange={(e) => setJobForm({ ...jobForm, skillsText: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                    </form>
+
+                    {/* Right Sticky Preview (5 cols) */}
+                    <div className="lg:col-span-5 sticky top-24 space-y-4">
+                      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xl space-y-4">
+                        <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                          <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+                            Live Vacancy Card Preview
+                          </span>
+                          {jobForm.isHot && (
+                            <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-red-100 text-red-700">
+                              🔥 Urgent Hiring
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="space-y-3">
+                          <span className="text-xs font-black uppercase px-3 py-1 rounded-lg bg-gray-100 text-gray-700 inline-block">
+                            {jobForm.department || 'Department'}
+                          </span>
+
+                          <h3 className="text-xl font-black text-gray-950 leading-tight">
+                            {jobForm.title || 'Untitled Vacancy'}
+                          </h3>
+
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600 font-semibold">
+                            <span>📍 {jobForm.location || 'Delhi NCR'}</span>
+                            <span>⏳ {jobForm.experience || 'Experience'}</span>
+                            <span className="font-black text-emerald-700">{jobForm.salary || 'Salary'}</span>
+                          </div>
+
+                          <p className="text-xs text-gray-600 leading-relaxed font-normal line-clamp-3">
+                            {jobForm.description || 'Job role summary preview will appear here...'}
+                          </p>
+
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {(jobForm.skillsText ? jobForm.skillsText.split(',').filter(Boolean) : ['Leadership', 'Operations', 'Client Relations']).map((s, idx) => (
+                              <span key={idx} className="text-[10px] font-medium bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">
+                                {s.trim()}
+                              </span>
+                            ))}
+                          </div>
+
+                          <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-500">Preview Mode</span>
+                            <button
+                              type="button"
+                              onClick={handleSaveJob}
+                              className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer"
+                            >
+                              Publish Vacancy
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SECTION 4: RFQ QUOTE LEADS INBOX */}
+          {activeSection === 'inquiries' && (
+            <div className="space-y-6">
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-black text-gray-950">Client Quotation Inquiries ({inquiries.length})</h3>
+                  <p className="text-sm text-gray-600 mt-1 font-medium">Live proposal requests submitted from website quote buttons & modals.</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {inquiries.length > 0 ? (
+                  inquiries.map((inq) => (
+                    <div key={inq.id} className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
+                        <div>
+                          <span className="text-xs font-mono font-bold text-gray-400 block">{inq.id} • {new Date(inq.date).toLocaleDateString()}</span>
+                          <h4 className="text-lg font-black text-gray-950 mt-0.5">{inq.name}</h4>
+                        </div>
+
+                        {/* Status Switcher */}
+                        <select
+                          value={inq.status}
+                          onChange={(e) => updateInquiryStatus(inq.id, e.target.value)}
+                          className="px-3.5 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm font-bold bg-white focus:outline-none shadow-xs"
+                        >
+                          <option value="New Lead">🟢 New Lead</option>
+                          <option value="Contacted">🟡 Contacted</option>
+                          <option value="Proposal Sent">🔵 Proposal Sent</option>
+                          <option value="Contract Signed">⭐ Contract Signed</option>
+                          <option value="Closed / Archived">⚪ Closed / Archived</option>
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm text-gray-700 font-medium">
+                        <div><span className="font-bold text-gray-400">Phone:</span> <span className="text-emerald-700 font-bold ml-1">{inq.phone}</span></div>
+                        <div><span className="font-bold text-gray-400">Email:</span> <span className="ml-1 font-semibold">{inq.email || 'N/A'}</span></div>
+                        <div><span className="font-bold text-gray-400">Location:</span> <span className="ml-1 font-semibold">{inq.location || inq.city || 'Delhi NCR'}</span></div>
+                      </div>
+
+                      <div className="text-xs sm:text-sm text-gray-800 bg-slate-50 p-4 rounded-2xl border border-gray-200">
+                        <span className="font-black text-sky-800 block mb-1">Service Requested: {inq.service}</span>
+                        <p className="leading-relaxed">{inq.scope || inq.requirements || inq.message || 'Standard quote proposal requested.'}</p>
+                      </div>
+
+                      <div className="flex justify-end pt-1">
+                        <button
+                          onClick={() => {
+                            if (window.confirm('Delete this inquiry?')) {
+                              deleteInquiry(inq.id);
+                              showToast('Inquiry deleted.');
+                            }
+                          }}
+                          className="text-xs sm:text-sm text-red-600 hover:text-red-700 hover:underline flex items-center gap-1.5 font-bold"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span>Remove Lead</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-16 bg-white rounded-3xl border border-gray-200">
+                    <p className="text-sm text-gray-500 font-medium">No client quotation inquiries logged yet.</p>
                   </div>
                 )}
               </div>
-            )}
+            </div>
+          )}
 
-            {/* SECTION 9: SYSTEM SETTINGS & RESTORE TOOLS */}
-            {activeSection === 'settings' && (
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-6">
+          {/* SECTION 5: JOB APPLICATIONS INBOX */}
+          {activeSection === 'applications' && (
+            <div className="space-y-6">
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-black text-gray-950">System Settings & Data Tools</h3>
-                  <p className="text-sm text-gray-600 mt-1 font-medium">Export site backups or reset all dynamic data to initial MANABS defaults.</p>
-                </div>
-
-                <div className="space-y-4 pt-2">
-                  <div className="p-6 rounded-2xl bg-sky-50 border border-sky-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                      <h4 className="text-base font-black text-sky-950">Export Complete Website Backup</h4>
-                      <p className="text-xs sm:text-sm text-sky-800 font-medium mt-0.5">Downloads a timestamped JSON file containing all customized services, jobs, leads, and stats.</p>
-                    </div>
-                    <button
-                      onClick={handleExportBackup}
-                      className="px-5 py-3 bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all shadow-md shrink-0 flex items-center gap-2"
-                    >
-                      <Download className="w-5 h-5" />
-                      <span>Download JSON</span>
-                    </button>
-                  </div>
-
-                  <div className="p-6 rounded-2xl bg-red-50 border border-red-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                      <h4 className="text-base font-black text-red-950">Reset All Data to System Defaults</h4>
-                      <p className="text-xs sm:text-sm text-red-800 font-medium mt-0.5">Restores default 5 services, official job openings, stats, and clears test lead data.</p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        if (window.confirm('Are you absolutely sure you want to reset all dynamic website data back to factory defaults?')) {
-                          resetAllToDefaults();
-                          showToast('All website data reset to default successfully!');
-                        }
-                      }}
-                      className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all shadow-md shrink-0 flex items-center gap-2"
-                    >
-                      <RotateCcw className="w-5 h-5" />
-                      <span>Reset to Defaults</span>
-                    </button>
-                  </div>
+                  <h3 className="text-xl sm:text-2xl font-black text-gray-950">Direct Job Applications ({jobApplications.length})</h3>
+                  <p className="text-sm text-gray-600 mt-1 font-medium">Candidates who applied directly to specific job openings.</p>
                 </div>
               </div>
-            )}
+
+              <div className="space-y-4">
+                {jobApplications.length > 0 ? (
+                  jobApplications.map((app) => (
+                    <div key={app.refId} className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
+                        <div>
+                          <span className="text-xs font-mono font-bold text-gray-400 block">{app.refId} • {new Date(app.date).toLocaleDateString()}</span>
+                          <h4 className="text-lg font-black text-gray-950 mt-0.5">{app.fullName}</h4>
+                          <span className="text-xs sm:text-sm font-bold text-red-600">Applied for: {app.jobTitle}</span>
+                        </div>
+
+                        <select
+                          value={app.status}
+                          onChange={(e) => updateJobApplicationStatus(app.refId, e.target.value)}
+                          className="px-3.5 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm font-bold bg-white focus:outline-none shadow-xs"
+                        >
+                          <option value="Submitted">🟢 Submitted</option>
+                          <option value="Under Review">🟡 Under Review</option>
+                          <option value="Shortlisted">🔵 Shortlisted</option>
+                          <option value="Resource Cell Induction">🟣 Resource Cell Induction</option>
+                          <option value="Rejected">🔴 Rejected</option>
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm text-gray-700 font-medium">
+                        <div><span className="font-bold text-gray-400">Phone:</span> <span className="text-emerald-700 font-bold ml-1">{app.phone}</span></div>
+                        <div><span className="font-bold text-gray-400">Email:</span> <span className="ml-1 font-semibold">{app.email || 'N/A'}</span></div>
+                        <div><span className="font-bold text-gray-400">Experience:</span> <span className="ml-1 font-semibold">{app.experience}</span></div>
+                      </div>
+
+                      {app.resumeFileName && (
+                        <div className="space-y-4">
+                          {/* Resume Card Bar */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-sky-50/90 border border-sky-200">
+                            <div className="flex items-center gap-3 text-xs sm:text-sm text-sky-950 font-bold min-w-0">
+                              <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center shrink-0 text-sky-700 shadow-xs">
+                                <FileText className="w-5 h-5" />
+                              </div>
+                              <div className="truncate">
+                                <span className="block truncate font-extrabold text-slate-900 text-sm">{app.resumeFileName}</span>
+                                <span className="text-xs text-sky-700 font-semibold flex items-center gap-1.5 mt-0.5">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                                  {app.resumeFileSize ? `Attached File • ${app.resumeFileSize}` : 'Attached Resume / CV Document'}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                              <button
+                                type="button"
+                                onClick={() => setExpandedResumeId(expandedResumeId === app.refId ? null : app.refId)}
+                                className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>{expandedResumeId === app.refId ? 'Hide Resume' : 'View Resume'}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleDownloadResume(app)}
+                                className="px-3.5 py-2 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                              >
+                                <Download className="w-3.5 h-3.5 text-sky-700" />
+                                <span>Download</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setPreviewResumeModal({
+                                  applicantName: app.fullName,
+                                  role: app.jobTitle,
+                                  refId: app.refId,
+                                  date: app.date,
+                                  phone: app.phone,
+                                  email: app.email,
+                                  experience: app.experience,
+                                  currentLocation: app.currentLocation,
+                                  fileName: app.resumeFileName,
+                                  dataUrl: app.resumeDataUrl,
+                                  fileType: app.resumeFileType,
+                                  message: app.message,
+                                  type: 'job-application'
+                                })}
+                                className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors cursor-pointer"
+                                title="Open in Popup Modal"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* INLINE EXPANDED RESUME DOCUMENT SHEET */}
+                          {expandedResumeId === app.refId && (
+                            <div className="bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-98 duration-200">
+                              {/* Resume Document Header */}
+                              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b-2 border-slate-200">
+                                <div>
+                                  <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                                    <span className={`text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border inline-block ${/\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')
+                                      ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                      : /\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '')
+                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                        : 'bg-red-50 text-red-600 border-red-200'
+                                      }`}>
+                                      {/\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')
+                                        ? 'Image Resume / Document (JPEG/PNG)'
+                                        : /\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '')
+                                          ? 'Spreadsheet Resume File (Excel/CSV)'
+                                          : 'Official PDF Resume / Letter'}
+                                    </span>
+                                    <span className="text-xs font-mono font-bold text-slate-400">
+                                      ID: {app.refId}
+                                    </span>
+                                  </div>
+                                  <h3 className="text-2xl sm:text-3xl font-black text-slate-950 uppercase tracking-tight">
+                                    {app.fullName}
+                                  </h3>
+                                  <p className="text-sm font-bold text-red-600 mt-0.5">
+                                    Applied Position: {app.jobTitle}
+                                  </p>
+                                </div>
+
+                                <div className="flex items-center gap-2 flex-wrap shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDownloadResume(app)}
+                                    className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                                  >
+                                    <Download className="w-3.5 h-3.5" />
+                                    <span>Download File</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => window.print()}
+                                    className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1.5 border border-slate-300 transition-colors cursor-pointer"
+                                  >
+                                    <span>🖨️ Print</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setExpandedResumeId(null)}
+                                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors cursor-pointer"
+                                    title="Close Resume View"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* Matrix Info */}
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium">
+                                <div>
+                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Contact Phone</span>
+                                  <span className="font-extrabold text-emerald-700 text-sm mt-0.5 block">{app.phone}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Email Address</span>
+                                  <span className="font-bold text-slate-800 text-sm mt-0.5 block truncate">{app.email || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Experience Level</span>
+                                  <span className="font-bold text-slate-800 text-sm mt-0.5 block">{app.experience}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Submission Date</span>
+                                  <span className="font-bold text-slate-800 text-sm mt-0.5 block">
+                                    {app.date ? new Date(app.date).toLocaleDateString() : 'Recent'}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Attached Source File Box */}
+                              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200 text-xs font-bold text-sky-900">
+                                <div className="flex items-center gap-2">
+                                  <Paperclip className="w-4 h-4 text-sky-600" />
+                                  <span>Attached File: {app.resumeFileName}</span>
+                                </div>
+                                <span className="text-[11px] bg-white px-2.5 py-0.5 rounded-md border border-sky-200 text-sky-700">
+                                  ✓ Verified Record
+                                </span>
+                              </div>
+
+                              {/* FILE FORMAT SPECIFIC RENDERERS */}
+                              {/* 1. Image Viewer (JPEG / PNG / WEBP) */}
+                              {(app.resumeDataUrl?.startsWith('data:image/') || /\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')) && (
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                    <span>Attached Image Document Preview</span>
+                                    {app.resumeDataUrl && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleOpenFileInNewTab(app.resumeDataUrl, app.resumeFileName)}
+                                        className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline cursor-pointer"
+                                      >
+                                        <span>open full image</span>
+                                        <ExternalLink className="w-3 h-3" />
+                                      </button>
+                                    )}
+                                  </div>
+                                  <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-center">
+                                    {app.resumeDataUrl ? (
+                                      <img
+                                        src={app.resumeDataUrl}
+                                        alt="Resume Attachment"
+                                        className="max-h-[550px] w-auto max-w-full object-contain rounded-xl shadow-lg"
+                                      />
+                                    ) : (
+                                      <div className="py-12 text-center text-slate-400 space-y-2">
+                                        <Eye className="w-8 h-8 mx-auto text-slate-500" />
+                                        <p className="text-sm font-bold">Image file: {app.resumeFileName}</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* 2. PDF Viewer */}
+                              {app.resumeDataUrl && (app.resumeDataUrl.startsWith('data:application/pdf') || /\.pdf$/i.test(app.resumeFileName || '')) && (
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                    <span>Uploaded PDF Preview</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenFileInNewTab(app.resumeDataUrl, app.resumeFileName)}
+                                      className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline cursor-pointer"
+                                    >
+                                      <span>open in new tab (PDF Viewer)</span>
+                                      <ExternalLink className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                  <iframe
+                                    src={getBlobUrlFromDataUrl(app.resumeDataUrl)}
+                                    title="PDF Preview"
+                                    className="w-full h-[550px] rounded-2xl border-2 border-slate-200 bg-white shadow-inner"
+                                  />
+                                </div>
+                              )}
+
+                              {/* 3. Excel Spreadsheet Viewer */}
+                              {/\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '') && (
+                                <div className="bg-white rounded-2xl border-2 border-emerald-300 shadow-md p-5 space-y-3">
+                                  <div className="flex items-center justify-between pb-3 border-b border-emerald-100">
+                                    <div className="flex items-center gap-2 text-emerald-800 font-extrabold text-sm">
+                                      <Table className="w-5 h-5 text-emerald-600" />
+                                      <span>Spreadsheet Data Grid: {app.resumeFileName}</span>
+                                    </div>
+                                    <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">
+                                      Excel / CSV
+                                    </span>
+                                  </div>
+                                  <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                                    <table className="w-full text-xs text-left border-collapse">
+                                      <thead className="bg-emerald-700 text-white font-bold uppercase tracking-wider">
+                                        <tr>
+                                          <th className="p-2.5 border border-emerald-600">Row</th>
+                                          <th className="p-2.5 border border-emerald-600">Attribute</th>
+                                          <th className="p-2.5 border border-emerald-600">Candidate Submission Data</th>
+                                          <th className="p-2.5 border border-emerald-600">Verification</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-slate-200 font-medium text-slate-800">
+                                        <tr className="bg-slate-50"><td className="p-2.5 font-bold font-mono text-slate-400">1</td><td className="p-2.5 font-bold">Candidate Name</td><td className="p-2.5">{app.fullName}</td><td className="p-2.5 text-emerald-600 font-bold">✓ Valid</td></tr>
+                                        <tr><td className="p-2.5 font-bold font-mono text-slate-400">2</td><td className="p-2.5 font-bold">Applied Vacancy</td><td className="p-2.5">{app.jobTitle}</td><td className="p-2.5 text-sky-600 font-bold">Active</td></tr>
+                                        <tr className="bg-slate-50"><td className="p-2.5 font-bold font-mono text-slate-400">3</td><td className="p-2.5 font-bold">Contact Phone</td><td className="p-2.5">{app.phone}</td><td className="p-2.5 text-emerald-600 font-bold">Direct</td></tr>
+                                        <tr><td className="p-2.5 font-bold font-mono text-slate-400">4</td><td className="p-2.5 font-bold">Email Address</td><td className="p-2.5">{app.email || 'N/A'}</td><td className="p-2.5">Primary</td></tr>
+                                        <tr className="bg-slate-50"><td className="p-2.5 font-bold font-mono text-slate-400">5</td><td className="p-2.5 font-bold">Experience Range</td><td className="p-2.5">{app.experience}</td><td className="p-2.5 text-indigo-600 font-bold">Indexed</td></tr>
+                                        <tr><td className="p-2.5 font-bold font-mono text-slate-400">6</td><td className="p-2.5 font-bold">Attached Document</td><td className="p-2.5 font-mono">{app.resumeFileName}</td><td className="p-2.5 text-emerald-600 font-bold">Attached</td></tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Cover Description in Exact Formatting */}
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2 pb-2 border-b border-slate-200 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                                  <FileText className="w-4 h-4 text-red-600" />
+                                  <span>Candidate Statement & Cover Experience</span>
+                                </div>
+                                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words">
+                                  {app.message || 'No additional note provided.'}
+                                </div>
+                              </div>
+
+                              {/* Authenticated Stamp */}
+                              <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500">
+                                <div className="flex items-center gap-1.5 font-bold text-emerald-700">
+                                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                                  <span>Authenticated Candidate Dossier • MANABS HR Resource Cell</span>
+                                </div>
+                                <span className="font-mono text-slate-400">LOG: {app.refId}</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {app.message && !expandedResumeId && (
+                        <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-1.5">
+                          <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            <MessageSquare className="w-3.5 h-3.5 text-red-600" />
+                            <span>Candidate Message / Description:</span>
+                          </div>
+                          <div className="text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words pl-0.5">
+                            {app.message}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex justify-end pt-1">
+                        <button
+                          onClick={() => {
+                            if (window.confirm('Delete this application?')) {
+                              deleteJobApplication(app.refId);
+                              showToast('Application removed.');
+                            }
+                          }}
+                          className="text-xs sm:text-sm text-red-600 hover:text-red-700 hover:underline flex items-center gap-1.5 font-bold"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span>Remove Application</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-16 bg-white rounded-3xl border border-gray-200">
+                    <p className="text-sm text-gray-500 font-medium">No direct job applications logged yet.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* SECTION 6: FUTURE TALENT BANK VAULT */}
+          {activeSection === 'talent-vault' && (
+            <div className="space-y-6">
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-black text-gray-950">National Resource Cell Future Talent Bank ({talentVaultApplications.length})</h3>
+                  <p className="text-sm text-gray-600 mt-1 font-medium">Central resume registry for upcoming corporate facilities and logistics staff scout calls.</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {talentVaultApplications.length > 0 ? (
+                  talentVaultApplications.map((t) => (
+                    <div key={t.id} className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
+                        <div>
+                          <span className="text-xs font-mono font-bold text-gray-400 block">{t.id} • {new Date(t.date).toLocaleDateString()}</span>
+                          <h4 className="text-lg font-black text-gray-950 mt-0.5">{t.fullName}</h4>
+                          <span className="text-xs sm:text-sm font-bold text-sky-800">Domain: {t.targetDepartment}</span>
+                        </div>
+
+                        <select
+                          value={t.status}
+                          onChange={(e) => updateTalentVaultStatus(t.id, e.target.value)}
+                          className="px-3.5 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm font-bold bg-white focus:outline-none shadow-xs"
+                        >
+                          <option value="Resource Cell Indexed">🟣 Resource Cell Indexed</option>
+                          <option value="Contacted for Project">🟢 Contacted for Project</option>
+                          <option value="Under Training">🟡 Under Training</option>
+                          <option value="Deployed on Site">⭐ Deployed on Site</option>
+                          <option value="Archived">⚪ Archived</option>
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm text-gray-700 font-medium">
+                        <div><span className="font-bold text-gray-400">Phone:</span> <span className="text-emerald-700 font-bold ml-1">{t.phone}</span></div>
+                        <div><span className="font-bold text-gray-400">Location:</span> <span className="ml-1 font-semibold">{t.preferredLocation}</span></div>
+                        <div><span className="font-bold text-gray-400">Notice:</span> <span className="ml-1 font-semibold">{t.noticePeriod || 'Immediate'}</span></div>
+                      </div>
+
+                      {t.resumeFileName && (
+                        <div className="space-y-4">
+                          {/* Resume Card Bar */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-sky-50/90 border border-sky-200">
+                            <div className="flex items-center gap-3 text-xs sm:text-sm text-sky-950 font-bold min-w-0">
+                              <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center shrink-0 text-sky-700 shadow-xs">
+                                <FileText className="w-5 h-5" />
+                              </div>
+                              <div className="truncate">
+                                <span className="block truncate font-extrabold text-slate-900 text-sm">{t.resumeFileName}</span>
+                                <span className="text-xs text-sky-700 font-semibold flex items-center gap-1.5 mt-0.5">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                                  {t.resumeFileSize ? `Attached File • ${t.resumeFileSize}` : 'Attached Resume / CV Document'}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                              <button
+                                type="button"
+                                onClick={() => setExpandedResumeId(expandedResumeId === t.id ? null : t.id)}
+                                className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>{expandedResumeId === t.id ? 'Hide Resume' : 'View Resume'}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleDownloadResume(t)}
+                                className="px-3.5 py-2 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                              >
+                                <Download className="w-3.5 h-3.5 text-sky-700" />
+                                <span>Download</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setPreviewResumeModal({
+                                  applicantName: t.fullName,
+                                  role: t.targetDepartment,
+                                  refId: t.id,
+                                  date: t.date,
+                                  phone: t.phone,
+                                  email: t.email,
+                                  experience: t.experience,
+                                  preferredLocation: t.preferredLocation,
+                                  noticePeriod: t.noticePeriod,
+                                  expectedSalary: t.expectedSalary,
+                                  fileName: t.resumeFileName,
+                                  dataUrl: t.resumeDataUrl,
+                                  fileType: t.resumeFileType,
+                                  message: t.keySkills,
+                                  type: 'talent-vault'
+                                })}
+                                className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors cursor-pointer"
+                                title="Open in Popup Modal"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* INLINE EXPANDED RESUME DOCUMENT SHEET FOR TALENT VAULT */}
+                          {expandedResumeId === t.id && (
+                            <div className="bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-98 duration-200">
+                              {/* Resume Document Header */}
+                              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b-2 border-slate-200">
+                                <div>
+                                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-sky-700 bg-sky-50 px-3 py-1 rounded-full border border-sky-200 inline-block mb-2">
+                                    National Resource Cell Talent Bank Profile
+                                  </span>
+                                  <h3 className="text-2xl sm:text-3xl font-black text-slate-950 uppercase tracking-tight">
+                                    {t.fullName}
+                                  </h3>
+                                  <p className="text-sm font-bold text-sky-700 mt-0.5">
+                                    Target Domain: {t.targetDepartment}
+                                  </p>
+                                </div>
+
+                                <div className="flex items-center gap-2 flex-wrap shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDownloadResume(t)}
+                                    className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                                  >
+                                    <Download className="w-3.5 h-3.5" />
+                                    <span>Download Resume</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => window.print()}
+                                    className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1.5 border border-slate-300 transition-colors cursor-pointer"
+                                  >
+                                    <span>🖨️ Print</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setExpandedResumeId(null)}
+                                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors cursor-pointer"
+                                    title="Close Resume View"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* Matrix Info */}
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium">
+                                <div>
+                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Phone Number</span>
+                                  <span className="font-extrabold text-emerald-700 text-sm mt-0.5 block">{t.phone}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Preferred Location</span>
+                                  <span className="font-bold text-slate-800 text-sm mt-0.5 block truncate">{t.preferredLocation}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Notice Period</span>
+                                  <span className="font-bold text-slate-800 text-sm mt-0.5 block">{t.noticePeriod || 'Immediate'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Profile Vault ID</span>
+                                  <span className="font-bold text-slate-800 text-sm mt-0.5 block font-mono">{t.id}</span>
+                                </div>
+                              </div>
+
+                              {/* Attached Source File Box */}
+                              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200 text-xs font-bold text-sky-900">
+                                <div className="flex items-center gap-2">
+                                  <Paperclip className="w-4 h-4 text-sky-600" />
+                                  <span>Attached File: {t.resumeFileName}</span>
+                                </div>
+                                <span className="text-[11px] bg-white px-2.5 py-0.5 rounded-md border border-sky-200 text-sky-700">
+                                  ✓ Verified Record
+                                </span>
+                              </div>
+
+                              {/* Embedded File Viewer if Base64 exists */}
+                              {t.resumeDataUrl && (
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                    <span>Uploaded Document Preview</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenFileInNewTab(t.resumeDataUrl, t.resumeFileName)}
+                                      className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline cursor-pointer"
+                                    >
+                                      <span>open in full tab</span>
+                                      <ExternalLink className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                  {t.resumeDataUrl.startsWith('data:image/') ? (
+                                    <img
+                                      src={t.resumeDataUrl}
+                                      alt="Resume preview"
+                                      className="w-full max-h-[450px] object-contain rounded-2xl border border-slate-200 bg-slate-100"
+                                    />
+                                  ) : (
+                                    <iframe
+                                      src={getBlobUrlFromDataUrl(t.resumeDataUrl)}
+                                      title="Resume Preview"
+                                      className="w-full h-[500px] rounded-2xl border border-slate-200 bg-white"
+                                    />
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Key Skills in Exact Formatting */}
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2 pb-2 border-b border-slate-200 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                                  <Sparkles className="w-4 h-4 text-sky-600" />
+                                  <span>Candidate Key Skills & Experience Highlights</span>
+                                </div>
+                                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words">
+                                  {t.keySkills || 'Profile indexed for scout matching.'}
+                                </div>
+                              </div>
+
+                              {/* Authenticated Stamp */}
+                              <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500">
+                                <div className="flex items-center gap-1.5 font-bold text-emerald-700">
+                                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                                  <span>National Resource Cell Indexed • MANABS HR Operations</span>
+                                </div>
+                                <span className="font-mono text-slate-400">VAULT: {t.id}</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {t.keySkills && !expandedResumeId && (
+                        <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-1.5">
+                          <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            <Sparkles className="w-3.5 h-3.5 text-sky-600" />
+                            <span>Candidate Key Skills & Description:</span>
+                          </div>
+                          <div className="text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words pl-0.5">
+                            {t.keySkills}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex justify-end pt-1">
+                        <button
+                          onClick={() => {
+                            if (window.confirm('Delete this profile from talent vault?')) {
+                              deleteTalentVaultApplication(t.id);
+                              showToast('Profile removed from vault.');
+                            }
+                          }}
+                          className="text-xs sm:text-sm text-red-600 hover:text-red-700 hover:underline flex items-center gap-1.5 font-bold"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span>Remove Profile</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-16 bg-white rounded-3xl border border-gray-200">
+                    <p className="text-sm text-gray-500 font-medium">No talent pool profiles registered yet.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* SECTION 7: COMPANY HERITAGE, STATS & STATUTORY COMPLIANCES */}
+          {activeSection === 'company-info' && (
+            <div className="space-y-6">
+
+              {/* Stats Grid */}
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                <div>
+                  <h3 className="text-xl font-black text-gray-950">Hero & Heritage Statistics</h3>
+                  <p className="text-sm text-gray-600 mt-1 font-medium">Key proof points displayed on Home & About pages.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+                  {companyStats.map((st) => (
+                    <div key={st.id} className="p-5 rounded-2xl bg-slate-50 border border-gray-200 space-y-2.5">
+                      <span className="text-2xl font-black text-sky-700 block">{st.value}</span>
+                      <label className="block text-xs font-bold text-gray-500 uppercase">Metric Label</label>
+                      <input
+                        type="text"
+                        value={st.label}
+                        onChange={(e) => updateStat(st.id, { label: e.target.value })}
+                        className="w-full px-3 py-2 text-sm font-bold rounded-xl border border-gray-300 bg-white shadow-2xs"
+                      />
+                      <label className="block text-xs font-bold text-gray-500 uppercase">Subtext</label>
+                      <input
+                        type="text"
+                        value={st.subtext}
+                        onChange={(e) => updateStat(st.id, { subtext: e.target.value })}
+                        className="w-full px-3 py-2 text-xs sm:text-sm text-gray-600 font-medium rounded-xl border border-gray-300 bg-white shadow-2xs"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Statutory Compliances */}
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                <div>
+                  <h3 className="text-xl font-black text-gray-950">Statutory Compliance Registrations</h3>
+                  <p className="text-sm text-gray-600 mt-1 font-medium">PF, ESI, PAN, and GST regulatory declarations.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  {statutoryCompliances.map((c, i) => (
+                    <div key={i} className="p-5 rounded-2xl bg-slate-50 border border-gray-200 space-y-2.5">
+                      <label className="block text-xs font-bold text-gray-500 uppercase">Compliance Title</label>
+                      <input
+                        type="text"
+                        value={c.title}
+                        onChange={(e) => updateCompliance(i, { title: e.target.value })}
+                        className="w-full px-3 py-2 text-sm font-bold rounded-xl border border-gray-300 bg-white"
+                      />
+                      <label className="block text-xs font-bold text-gray-500 uppercase">Details</label>
+                      <textarea
+                        rows={2}
+                        value={c.desc}
+                        onChange={(e) => updateCompliance(i, { desc: e.target.value })}
+                        className="w-full px-3 py-2 text-xs sm:text-sm text-gray-700 font-medium rounded-xl border border-gray-300 bg-white"
+                      />
+                      <label className="block text-xs font-bold text-gray-500 uppercase">Registration Code / Standard</label>
+                      <input
+                        type="text"
+                        value={c.code}
+                        onChange={(e) => updateCompliance(i, { code: e.target.value })}
+                        className="w-full px-3 py-2 text-xs font-mono font-bold text-sky-800 bg-sky-50 rounded-xl border border-sky-200"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* SECTION 8: CLIENT TESTIMONIALS */}
+          {activeSection === 'testimonials' && (
+            <div className="space-y-6">
+
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-black text-gray-950">Client Reviews & Testimonials ({testimonials.length})</h3>
+                  <p className="text-sm text-gray-600 mt-1 font-medium">Manage client quotes, star ratings, and facility satisfaction metrics.</p>
+                </div>
+                <button
+                  onClick={() => openTestimonialModal(null)}
+                  className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-black text-sm uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 shrink-0 transition-transform active:scale-95"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>Add Testimonial</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {testimonials.map((t) => (
+                  <div key={t.id} className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm flex flex-col justify-between space-y-4 hover:border-sky-300 transition-colors">
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-black uppercase px-3 py-1 rounded-md bg-sky-50 text-sky-800 border border-sky-200">
+                          {t.serviceUsed}
+                        </span>
+                        <span className="text-amber-500 font-black text-base">{'★'.repeat(t.rating)}</span>
+                      </div>
+                      <h4 className="text-base sm:text-lg font-black text-gray-950">{t.clientName}</h4>
+                      <p className="text-xs sm:text-sm text-gray-600 font-semibold">{t.designation} • {t.company} ({t.location})</p>
+                      <p className="text-xs sm:text-sm text-gray-700 leading-relaxed italic bg-slate-50 p-3 rounded-xl border border-gray-100">"{t.quote}"</p>
+                    </div>
+
+                    <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+                      <span className="text-xs sm:text-sm font-black text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">Metric: {t.metric}</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => openTestimonialModal(t)}
+                          className="p-2 bg-slate-100 hover:bg-sky-100 text-sky-700 rounded-xl transition-colors border border-gray-200"
+                          title="Edit Review"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Delete review from "${t.clientName}"?`)) {
+                              deleteTestimonial(t.id);
+                              showToast('Testimonial deleted.');
+                            }
+                          }}
+                          className="p-2 bg-slate-100 hover:bg-red-50 text-red-600 rounded-xl transition-colors border border-gray-200"
+                          title="Delete Review"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          )}
+
+          {/* SECTION: NAVIGATION MENU MANAGER */}
+          {activeSection === 'navigation' && (
+            <div className="space-y-6">
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-black text-gray-950">Navbar Navigation Menu ({navItems?.length || 0} Items)</h3>
+                  <p className="text-sm text-gray-600 mt-1 font-medium">Manage top header and mobile navigation links, order, live hot badges, and visibility.</p>
+                </div>
+                <button
+                  onClick={() => openNavModal()}
+                  className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-2 shrink-0 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Menu Item</span>
+                </button>
+              </div>
+
+              {/* Navigation Items List */}
+              <div className="space-y-3">
+                {navItems && navItems.map((item, idx) => (
+                  <div
+                    key={item.id}
+                    className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-emerald-400 transition-all"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex flex-col gap-1">
+                        <button
+                          disabled={idx === 0}
+                          onClick={() => moveNavItem(idx, -1)}
+                          className="p-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                          title="Move Up"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5 text-slate-700" />
+                        </button>
+                        <button
+                          disabled={idx === navItems.length - 1}
+                          onClick={() => moveNavItem(idx, 1)}
+                          className="p-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                          title="Move Down"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5 text-slate-700" />
+                        </button>
+                      </div>
+
+                      <div className="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shrink-0">
+                        #{idx + 1}
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="text-base font-extrabold text-slate-950">{item.label}</h4>
+                          {item.isHot && (
+                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">
+                              HOT PIN
+                            </span>
+                          )}
+                          <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${item.isVisible ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'
+                            }`}>
+                            {item.isVisible ? 'Visible in Navbar' : 'Hidden'}
+                          </span>
+                        </div>
+                        <p className="text-xs font-mono text-slate-500 mt-1">
+                          Target Route: <span className="text-sky-600 font-bold">{item.path}</span> ({item.type || 'internal'})
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 ml-auto sm:ml-0">
+                      <button
+                        onClick={() => toggleNavItemVisibility(item.id)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer ${item.isVisible ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                      >
+                        {item.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                        <span>{item.isVisible ? 'Hide' : 'Show'}</span>
+                      </button>
+                      <button
+                        onClick={() => openNavModal(item)}
+                        className="p-2 bg-slate-100 hover:bg-sky-50 text-sky-700 rounded-xl transition-colors border border-gray-200 cursor-pointer"
+                        title="Edit Menu Item"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Delete navigation item "${item.label}"?`)) {
+                            deleteNavItem(item.id);
+                            showToast(`Deleted "${item.label}" from navbar`);
+                          }
+                        }}
+                        className="p-2 bg-slate-100 hover:bg-red-50 text-red-600 rounded-xl transition-colors border border-gray-200 cursor-pointer"
+                        title="Delete Menu Item"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* SECTION: CUSTOM PAGES & DYNAMIC CMS */}
+          {activeSection === 'pages' && (
+            <div className="space-y-6">
+              {!isEditingPage ? (
+                <>
+                  {/* Header Bar */}
+                  <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                    <div>
+                      <h3 className="text-xl sm:text-2xl font-black text-gray-950">Dynamic Custom Pages ({customPages?.length || 0} Pages)</h3>
+                      <p className="text-sm text-gray-600 mt-1 font-medium">Create and publish custom pages with rich content sections, hero banners, and direct links.</p>
+                    </div>
+                    <button
+                      onClick={() => openPageEditor()}
+                      className="px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-2 shrink-0 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Create New Page</span>
+                    </button>
+                  </div>
+
+                  {/* Custom Pages Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {customPages && customPages.map((page) => (
+                      <div
+                        key={page.id}
+                        className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between hover:border-sky-400 hover:shadow-md transition-all"
+                      >
+                        <div className="p-6 sm:p-7 space-y-4">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+                              {page.badge || 'Custom Page'}
+                            </span>
+                            <span className="text-xs font-mono font-bold text-slate-400">
+                              #/p/{page.slug}
+                            </span>
+                          </div>
+
+                          <div>
+                            <h4 className="text-lg sm:text-xl font-black text-slate-950">{page.title}</h4>
+                            <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                              {page.heroTagline || page.content}
+                            </p>
+                          </div>
+
+                          <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs text-slate-600 flex items-center justify-between font-medium">
+                            <span>{page.sections?.length || 0} Content Blocks</span>
+                            <span className="text-emerald-700 font-bold">● Published Live</span>
+                          </div>
+                        </div>
+
+                        <div className="p-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-2">
+                          <button
+                            onClick={() => onNavigate(`p/${page.slug}`)}
+                            className="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-sky-600" />
+                            <span>View Live Page</span>
+                          </button>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => openPageEditor(page)}
+                              className="p-2 bg-white hover:bg-sky-50 text-sky-700 rounded-xl transition-colors border border-gray-200 cursor-pointer"
+                              title="Edit Page"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (window.confirm(`Are you sure you want to delete custom page "${page.title}"?`)) {
+                                  deleteCustomPage(page.id);
+                                  showToast(`Page "${page.title}" deleted`);
+                                }
+                              }}
+                              className="p-2 bg-white hover:bg-red-50 text-red-600 rounded-xl transition-colors border border-gray-200 cursor-pointer"
+                              title="Delete Page"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                /* FULL WIDTH DEDICATED PAGE STUDIO / CREATOR */
+                <div className="space-y-6 animate-in fade-in duration-150">
+
+                  {/* Top Action Header */}
+                  <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingPage(false)}
+                        className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+                        title="Back to Pages List"
+                      >
+                        <ArrowRight className="w-5 h-5 rotate-180" />
+                      </button>
+                      <div>
+                        <h3 className="text-xl sm:text-2xl font-black text-gray-950">
+                          {editingItem ? `Edit Page: ${editingItem.title}` : 'Page Studio: Create New Page'}
+                        </h3>
+                        <p className="text-xs text-gray-500 font-medium mt-0.5">
+                          Full-width page architect with live interactive preview.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingPage(false)}
+                        className="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSavePage}
+                        className="px-7 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-red-600/20 flex items-center gap-2 cursor-pointer"
+                      >
+                        <Save className="w-4 h-4" />
+                        <span>Save & Publish</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Full Width Studio: Two Column Layout */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+                    {/* Left Form Workspace (7 Cols) */}
+                    <form onSubmit={handleSavePage} className="lg:col-span-7 space-y-6">
+
+                      {/* 1. Basic Metadata Card */}
+                      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                        <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 pb-2 border-b border-gray-100">
+                          1. Page Title & URL Routing
+                        </h4>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Page Title *</label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="e.g. Quality & Environmental Policy"
+                              value={pageForm.title}
+                              onChange={(e) => setPageForm({ ...pageForm, title: e.target.value })}
+                              className="w-full px-4 py-3 rounded-xl border border-gray-300 font-bold text-sm focus:border-red-500 focus:outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">URL Slug</label>
+                            <div className="flex items-center">
+                              <span className="px-3 py-3 rounded-l-xl bg-slate-100 border border-r-0 border-gray-300 text-xs font-mono text-slate-500">
+                                #/p/
+                              </span>
+                              <input
+                                type="text"
+                                placeholder="quality-policy"
+                                value={pageForm.slug}
+                                onChange={(e) => setPageForm({ ...pageForm, slug: e.target.value })}
+                                className="w-full px-3.5 py-3 rounded-r-xl border border-gray-300 font-mono text-xs focus:border-red-500 focus:outline-none"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                          <div>
+                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Header Badge Pill</label>
+                            <input
+                              type="text"
+                              placeholder="e.g. Statutory Assurance"
+                              value={pageForm.badge}
+                              onChange={(e) => setPageForm({ ...pageForm, badge: e.target.value })}
+                              className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Hero Background Image</label>
+                            <input
+                              type="url"
+                              placeholder="https://images.unsplash.com/..."
+                              value={pageForm.heroImage}
+                              onChange={(e) => setPageForm({ ...pageForm, heroImage: e.target.value })}
+                              className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs font-mono focus:border-red-500 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Hero Headline Tagline</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. 100% Statutory Compliant Facility & Manpower Governance across North India"
+                            value={pageForm.heroTagline}
+                            onChange={(e) => setPageForm({ ...pageForm, heroTagline: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* 2. Overview Content Card */}
+                      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                        <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 pb-2 border-b border-gray-100">
+                          2. Introduction & Scope Statement
+                        </h4>
+                        <div>
+                          <textarea
+                            rows={4}
+                            placeholder="Write a clear statement of policies, certifications, workforce standards, or services overview..."
+                            value={pageForm.content}
+                            onChange={(e) => setPageForm({ ...pageForm, content: e.target.value })}
+                            className="w-full px-4 py-3.5 rounded-xl border border-gray-300 text-sm leading-relaxed font-medium focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* 3. Key Content Blocks Card */}
+                      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                        <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                          <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900">
+                            3. Key Content Blocks & Detailed Standards
+                          </h4>
+                          <span className="text-[11px] font-bold text-slate-400">Format: Heading | Description</span>
+                        </div>
+                        <div>
+                          <textarea
+                            rows={5}
+                            value={pageForm.sectionsText}
+                            onChange={(e) => setPageForm({ ...pageForm, sectionsText: e.target.value })}
+                            className="w-full px-4 py-3.5 rounded-xl border border-gray-300 font-mono text-xs leading-relaxed focus:border-red-500 focus:outline-none"
+                            placeholder="100% PF & ESI Adherence | All challans uploaded by the 15th of each month.&#10;ISO 9001 Quality Checklists | Mandatory daily audit reports and surprise inspections."
+                          />
+                        </div>
+                      </div>
+
+                      {/* 4. Navbar Publishing Settings */}
+                      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            id="fullPageInNavbar"
+                            checked={pageForm.showInNavbar}
+                            onChange={(e) => setPageForm({ ...pageForm, showInNavbar: e.target.checked })}
+                            className="w-5 h-5 text-red-600 rounded cursor-pointer"
+                          />
+                          <label htmlFor="fullPageInNavbar" className="text-sm font-bold text-gray-800 cursor-pointer">
+                            Automatically add direct link to Top Header Navbar
+                          </label>
+                        </div>
+                      </div>
+
+                    </form>
+
+                    {/* Right Sticky Real-Time Live Preview (5 Cols) */}
+                    <div className="lg:col-span-5 sticky top-24 space-y-4">
+                      <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
+                        <div className="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                            <span className="text-xs font-bold uppercase tracking-wider">Live Real-Time Preview</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-slate-400">
+                            #/p/{pageForm.slug || 'page-slug'}
+                          </span>
+                        </div>
+
+                        {/* Hero Simulation */}
+                        <div className="relative bg-[#071324] text-white p-6 overflow-hidden">
+                          {pageForm.heroImage && (
+                            <img
+                              src={pageForm.heroImage}
+                              alt="Preview background"
+                              className="absolute inset-0 w-full h-full object-cover opacity-25"
+                            />
+                          )}
+                          <div className="relative z-10 space-y-3">
+                            <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/20 text-sky-300 border border-white/20">
+                              {pageForm.badge || 'Official Document'}
+                            </span>
+                            <h3 className="text-xl font-black text-white leading-tight">
+                              {pageForm.title || 'Page Title Preview'}
+                            </h3>
+                            <p className="text-xs text-slate-300 line-clamp-2">
+                              {pageForm.heroTagline || 'Hero headline subtitle preview...'}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Body Content Simulation */}
+                        <div className="p-5 space-y-4 bg-slate-50 max-h-[360px] overflow-y-auto text-xs">
+                          <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5 shadow-xs">
+                            <span className="text-[10px] font-bold uppercase text-red-600 block">Overview Statement</span>
+                            <p className="text-slate-700 leading-relaxed line-clamp-4">
+                              {pageForm.content || 'Overview description will be formatted here.'}
+                            </p>
+                          </div>
+
+                          <div className="space-y-2">
+                            <span className="text-[10px] font-bold uppercase text-slate-500 block">Content Blocks Preview</span>
+                            {pageForm.sectionsText.split('\n').filter(Boolean).map((line, idx) => {
+                              const [h, ...t] = line.split('|');
+                              return (
+                                <div key={idx} className="p-3 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1">
+                                  <div className="font-bold text-slate-900">{h ? h.trim() : `Block #${idx + 1}`}</div>
+                                  <div className="text-[11px] text-slate-600 line-clamp-2">{t.join('|').trim()}</div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SECTION 9: SYSTEM SETTINGS & RESTORE TOOLS */}
+          {activeSection === 'settings' && (
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-6">
+              <div>
+                <h3 className="text-xl sm:text-2xl font-black text-gray-950">System Settings & Data Tools</h3>
+                <p className="text-sm text-gray-600 mt-1 font-medium">Export site backups or reset all dynamic data to initial MANABS defaults.</p>
+              </div>
+
+              <div className="space-y-4 pt-2">
+                <div className="p-6 rounded-2xl bg-sky-50 border border-sky-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <h4 className="text-base font-black text-sky-950">Export Complete Website Backup</h4>
+                    <p className="text-xs sm:text-sm text-sky-800 font-medium mt-0.5">Downloads a timestamped JSON file containing all customized services, jobs, leads, and stats.</p>
+                  </div>
+                  <button
+                    onClick={handleExportBackup}
+                    className="px-5 py-3 bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all shadow-md shrink-0 flex items-center gap-2"
+                  >
+                    <Download className="w-5 h-5" />
+                    <span>Download JSON</span>
+                  </button>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-red-50 border border-red-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <h4 className="text-base font-black text-red-950">Reset All Data to System Defaults</h4>
+                    <p className="text-xs sm:text-sm text-red-800 font-medium mt-0.5">Restores default 5 services, official job openings, stats, and clears test lead data.</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Are you absolutely sure you want to reset all dynamic website data back to factory defaults?')) {
+                        resetAllToDefaults();
+                        showToast('All website data reset to default successfully!');
+                      }
+                    }}
+                    className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all shadow-md shrink-0 flex items-center gap-2"
+                  >
+                    <RotateCcw className="w-5 h-5" />
+                    <span>Reset to Defaults</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
         </main>
       </div>
