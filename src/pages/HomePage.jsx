@@ -21,6 +21,7 @@ import { servicesData, companyStats, qualityAssurancePoints } from '../data/comp
 import { useCompany } from '../context/CompanyContext';
 import PayrollSection from '../components/PayrollSection';
 import TestimonialsSlider from '../components/TestimonialsSlider';
+import FAQSection from '../components/FAQSection';
 
 const iconMap = {
   Users: Users,
@@ -444,14 +445,14 @@ const HomePage = ({ onNavigate }) => {
             <div className="lg:col-span-4 flex flex-col gap-3 justify-center">
               <button
                 onClick={() => onNavigate('contact')}
-                className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg text-center"
+                className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg text-center cursor-pointer"
               >
                 Request Corporate Quote
               </button>
 
               <button
                 onClick={() => onNavigate('about')}
-                className="w-full py-3.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs uppercase tracking-wider rounded-xl transition-all text-center border border-white/20"
+                className="w-full py-3.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs uppercase tracking-wider rounded-xl transition-all text-center border border-white/20 cursor-pointer"
               >
                 Learn About Resource Cell
               </button>
@@ -460,6 +461,9 @@ const HomePage = ({ onNavigate }) => {
           </div>
         </div>
       </section>
+
+      {/* 5. INTERACTIVE ENTERPRISE FAQ ACCORDION SECTION */}
+      <FAQSection onNavigate={onNavigate} />
 
     </div>
   );
