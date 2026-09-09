@@ -6,98 +6,76 @@ import {
   Sparkles, 
   ArrowRight, 
   CheckCircle2, 
-  Zap, 
-  Coins, 
-  Globe2, 
-  HeartHandshake, 
-  Laptop, 
   ShieldCheck,
   PlusCircle,
-  FileCheck
+  FileCheck,
+  GraduationCap,
+  Award,
+  CreditCard,
+  IndianRupee,
+  Database
 } from 'lucide-react';
-import { jobOpenings } from '../data/companyData';
+import { jobOpenings, employeePerks } from '../data/companyData';
 import ApplicationModal from './ApplicationModal';
 
-const culturePerks = [
-  {
-    title: "High-Caliber Engineering",
-    description: "Work directly on bare-metal distributed hypervisors, custom neural cores, and multi-cloud mesh.",
-    icon: Laptop,
-    color: "cyan",
-  },
-  {
-    title: "Pan-India Mobility",
-    description: "Seamless transfer and collaboration privileges across 18+ high-speed innovation hubs in India.",
-    icon: Globe2,
-    color: "emerald",
-  },
-  {
-    title: "Top-Tier Compensation & Equity",
-    description: "Competitive salary benchmarks, generous ESOP wealth creation programs, and annual performance bonuses.",
-    icon: Coins,
-    color: "gold",
-  },
-  {
-    title: "Health, Family & Wellness",
-    description: "₹15 Lakh comprehensive family medical insurance, mental health support, and flexible parental leave.",
-    icon: HeartHandshake,
-    color: "purple",
-  },
-];
+const perkIcons = {
+  ShieldCheck: ShieldCheck,
+  GraduationCap: GraduationCap,
+  CreditCard: CreditCard,
+  Award: Award,
+};
 
-const CareersSection = () => {
+const CareersSection = ({ onNavigate }) => {
   const [selectedDept, setSelectedDept] = useState('All');
   const [selectedJobForModal, setSelectedJobForModal] = useState(null);
   const [isFutureModalOpen, setIsFutureModalOpen] = useState(false);
 
-  const departments = ['All', 'Engineering', 'AI Research', 'Security', 'Design & UX', 'Sales & Growth'];
+  const departments = ['All', 'Integrated Facilities', 'HR & Payroll', 'Engineering & Maintenance', 'Logistics & Supply Chain', 'Quality & Compliance'];
 
   const filteredJobs = selectedDept === 'All' 
     ? jobOpenings 
     : jobOpenings.filter(j => j.department === selectedDept);
 
   return (
-    <section id="careers" className="py-24 relative overflow-hidden">
+    <section id="careers" className="py-20 bg-white relative overflow-hidden">
       
-      {/* Background glow */}
-      <div className="absolute top-1/3 left-10 w-[500px] h-[500px] bg-emerald-600/10 rounded-full blur-[150px] pointer-events-none -z-10" />
-      <div className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[150px] pointer-events-none -z-10" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-300">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-50 border border-red-200 text-xs font-semibold text-red-700">
             <Briefcase className="w-3.5 h-3.5" />
-            <span>Join Our Engineering Vanguard</span>
+            <span>National Resource Cell • Careers</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black tracking-tight text-white">
-            Build Tomorrow's Systems <br />
-            <span className="text-gradient">With Extraordinary Minds</span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900">
+            Recruit Quality Resources, <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-sky-600">
+              Nurture and Retain
+            </span>
           </h2>
-          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            We are looking for engineers, AI researchers, architects, and product leaders who thrive on solving multi-petabyte distributed computing challenges.
+          <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+            Join India's premier facilities and workforce solutions enterprise across Delhi NCR, UP, Haryana, and Uttarakhand with 100% statutory security and continuous growth.
           </p>
         </div>
 
         {/* Culture & Perks Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {culturePerks.map((perk, idx) => {
-            const Icon = perk.icon;
+          {employeePerks.map((perk) => {
+            const Icon = perkIcons[perk.icon] || ShieldCheck;
             return (
               <div 
-                key={idx}
-                className="p-6 rounded-3xl glass-card border border-white/10 hover:border-cyan-500/40 transition-all flex flex-col justify-between group"
+                key={perk.id}
+                className="p-6 rounded-3xl bg-gray-50 border border-gray-200 hover:border-red-400 hover:shadow-lg transition-all flex flex-col justify-between group"
               >
                 <div className="space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:scale-110 group-hover:bg-cyan-500/20 transition-transform">
+                  <div className="w-12 h-12 rounded-2xl bg-white shadow-xs text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors flex items-center justify-center">
                     <Icon className="w-6 h-6" />
                   </div>
-                  <h4 className="text-base font-display font-bold text-white group-hover:text-cyan-300 transition-colors">
+                  <h4 className="text-base font-bold text-gray-900 group-hover:text-red-600 transition-colors">
                     {perk.title}
                   </h4>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    {perk.description}
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    {perk.desc}
                   </p>
                 </div>
               </div>
@@ -113,11 +91,11 @@ const CareersSection = () => {
               onClick={() => setSelectedDept(dept)}
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                 selectedDept === dept
-                  ? 'bg-gradient-to-r from-cyan-400 to-emerald-400 text-black shadow-lg shadow-cyan-500/20 font-bold scale-105'
-                  : 'bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 border border-white/10'
+                  ? 'bg-red-600 text-white shadow-md font-bold'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              {dept === 'All' ? 'All Roles (5 Openings)' : dept}
+              {dept === 'All' ? 'All Roles (6 Openings)' : dept}
             </button>
           ))}
         </div>
@@ -127,45 +105,45 @@ const CareersSection = () => {
           {filteredJobs.map((job) => (
             <div
               key={job.id}
-              className="p-6 sm:p-8 rounded-3xl glass-card border border-white/10 hover:border-cyan-500/40 shadow-xl transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-6 group"
+              className="p-6 sm:p-8 rounded-3xl bg-white border border-gray-200 hover:border-red-400 hover:shadow-xl transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-6 group"
             >
               <div className="space-y-3 max-w-2xl">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 text-xs font-bold border border-cyan-500/20">
+                  <span className="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs font-bold">
                     {job.department}
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-white/5 text-slate-300 text-xs font-medium border border-white/10">
+                  <span className="px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 text-xs font-medium">
                     {job.type}
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 text-xs font-semibold border border-emerald-500/30">
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
                     {job.salary}
                   </span>
                 </div>
 
-                <h3 className="text-xl sm:text-2xl font-display font-bold text-white group-hover:text-cyan-300 transition-colors">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 group-hover:text-red-600 transition-colors">
                   {job.title}
                 </h3>
 
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                   {job.description}
                 </p>
 
-                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400 pt-1">
-                  <span className="flex items-center gap-1 text-slate-300">
-                    <MapPin className="w-3.5 h-3.5 text-cyan-400" />
+                <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 pt-1">
+                  <span className="flex items-center gap-1 text-gray-700">
+                    <MapPin className="w-3.5 h-3.5 text-red-600" />
                     {job.location}
                   </span>
-                  <span className="flex items-center gap-1 text-slate-300">
-                    <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="flex items-center gap-1 text-gray-700">
+                    <Clock className="w-3.5 h-3.5 text-sky-600" />
                     {job.experience}
                   </span>
                 </div>
 
-                {/* Tech tags */}
+                {/* Skills tags */}
                 <div className="flex flex-wrap gap-1.5 pt-2">
-                  {job.tags.map((tag, i) => (
-                    <span key={i} className="px-2 py-0.5 rounded-md bg-white/[0.03] text-slate-400 text-[11px] font-mono border border-white/5">
-                      #{tag}
+                  {job.skills?.map((skill, i) => (
+                    <span key={i} className="px-2.5 py-1 rounded-md bg-gray-50 text-gray-600 text-[11px] font-medium border border-gray-100">
+                      {skill}
                     </span>
                   ))}
                 </div>
@@ -175,10 +153,10 @@ const CareersSection = () => {
               <div className="shrink-0 flex items-center">
                 <button
                   onClick={() => setSelectedJobForModal(job)}
-                  className="w-full lg:w-auto px-7 py-3.5 rounded-2xl bg-cyan-500/15 hover:bg-gradient-to-r hover:from-cyan-400 hover:to-emerald-400 hover:text-black text-cyan-300 font-bold text-xs border border-cyan-500/40 hover:border-transparent transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-md hover:shadow-cyan-500/30"
+                  className="w-full lg:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-sky-600 hover:from-red-700 hover:to-sky-700 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md"
                 >
                   <span>Apply for this Role</span>
-                  <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -186,32 +164,32 @@ const CareersSection = () => {
         </div>
 
         {/* Future Openings & Talent Pool Showcase Banner */}
-        <div className="p-8 sm:p-12 rounded-3xl glass-panel border border-cyan-500/30 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 bg-gradient-to-r from-cyan-950/30 via-slate-900/60 to-emerald-950/30">
+        <div className="p-8 sm:p-12 rounded-3xl bg-[#0a192f] text-white border border-sky-500/20 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
           
           <div className="space-y-3 text-center md:text-left max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/40">
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>Future Hiring & Talent Registry</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-sky-300 text-xs font-bold border border-white/15">
+              <Database className="w-3.5 h-3.5 text-red-400" />
+              <span>National Resource Cell • Future Talent Bank</span>
             </div>
             
-            <h3 className="text-2xl sm:text-3xl font-display font-black text-white">
-              Don't See Your Exact Specialty Open Right Now?
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-white">
+              Don't See Your Exact Role Open Right Now?
             </h3>
             
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              We are constantly scouting exceptional talent in Distributed Systems, Quantum-Resistant Cryptography, Spatial 3D UI, and Autonomous Networking. Submit your profile to our high-priority talent pipeline.
+            <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+              Drop your resume in our centralized talent pool. When upcoming facilities, MEP engineering, warehousing, or administrative projects open in your city, our HR team will contact you directly.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs text-emerald-400 font-medium pt-2">
-              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Direct CXO Profile Review</span>
-              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> First Access to 2026-27 Requisitions</span>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs text-sky-300 font-medium pt-2">
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Direct HR Talent Scout Review</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> First Priority for New Corporate Site Deployments</span>
             </div>
           </div>
 
           <div className="shrink-0">
             <button
               onClick={() => setIsFutureModalOpen(true)}
-              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-400 via-sky-300 to-emerald-400 text-black font-extrabold text-sm shadow-xl shadow-cyan-500/25 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+              className="px-8 py-4 rounded-xl bg-gradient-to-r from-red-600 to-sky-600 hover:from-red-700 hover:to-sky-700 text-white font-extrabold text-xs uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
               <FileCheck className="w-4 h-4" />
               <span>Submit Resume for Future Openings</span>

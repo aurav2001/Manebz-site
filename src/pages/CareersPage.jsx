@@ -15,7 +15,14 @@ import {
   X, 
   Send,
   Building2,
-  Users
+  Users,
+  Database,
+  FileCheck2,
+  PhoneCall,
+  Sparkles,
+  Check,
+  FileText,
+  AlertCircle
 } from 'lucide-react';
 import { jobOpenings, employeePerks } from '../data/companyData';
 
@@ -33,6 +40,7 @@ const CareersPage = ({ onNavigate }) => {
   const [applyModalOpen, setApplyModalOpen] = useState(false);
   const [activeJob, setActiveJob] = useState(null);
   
+  // Specific Job Application Form State
   const [applyForm, setApplyForm] = useState({
     name: '',
     phone: '',
@@ -43,6 +51,23 @@ const CareersPage = ({ onNavigate }) => {
     resumeFileName: '',
   });
   const [applySubmitted, setApplySubmitted] = useState(false);
+
+  // Future Talent Pool / Resume Vault Form State
+  const [talentForm, setTalentForm] = useState({
+    fullName: '',
+    phone: '',
+    email: '',
+    targetDepartment: 'Integrated Facilities',
+    preferredLocation: 'Delhi NCR (Delhi, Gurugram, Noida)',
+    experience: '1 - 3 Years',
+    expectedSalary: '',
+    noticePeriod: 'Immediate / < 15 Days',
+    keySkills: '',
+    resumeFileName: '',
+    consent: true
+  });
+  const [talentSubmitted, setTalentSubmitted] = useState(false);
+  const [talentAppId, setTalentAppId] = useState('');
 
   const departments = ['All', 'Integrated Facilities', 'HR & Payroll', 'Engineering & Maintenance', 'Logistics & Supply Chain', 'Quality & Compliance', 'Sales & Client Relations'];
   const locations = ['All', 'Delhi NCR', 'Uttar Pradesh', 'Haryana', 'Uttarakhand'];
@@ -83,14 +108,44 @@ const CareersPage = ({ onNavigate }) => {
     }, 2400);
   };
 
+  const handleTalentPoolSubmit = (e) => {
+    e.preventDefault();
+    if (!talentForm.fullName || !talentForm.phone) return;
+
+    const generatedId = `MNB-TALENT-${Math.floor(100000 + Math.random() * 900000)}`;
+    setTalentAppId(generatedId);
+
+    // Store in localStorage for persistence
+    try {
+      const existing = JSON.parse(localStorage.getItem('manabs_future_talent_bank') || '[]');
+      existing.push({
+        id: generatedId,
+        date: new Date().toISOString(),
+        ...talentForm
+      });
+      localStorage.setItem('manabs_future_talent_bank', JSON.stringify(existing));
+    } catch (err) {
+      console.error(err);
+    }
+
+    setTalentSubmitted(true);
+  };
+
+  const scrollToFuturePool = () => {
+    const el = document.getElementById('future-talent-vault');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="bg-white pt-28 pb-20">
       
       {/* Top Banner */}
-      <section className="bg-gradient-to-r from-[#b91c1c] via-[#dc2626] to-[#b91c1c] text-white py-14 px-4 sm:px-6 lg:px-8 shadow-md">
-        <div className="max-w-5xl mx-auto text-center space-y-3">
+      <section className="bg-gradient-to-r from-[#b91c1c] via-[#dc2626] to-[#b91c1c] text-white py-14 px-4 sm:px-6 lg:px-8 shadow-md relative overflow-hidden">
+        <div className="max-w-5xl mx-auto text-center space-y-4 relative z-10">
           <span className="text-[11px] font-extrabold uppercase tracking-widest bg-white/15 px-3 py-1 rounded-full text-white inline-block">
-            Join The MANABS Team
+            Join The MANABS Team • In-House Resource Cell
           </span>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-wide uppercase">
             Careers & Talent Opportunities
@@ -98,6 +153,25 @@ const CareersPage = ({ onNavigate }) => {
           <p className="text-sm sm:text-base text-red-100 max-w-2xl mx-auto leading-relaxed">
             "Recruit Quality Resources, Nurture and Retain". Build a fulfilling career with India's leading facilities, workforce, and engineering management enterprise.
           </p>
+
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+            <button
+              onClick={() => {
+                const el = document.getElementById('openings');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="px-6 py-2.5 bg-white text-red-600 hover:bg-gray-100 font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all"
+            >
+              Browse Active Jobs
+            </button>
+            <button
+              onClick={scrollToFuturePool}
+              className="px-6 py-2.5 bg-sky-950/70 hover:bg-sky-900 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all border border-sky-400/40 flex items-center gap-1.5"
+            >
+              <Database className="w-3.5 h-3.5 text-sky-400" />
+              <span>Drop Resume for Future Openings</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -304,26 +378,289 @@ const CareersPage = ({ onNavigate }) => {
 
       </section>
 
-      {/* 4. GENERAL APPLICATION / RESUME DROP BANNER */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-gray-900 to-[#0a192f] text-white rounded-3xl p-8 sm:p-12 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="text-left space-y-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-sky-400">Can't Find Your Role?</span>
-            <h3 className="text-2xl font-bold text-white">Drop Your Resume in Our Talent Pool</h3>
-            <p className="text-xs text-gray-300 max-w-xl">
-              Our national Resource Cell evaluates applications weekly for upcoming facilities, warehousing, and corporate staff projects.
-            </p>
+      {/* 4. FUTURE TALENT POOL & RESUME VAULT (FEATURE REQUEST) */}
+      <section id="future-talent-vault" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="bg-gradient-to-br from-[#0a192f] via-[#112240] to-gray-900 text-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden border border-sky-500/20">
+          
+          {/* Ambient Glows */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-red-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 space-y-8">
+            
+            {/* Header */}
+            <div className="text-center max-w-3xl mx-auto space-y-3">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-sky-300 text-xs font-bold uppercase tracking-wider">
+                <Database className="w-3.5 h-3.5 text-red-400" />
+                <span>MANABS National Resource Cell • Future Talent Bank</span>
+              </div>
+
+              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                Submit Your Resume for <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-red-400">Future Openings</span>
+              </h2>
+
+              <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                Even if an exact match isn't listed above, upload your CV to our central Resource Cell talent vault. When our HR & Operations leaders initiate new corporate facilities, warehousing hubs, or technical deployments, registered candidates receive priority contact and fast-track interviews.
+              </p>
+
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2 text-[11px] text-sky-200">
+                <span className="flex items-center gap-1">✓ 100% Confidential HR Bank</span>
+                <span className="flex items-center gap-1">✓ Direct Priority Outreach</span>
+                <span className="flex items-center gap-1">✓ 2-Week Paid Induction</span>
+                <span className="flex items-center gap-1">✓ PF & ESI Statutory Security</span>
+              </div>
+            </div>
+
+            {/* Form / Submitted Card */}
+            {!talentSubmitted ? (
+              <form 
+                onSubmit={handleTalentPoolSubmit}
+                className="max-w-3xl mx-auto bg-white/5 border border-white/10 p-6 sm:p-8 rounded-3xl backdrop-blur-md space-y-5 text-gray-900"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-200 uppercase tracking-wider mb-1">
+                      Full Name *
+                    </label>
+                    <input 
+                      type="text"
+                      required
+                      placeholder="e.g. Ramesh Kumar"
+                      value={talentForm.fullName}
+                      onChange={(e) => setTalentForm({ ...talentForm, fullName: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white text-gray-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-200 uppercase tracking-wider mb-1">
+                      Mobile / WhatsApp Number *
+                    </label>
+                    <input 
+                      type="tel"
+                      required
+                      placeholder="+91 98765 43210"
+                      value={talentForm.phone}
+                      onChange={(e) => setTalentForm({ ...talentForm, phone: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white text-gray-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-200 uppercase tracking-wider mb-1">
+                      Email Address
+                    </label>
+                    <input 
+                      type="email"
+                      placeholder="ramesh@email.com"
+                      value={talentForm.email}
+                      onChange={(e) => setTalentForm({ ...talentForm, email: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white text-gray-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-200 uppercase tracking-wider mb-1">
+                      Preferred Department / Domain *
+                    </label>
+                    <select
+                      value={talentForm.targetDepartment}
+                      onChange={(e) => setTalentForm({ ...talentForm, targetDepartment: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white text-gray-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    >
+                      <option value="Integrated Facilities (Housekeeping, Soft Services)">Integrated Facilities (Housekeeping, Soft Services)</option>
+                      <option value="HR Staffing & Statutory Payroll">HR Staffing & Statutory Payroll</option>
+                      <option value="Engineering & Maintenance (MEP, HVAC, Panels)">Engineering & Maintenance (MEP, HVAC, Panels)</option>
+                      <option value="Logistics & Warehouse Operations (Forklift, Floor Ops)">Logistics & Warehouse Operations (Forklift, Floor Ops)</option>
+                      <option value="Quality Assurance & ISO/EMS Audits">Quality Assurance & ISO/EMS Audits</option>
+                      <option value="Corporate Administration & Management">Corporate Administration & Management</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-200 uppercase tracking-wider mb-1">
+                      Preferred Location
+                    </label>
+                    <select
+                      value={talentForm.preferredLocation}
+                      onChange={(e) => setTalentForm({ ...talentForm, preferredLocation: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white text-gray-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    >
+                      <option value="Delhi NCR (Delhi, Gurugram, Noida)">Delhi NCR (Delhi, Gurugram, Noida)</option>
+                      <option value="Uttar Pradesh (Lucknow, Kanpur, Agra)">Uttar Pradesh (Lucknow, Kanpur, Agra)</option>
+                      <option value="Haryana (Manesar, Panipat, Sonipat)">Haryana (Manesar, Panipat, Sonipat)</option>
+                      <option value="Uttarakhand (Dehradun, Haridwar, Pantnagar)">Uttarakhand (Dehradun, Haridwar, Pantnagar)</option>
+                      <option value="Pan-India / Flexible">Pan-India / Flexible</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-200 uppercase tracking-wider mb-1">
+                      Total Experience
+                    </label>
+                    <select
+                      value={talentForm.experience}
+                      onChange={(e) => setTalentForm({ ...talentForm, experience: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white text-gray-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    >
+                      <option value="Fresher / < 1 Year">Fresher / &lt; 1 Year</option>
+                      <option value="1 - 3 Years">1 - 3 Years</option>
+                      <option value="3 - 6 Years">3 - 6 Years</option>
+                      <option value="6 - 10 Years">6 - 10 Years</option>
+                      <option value="10+ Years">10+ Years (Senior Lead)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-200 uppercase tracking-wider mb-1">
+                      Joining Availability
+                    </label>
+                    <select
+                      value={talentForm.noticePeriod}
+                      onChange={(e) => setTalentForm({ ...talentForm, noticePeriod: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white text-gray-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    >
+                      <option value="Immediate / < 15 Days">Immediate / &lt; 15 Days</option>
+                      <option value="1 Month Notice">1 Month Notice</option>
+                      <option value="2 Months Notice">2 Months Notice</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Resume Upload File Box */}
+                <div>
+                  <label className="block text-xs font-bold text-gray-200 uppercase tracking-wider mb-1">
+                    Attach Your Resume / CV File (PDF, DOC, DOCX)
+                  </label>
+                  <div className="border-2 border-dashed border-white/20 hover:border-sky-400 rounded-2xl p-5 text-center cursor-pointer transition-colors bg-white/5">
+                    <input
+                      type="file"
+                      id="future-resume-upload"
+                      accept=".pdf,.doc,.docx"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setTalentForm({ ...talentForm, resumeFileName: e.target.files[0].name });
+                        }
+                      }}
+                    />
+                    <label htmlFor="future-resume-upload" className="cursor-pointer space-y-1 block">
+                      <UploadCloud className="w-8 h-8 text-sky-400 mx-auto" />
+                      <span className="text-xs font-semibold text-white block">
+                        {talentForm.resumeFileName || 'Click to Select or Drop Resume (PDF, DOCX up to 10MB)'}
+                      </span>
+                      {talentForm.resumeFileName ? (
+                        <span className="text-[11px] text-emerald-400 font-bold block">
+                          ✓ File Attached: {talentForm.resumeFileName}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-gray-400 block">
+                          Supported formats: .pdf, .docx, .doc
+                        </span>
+                      )}
+                    </label>
+                  </div>
+                </div>
+
+                {/* Key Skills */}
+                <div>
+                  <label className="block text-xs font-bold text-gray-200 uppercase tracking-wider mb-1">
+                    Key Skills & Past Highlights (Optional)
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="e.g. BMS operations, HT/LT electrical panels, JIT inventory, team supervision..."
+                    value={talentForm.keySkills}
+                    onChange={(e) => setTalentForm({ ...talentForm, keySkills: e.target.value })}
+                    className="w-full px-4 py-2 rounded-xl bg-white text-gray-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-400"
+                  />
+                </div>
+
+                {/* Consent Checkbox */}
+                <div className="flex items-start gap-2 pt-1 text-gray-300">
+                  <input
+                    type="checkbox"
+                    id="talent-consent"
+                    checked={talentForm.consent}
+                    onChange={(e) => setTalentForm({ ...talentForm, consent: e.target.checked })}
+                    className="mt-0.5 rounded text-sky-600 focus:ring-sky-400"
+                  />
+                  <label htmlFor="talent-consent" className="text-[11px] leading-tight cursor-pointer">
+                    I authorize MANABS National Resource Cell and HR team to store my profile and contact me via Phone, WhatsApp, or Email whenever relevant job opportunities open.
+                  </label>
+                </div>
+
+                {/* Submit CTA */}
+                <button
+                  type="submit"
+                  className="w-full py-4 bg-gradient-to-r from-red-600 via-sky-600 to-sky-700 hover:from-red-700 hover:to-sky-800 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xl flex items-center justify-center gap-2 active:scale-98"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>Register Profile in MANABS Future Talent Bank</span>
+                </button>
+              </form>
+            ) : (
+              /* Success Confirmation Card */
+              <div className="max-w-xl mx-auto bg-white/10 border border-emerald-400/60 p-8 rounded-3xl text-center space-y-4 backdrop-blur-md animate-in zoom-in-95 duration-200">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border-2 border-emerald-400 flex items-center justify-center mx-auto shadow-lg">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-widest text-emerald-300 block">
+                    Registration Confirmed • Talent ID: {talentAppId}
+                  </span>
+                  <h3 className="text-2xl font-bold text-white mt-1">
+                    Profile Successfully Added to Talent Bank!
+                  </h3>
+                  <p className="text-xs text-gray-300 mt-2 leading-relaxed">
+                    Thank you, <span className="font-bold text-white">{talentForm.fullName}</span>. Your details and resume have been indexed in our central Resource Cell database.
+                  </p>
+                </div>
+
+                <div className="bg-white/5 border border-white/10 p-4 rounded-2xl text-left text-xs text-gray-200 space-y-1.5">
+                  <div className="flex justify-between"><span className="text-gray-400">Department:</span> <span className="font-bold text-white">{talentForm.targetDepartment}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">Preferred Location:</span> <span className="text-sky-300">{talentForm.preferredLocation}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">Contact Number:</span> <span className="text-emerald-400">{talentForm.phone}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">Status:</span> <span className="font-bold text-emerald-300">✓ Active in HR Scout Pool</span></div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    onClick={() => {
+                      setTalentSubmitted(false);
+                      setTalentForm({
+                        fullName: '',
+                        phone: '',
+                        email: '',
+                        targetDepartment: 'Integrated Facilities',
+                        preferredLocation: 'Delhi NCR (Delhi, Gurugram, Noida)',
+                        experience: '1 - 3 Years',
+                        expectedSalary: '',
+                        noticePeriod: 'Immediate / < 15 Days',
+                        keySkills: '',
+                        resumeFileName: '',
+                        consent: true
+                      });
+                    }}
+                    className="px-6 py-2.5 bg-white/15 hover:bg-white/25 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-white/20"
+                  >
+                    Submit Another Profile
+                  </button>
+                </div>
+              </div>
+            )}
+
           </div>
-          <button
-            onClick={() => handleOpenApply({ title: "General Talent Pool Application", department: "Resource Cell", location: "Delhi NCR / Pan-India" })}
-            className="px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md shrink-0"
-          >
-            Submit General Resume
-          </button>
+
         </div>
       </section>
 
-      {/* Quick Apply Modal */}
+      {/* Quick Apply Modal for specific jobs */}
       {applyModalOpen && activeJob && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in">
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative border border-gray-200 text-gray-900 max-h-[90vh] overflow-y-auto">
