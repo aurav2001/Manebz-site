@@ -306,7 +306,9 @@ const AdminDashboardPage = ({ onNavigate }) => {
     isHot: false,
   });
 
-  const openPageModal = (p = null) => {
+  const [isEditingPage, setIsEditingPage] = useState(false);
+
+  const openPageEditor = (p = null) => {
     if (p) {
       setEditingItem(p);
       setPageForm({
@@ -332,7 +334,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
         showInNavbar: true,
       });
     }
-    setModalType('page');
+    setIsEditingPage(true);
   };
 
   const handleSavePage = (e) => {
@@ -365,9 +367,9 @@ const AdminDashboardPage = ({ onNavigate }) => {
       showToast(`Page "${pageData.title}" updated successfully!`);
     } else {
       addCustomPage(pageData);
-      showToast(`New page "${pageData.title}" created!`);
+      showToast(`New page "${pageData.title}" created & published!`);
     }
-    setModalType(null);
+    setIsEditingPage(false);
   };
 
   const openNavModal = (item = null) => {
@@ -2042,84 +2044,325 @@ const AdminDashboardPage = ({ onNavigate }) => {
             {/* SECTION: CUSTOM PAGES & DYNAMIC CMS */}
             {activeSection === 'pages' && (
               <div className="space-y-6">
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-gray-950">Dynamic Custom Pages ({customPages?.length || 0} Pages)</h3>
-                    <p className="text-sm text-gray-600 mt-1 font-medium">Create and publish custom pages with rich content sections, hero banners, and direct links.</p>
-                  </div>
-                  <button
-                    onClick={() => openPageModal()}
-                    className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-2 shrink-0 cursor-pointer"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Create New Page</span>
-                  </button>
-                </div>
+                {!isEditingPage ? (
+                  <>
+                    {/* Header Bar */}
+                    <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                      <div>
+                        <h3 className="text-xl sm:text-2xl font-black text-gray-950">Dynamic Custom Pages ({customPages?.length || 0} Pages)</h3>
+                        <p className="text-sm text-gray-600 mt-1 font-medium">Create and publish custom pages with rich content sections, hero banners, and direct links.</p>
+                      </div>
+                      <button
+                        onClick={() => openPageEditor()}
+                        className="px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-2 shrink-0 cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Create New Page</span>
+                      </button>
+                    </div>
 
-                {/* Custom Pages Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {customPages && customPages.map((page) => (
-                    <div
-                      key={page.id}
-                      className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between hover:border-sky-400 hover:shadow-md transition-all"
-                    >
-                      <div className="p-6 sm:p-7 space-y-4">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
-                            {page.badge || 'Custom Page'}
-                          </span>
-                          <span className="text-xs font-mono font-bold text-slate-400">
-                            #/p/{page.slug}
-                          </span>
+                    {/* Custom Pages Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {customPages && customPages.map((page) => (
+                        <div
+                          key={page.id}
+                          className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between hover:border-sky-400 hover:shadow-md transition-all"
+                        >
+                          <div className="p-6 sm:p-7 space-y-4">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+                                {page.badge || 'Custom Page'}
+                              </span>
+                              <span className="text-xs font-mono font-bold text-slate-400">
+                                #/p/{page.slug}
+                              </span>
+                            </div>
+
+                            <div>
+                              <h4 className="text-lg sm:text-xl font-black text-slate-950">{page.title}</h4>
+                              <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                                {page.heroTagline || page.content}
+                              </p>
+                            </div>
+
+                            <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs text-slate-600 flex items-center justify-between font-medium">
+                              <span>{page.sections?.length || 0} Content Blocks</span>
+                              <span className="text-emerald-700 font-bold">● Published Live</span>
+                            </div>
+                          </div>
+
+                          <div className="p-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <button
+                              onClick={() => onNavigate(`p/${page.slug}`)}
+                              className="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-sky-600" />
+                              <span>View Live Page</span>
+                            </button>
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => openPageEditor(page)}
+                                className="p-2 bg-white hover:bg-sky-50 text-sky-700 rounded-xl transition-colors border border-gray-200 cursor-pointer"
+                                title="Edit Page"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (window.confirm(`Are you sure you want to delete custom page "${page.title}"?`)) {
+                                    deleteCustomPage(page.id);
+                                    showToast(`Page "${page.title}" deleted`);
+                                  }
+                                }}
+                                className="p-2 bg-white hover:bg-red-50 text-red-600 rounded-xl transition-colors border border-gray-200 cursor-pointer"
+                                title="Delete Page"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
                         </div>
-
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  /* FULL WIDTH DEDICATED PAGE STUDIO / CREATOR */
+                  <div className="space-y-6 animate-in fade-in duration-150">
+                    
+                    {/* Top Action Header */}
+                    <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setIsEditingPage(false)}
+                          className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+                          title="Back to Pages List"
+                        >
+                          <ArrowRight className="w-5 h-5 rotate-180" />
+                        </button>
                         <div>
-                          <h4 className="text-lg sm:text-xl font-black text-slate-950">{page.title}</h4>
-                          <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                            {page.heroTagline || page.content}
+                          <h3 className="text-xl sm:text-2xl font-black text-gray-950">
+                            {editingItem ? `Edit Page: ${editingItem.title}` : 'Page Studio: Create New Page'}
+                          </h3>
+                          <p className="text-xs text-gray-500 font-medium mt-0.5">
+                            Full-width page architect with live interactive preview.
                           </p>
                         </div>
-
-                        <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs text-slate-600 flex items-center justify-between font-medium">
-                          <span>{page.sections?.length || 0} Content Blocks</span>
-                          <span className="text-emerald-700 font-bold">● Published Live</span>
-                        </div>
                       </div>
 
-                      <div className="p-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
                         <button
-                          onClick={() => onNavigate(`p/${page.slug}`)}
-                          className="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                          type="button"
+                          onClick={() => setIsEditingPage(false)}
+                          className="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
                         >
-                          <Eye className="w-3.5 h-3.5 text-sky-600" />
-                          <span>View Live Page</span>
+                          Cancel
                         </button>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => openPageModal(page)}
-                            className="p-2 bg-white hover:bg-sky-50 text-sky-700 rounded-xl transition-colors border border-gray-200 cursor-pointer"
-                            title="Edit Page"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (window.confirm(`Are you sure you want to delete custom page "${page.title}"?`)) {
-                                deleteCustomPage(page.id);
-                                showToast(`Page "${page.title}" deleted`);
-                              }
-                            }}
-                            className="p-2 bg-white hover:bg-red-50 text-red-600 rounded-xl transition-colors border border-gray-200 cursor-pointer"
-                            title="Delete Page"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={handleSavePage}
+                          className="px-7 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-red-600/20 flex items-center gap-2 cursor-pointer"
+                        >
+                          <Save className="w-4 h-4" />
+                          <span>Save & Publish</span>
+                        </button>
                       </div>
                     </div>
-                  ))}
-                </div>
+
+                    {/* Full Width Studio: Two Column Layout */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                      
+                      {/* Left Form Workspace (7 Cols) */}
+                      <form onSubmit={handleSavePage} className="lg:col-span-7 space-y-6">
+                        
+                        {/* 1. Basic Metadata Card */}
+                        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                          <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 pb-2 border-b border-gray-100">
+                            1. Page Title & URL Routing
+                          </h4>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Page Title *</label>
+                              <input
+                                type="text"
+                                required
+                                placeholder="e.g. Quality & Environmental Policy"
+                                value={pageForm.title}
+                                onChange={(e) => setPageForm({ ...pageForm, title: e.target.value })}
+                                className="w-full px-4 py-3 rounded-xl border border-gray-300 font-bold text-sm focus:border-red-500 focus:outline-none"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">URL Slug</label>
+                              <div className="flex items-center">
+                                <span className="px-3 py-3 rounded-l-xl bg-slate-100 border border-r-0 border-gray-300 text-xs font-mono text-slate-500">
+                                  #/p/
+                                </span>
+                                <input
+                                  type="text"
+                                  placeholder="quality-policy"
+                                  value={pageForm.slug}
+                                  onChange={(e) => setPageForm({ ...pageForm, slug: e.target.value })}
+                                  className="w-full px-3.5 py-3 rounded-r-xl border border-gray-300 font-mono text-xs focus:border-red-500 focus:outline-none"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                            <div>
+                              <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Header Badge Pill</label>
+                              <input
+                                type="text"
+                                placeholder="e.g. Statutory Assurance"
+                                value={pageForm.badge}
+                                onChange={(e) => setPageForm({ ...pageForm, badge: e.target.value })}
+                                className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Hero Background Image</label>
+                              <input
+                                type="url"
+                                placeholder="https://images.unsplash.com/..."
+                                value={pageForm.heroImage}
+                                onChange={(e) => setPageForm({ ...pageForm, heroImage: e.target.value })}
+                                className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs font-mono focus:border-red-500 focus:outline-none"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Hero Headline Tagline</label>
+                            <input
+                              type="text"
+                              placeholder="e.g. 100% Statutory Compliant Facility & Manpower Governance across North India"
+                              value={pageForm.heroTagline}
+                              onChange={(e) => setPageForm({ ...pageForm, heroTagline: e.target.value })}
+                              className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        {/* 2. Overview Content Card */}
+                        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                          <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 pb-2 border-b border-gray-100">
+                            2. Introduction & Scope Statement
+                          </h4>
+                          <div>
+                            <textarea
+                              rows={4}
+                              placeholder="Write a clear statement of policies, certifications, workforce standards, or services overview..."
+                              value={pageForm.content}
+                              onChange={(e) => setPageForm({ ...pageForm, content: e.target.value })}
+                              className="w-full px-4 py-3.5 rounded-xl border border-gray-300 text-sm leading-relaxed font-medium focus:border-red-500 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        {/* 3. Key Content Blocks Card */}
+                        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                          <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                            <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900">
+                              3. Key Content Blocks & Detailed Standards
+                            </h4>
+                            <span className="text-[11px] font-bold text-slate-400">Format: Heading | Description</span>
+                          </div>
+                          <div>
+                            <textarea
+                              rows={5}
+                              value={pageForm.sectionsText}
+                              onChange={(e) => setPageForm({ ...pageForm, sectionsText: e.target.value })}
+                              className="w-full px-4 py-3.5 rounded-xl border border-gray-300 font-mono text-xs leading-relaxed focus:border-red-500 focus:outline-none"
+                              placeholder="100% PF & ESI Adherence | All challans uploaded by the 15th of each month.&#10;ISO 9001 Quality Checklists | Mandatory daily audit reports and surprise inspections."
+                            />
+                          </div>
+                        </div>
+
+                        {/* 4. Navbar Publishing Settings */}
+                        <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="checkbox"
+                              id="fullPageInNavbar"
+                              checked={pageForm.showInNavbar}
+                              onChange={(e) => setPageForm({ ...pageForm, showInNavbar: e.target.checked })}
+                              className="w-5 h-5 text-red-600 rounded cursor-pointer"
+                            />
+                            <label htmlFor="fullPageInNavbar" className="text-sm font-bold text-gray-800 cursor-pointer">
+                              Automatically add direct link to Top Header Navbar
+                            </label>
+                          </div>
+                        </div>
+
+                      </form>
+
+                      {/* Right Sticky Real-Time Live Preview (5 Cols) */}
+                      <div className="lg:col-span-5 sticky top-24 space-y-4">
+                        <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
+                          <div className="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                              <span className="text-xs font-bold uppercase tracking-wider">Live Real-Time Preview</span>
+                            </div>
+                            <span className="text-[10px] font-mono text-slate-400">
+                              #/p/{pageForm.slug || 'page-slug'}
+                            </span>
+                          </div>
+
+                          {/* Hero Simulation */}
+                          <div className="relative bg-[#071324] text-white p-6 overflow-hidden">
+                            {pageForm.heroImage && (
+                              <img
+                                src={pageForm.heroImage}
+                                alt="Preview background"
+                                className="absolute inset-0 w-full h-full object-cover opacity-25"
+                              />
+                            )}
+                            <div className="relative z-10 space-y-3">
+                              <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/20 text-sky-300 border border-white/20">
+                                {pageForm.badge || 'Official Document'}
+                              </span>
+                              <h3 className="text-xl font-black text-white leading-tight">
+                                {pageForm.title || 'Page Title Preview'}
+                              </h3>
+                              <p className="text-xs text-slate-300 line-clamp-2">
+                                {pageForm.heroTagline || 'Hero headline subtitle preview...'}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Body Content Simulation */}
+                          <div className="p-5 space-y-4 bg-slate-50 max-h-[360px] overflow-y-auto text-xs">
+                            <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5 shadow-xs">
+                              <span className="text-[10px] font-bold uppercase text-red-600 block">Overview Statement</span>
+                              <p className="text-slate-700 leading-relaxed line-clamp-4">
+                                {pageForm.content || 'Overview description will be formatted here.'}
+                              </p>
+                            </div>
+
+                            <div className="space-y-2">
+                              <span className="text-[10px] font-bold uppercase text-slate-500 block">Content Blocks Preview</span>
+                              {pageForm.sectionsText.split('\n').filter(Boolean).map((line, idx) => {
+                                const [h, ...t] = line.split('|');
+                                return (
+                                  <div key={idx} className="p-3 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1">
+                                    <div className="font-bold text-slate-900">{h ? h.trim() : `Block #${idx + 1}`}</div>
+                                    <div className="text-[11px] text-slate-600 line-clamp-2">{t.join('|').trim()}</div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+                )}
               </div>
             )}
 
@@ -2523,135 +2766,6 @@ const AdminDashboardPage = ({ onNavigate }) => {
           </div>
         </div>
       )}
-
-      {/* CUSTOM DYNAMIC PAGE CREATION / EDIT MODAL */}
-      {modalType === 'page' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in overflow-y-auto">
-          <div className="bg-white rounded-3xl p-6 sm:p-10 max-w-2xl w-full shadow-2xl relative border border-gray-200 text-gray-900 max-h-[90vh] overflow-y-auto my-6">
-            <button onClick={() => setModalType(null)} className="absolute top-5 right-5 p-2 text-gray-400 hover:text-gray-700 rounded-full cursor-pointer">
-              <X className="w-6 h-6" />
-            </button>
-            <h3 className="text-2xl font-black text-gray-950 mb-6 pb-3 border-b border-gray-100">
-              {editingItem ? `Edit Page: ${editingItem.title}` : 'Create New Custom Page'}
-            </h3>
-            <form onSubmit={handleSavePage} className="space-y-4 text-xs sm:text-sm">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-bold text-gray-800 uppercase mb-1.5">Page Title *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Quality & Safety Protocols"
-                    value={pageForm.title}
-                    onChange={(e) => setPageForm({ ...pageForm, title: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-gray-800 uppercase mb-1.5">URL Slug (Auto or custom)</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. quality-safety"
-                    value={pageForm.slug}
-                    onChange={(e) => setPageForm({ ...pageForm, slug: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 font-mono text-xs"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-bold text-gray-800 uppercase mb-1.5">Header Badge Pill</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Enterprise Assurance"
-                    value={pageForm.badge}
-                    onChange={(e) => setPageForm({ ...pageForm, badge: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 font-medium"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-gray-800 uppercase mb-1.5">Hero Background Image URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://images.unsplash.com/..."
-                    value={pageForm.heroImage}
-                    onChange={(e) => setPageForm({ ...pageForm, heroImage: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 font-mono text-xs"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-gray-800 uppercase mb-1.5">Hero Headline / Tagline</label>
-                <input
-                  type="text"
-                  placeholder="e.g. 100% Statutory Compliant Facility Upkeep and Operations"
-                  value={pageForm.heroTagline}
-                  onChange={(e) => setPageForm({ ...pageForm, heroTagline: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 font-medium"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-gray-800 uppercase mb-1.5">Overview / Introduction Text</label>
-                <textarea
-                  rows={3}
-                  placeholder="Describe the objective, scope, and operational highlights of this page..."
-                  value={pageForm.content}
-                  onChange={(e) => setPageForm({ ...pageForm, content: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 leading-relaxed font-medium"
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block font-bold text-gray-800 uppercase">
-                    Content Blocks / Standards (1 per line: Heading | Text)
-                  </label>
-                </div>
-                <textarea
-                  rows={4}
-                  value={pageForm.sectionsText}
-                  onChange={(e) => setPageForm({ ...pageForm, sectionsText: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 font-mono text-xs leading-relaxed"
-                  placeholder="Block Title | Full detailed description..."
-                />
-              </div>
-
-              <div className="flex items-center gap-3 pt-2">
-                <input
-                  type="checkbox"
-                  id="pageInNavbar"
-                  checked={pageForm.showInNavbar}
-                  onChange={(e) => setPageForm({ ...pageForm, showInNavbar: e.target.checked })}
-                  className="w-5 h-5 text-red-600 rounded cursor-pointer"
-                />
-                <label htmlFor="pageInNavbar" className="font-bold text-gray-800 cursor-pointer">
-                  Automatically show in Top Navbar Navigation Menu
-                </label>
-              </div>
-
-              <div className="pt-4 border-t border-gray-100 flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setModalType(null)}
-                  className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 font-bold rounded-xl text-sm cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-7 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-sm shadow-md cursor-pointer"
-                >
-                  Save & Publish Page
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* NAVBAR MENU ITEM EDIT/CREATE MODAL */}
       {modalType === 'navItem' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in overflow-y-auto">
