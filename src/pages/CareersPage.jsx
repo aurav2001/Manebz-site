@@ -60,6 +60,7 @@ const CareersPage = ({ onNavigate }) => {
   const [selectedJobId, setSelectedJobId] = useState(() => jobs[0]?.id || 'job-1');
   // Right panel view mode: 'details' (Job details), 'apply' (Apply for selected job), 'talent-vault' (Future Resume Bank)
   const [rightPanelMode, setRightPanelMode] = useState('details');
+  const [isPanelHighlighted, setIsPanelHighlighted] = useState(false);
 
   // 4. Job Application Form State
   const [applyForm, setApplyForm] = useState({
@@ -114,15 +115,24 @@ const CareersPage = ({ onNavigate }) => {
     return matchesDept && matchesLoc && matchesSearch;
   });
 
-  // Handle selecting a job
+  // Handle selecting a job with prominent highlighting
   const handleSelectJob = (jobId, mode = 'details') => {
     setSelectedJobId(jobId);
     setRightPanelMode(mode);
     setApplySubmitted(false);
-    // Smooth scroll to right panel on mobile
-    if (window.innerWidth < 1024) {
-      const el = document.getElementById('career-right-panel');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    
+    // Trigger animated highlight glow
+    setIsPanelHighlighted(true);
+    setTimeout(() => {
+      setIsPanelHighlighted(false);
+    }, 2400);
+
+    // Scroll right panel into view smoothly if on mobile or offset
+    const el = document.getElementById('career-right-panel');
+    if (el) {
+      if (window.innerWidth < 1024) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   };
 
@@ -410,9 +420,26 @@ const CareersPage = ({ onNavigate }) => {
           {/* RIGHT COLUMN: STICKY INTERACTIVE DETAILS & DIRECT APPLICATION FORM (5 of 12 columns) */}
           <div id="career-right-panel" className="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
             
-            {/* Panel Card Container */}
-            <div className="bg-white rounded-3xl border border-gray-200 shadow-xl overflow-hidden">
+            {/* Panel Card Container with Dynamic Highlight */}
+            <div className={`bg-white rounded-3xl overflow-hidden transition-all duration-300 relative ${
+              isPanelHighlighted 
+                ? 'border-2 border-red-600 ring-4 ring-red-500/30 shadow-2xl shadow-red-500/25 scale-[1.015]' 
+                : 'border border-gray-200 shadow-xl'
+            }`}>
               
+              {/* Active Selection Flash Notification Banner */}
+              {isPanelHighlighted && (
+                <div className="bg-gradient-to-r from-red-600 via-rose-600 to-sky-600 text-white px-4 py-2.5 text-xs font-bold flex items-center justify-between animate-in slide-in-from-top duration-200 shadow-inner">
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping shrink-0"></span>
+                    <span className="truncate">👉 Now Displaying: <strong>{activeJob?.title}</strong></span>
+                  </div>
+                  <span className="text-[10px] bg-white/25 px-2.5 py-0.5 rounded-full uppercase tracking-widest shrink-0 font-extrabold">
+                    {rightPanelMode === 'apply' ? 'Apply Online' : 'Job Specs'}
+                  </span>
+                </div>
+              )}
+
               {/* Panel Top Navigation Tabs */}
               <div className="bg-gray-50 p-2 border-b border-gray-200 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5 overflow-x-auto">
