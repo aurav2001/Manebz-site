@@ -72,15 +72,14 @@ const PayrollSection = ({ onNavigate }) => {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold uppercase tracking-wider">
-            <Award className="w-3.5 h-3.5 text-red-600" />
-            <span>End-to-End Payroll Outsourcing</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 text-sky-700 text-xs font-bold uppercase tracking-wider">
+            <span>Automated Payroll Engine</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-tight">
-            Automated <strong>Payroll & Statutory Compliance</strong>
+          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            Automated <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-blue-700 to-red-600">Payroll & Statutory</span> Compliance
           </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-red-600 to-sky-600 mx-auto rounded-full mt-2" />
-          <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+          <div className="w-16 h-1.5 bg-gradient-to-r from-sky-500 to-blue-600 mx-auto rounded-full mt-2" />
+          <p className="text-slate-600 text-base sm:text-lg font-normal leading-relaxed pt-1">
             From single-click bank disbursals to automated PF/ESI challans, biometric sync, and instant digital payslips for 10 to 10,000+ deployed workforce.
           </p>
         </div>

@@ -53,14 +53,15 @@ const AboutPage = ({ onNavigate }) => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-sky-100 text-sky-800 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 text-sky-800 text-xs font-bold uppercase tracking-wider">
               <Award className="w-3.5 h-3.5 text-sky-600" />
               <span>Our Genesis & Journey</span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 leading-snug">
-              Providing World-Class <span className="text-sky-600">Facilities & Workforce</span> to Corporate India
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-tight tracking-tight">
+              Providing World-Class <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-blue-700 to-red-600">Facilities & Workforce</span> to Corporate India
             </h2>
+            <div className="w-16 h-1.5 bg-gradient-to-r from-sky-500 to-blue-600 rounded-full mt-2 mb-4" />
 
             <div className="space-y-4 text-gray-700 text-sm sm:text-base leading-relaxed">
               <p>

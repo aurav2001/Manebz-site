@@ -162,23 +162,23 @@ const HomePage = ({ onNavigate }) => {
       </section>
 
       {/* 2. THE 5 CORE SERVICE VERTICALS */}
-      <section className="py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="mb-14 text-left max-w-3xl">
-          <span className="text-xs font-bold uppercase tracking-widest text-red-600 mb-2 block">
-            Our Service Spectrum
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-tight">
-            Comprehensive <strong>Corporate Facilities & Staffing</strong>
+        <div className="mb-16 text-left max-w-3xl space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold uppercase tracking-wider">
+            <span>Corporate Solutions</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            Comprehensive <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0a192f] via-sky-700 to-red-600">Facilities & Staffing</span> Ecosystem
           </h2>
-          <div className="w-20 h-1.5 bg-gradient-to-r from-red-600 to-sky-600 rounded-full mt-4 mb-4" />
-          <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-            Outsourcing facility management and workforce services is a smart business decision to increase efficiency, maintain flexible resources, and decrease operating costs.
+          <div className="w-16 h-1.5 bg-gradient-to-r from-sky-500 to-blue-600 rounded-full mt-3 mb-3" />
+          <p className="text-slate-600 text-base sm:text-lg font-normal leading-relaxed pt-1">
+            Tailored corporate services designed to accelerate business productivity, guarantee 100% statutory compliance, and ensure robust operational security.
           </p>
         </div>
 
         {/* 5 Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {services.map((srv) => {
             const Icon = iconMap[srv.icon] || Building2;
             const isRed = srv.accentColor === 'red';
@@ -186,44 +186,40 @@ const HomePage = ({ onNavigate }) => {
               <div
                 key={srv.id}
                 onClick={() => onNavigate('services', srv.slug)}
-                className="group bg-white p-7 rounded-2xl border border-gray-200 hover:border-red-500 hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 cursor-pointer flex flex-col justify-between hover:-translate-y-1"
+                className="group bg-white p-8 rounded-3xl border border-slate-100 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.06)] hover:shadow-2xl hover:border-sky-300 transition-all duration-300 cursor-pointer flex flex-col justify-between hover:-translate-y-1.5"
               >
-                <div>
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 mb-5 shadow-sm ${
-                    isRed 
-                      ? 'text-red-600 bg-red-50 group-hover:bg-red-600 group-hover:text-white' 
-                      : 'text-sky-600 bg-sky-50 group-hover:bg-sky-600 group-hover:text-white'
-                  }`}>
+                <div className="space-y-4">
+                  <div className="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.06)] flex items-center justify-center text-sky-600 group-hover:bg-[#0a2540] group-hover:text-white transition-all duration-300">
                     <Icon className="w-7 h-7" />
                   </div>
 
-                  <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
                     {srv.category}
                   </span>
 
-                  <h3 className="text-lg font-bold text-gray-900 mt-2.5 group-hover:text-red-600 transition-colors uppercase tracking-tight">
+                  <h3 className="text-xl font-bold text-slate-900 group-hover:text-sky-600 transition-colors tracking-tight">
                     {srv.title}
                   </h3>
 
-                  <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                  <p className="text-sm text-slate-600 leading-relaxed font-normal">
                     {srv.shortDesc}
                   </p>
 
-                  <div className="mt-4 pt-3 border-t border-gray-100 space-y-1.5">
+                  <div className="pt-2 space-y-2">
                     {srv.features.slice(0, 3).map((f, i) => (
-                      <div key={i} className="flex items-center gap-2 text-[11px] text-gray-700">
-                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <div key={i} className="flex items-center gap-2.5 text-xs text-slate-700 font-medium">
+                        <Check className="w-4 h-4 text-emerald-600 shrink-0" />
                         <span className="line-clamp-1">{f}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-sky-600 group-hover:text-red-600 transition-colors">
+                <div className="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#0a2540] group-hover:text-sky-600 transition-colors">
                     Explore Vertical
                   </span>
-                  <div className="w-8 h-8 rounded-full bg-gray-50 group-hover:bg-gradient-to-r group-hover:from-red-600 group-hover:to-sky-600 group-hover:text-white flex items-center justify-center transition-all shadow-sm">
+                  <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-[#0a2540] group-hover:text-white flex items-center justify-center transition-all">
                     <ArrowRight className="w-3.5 h-3.5 -rotate-45 group-hover:rotate-0 transition-transform" />
                   </div>
                 </div>
@@ -234,28 +230,28 @@ const HomePage = ({ onNavigate }) => {
           {/* 6th Card: Know Us Better Callout Card */}
           <div 
             onClick={() => onNavigate('about')}
-            className="group bg-gradient-to-br from-[#0a192f] to-[#112240] text-white p-7 rounded-2xl shadow-lg flex flex-col justify-between cursor-pointer hover:shadow-2xl transition-all"
+            className="group bg-gradient-to-br from-[#0a192f] via-[#0f284e] to-[#0a192f] text-white p-8 rounded-3xl shadow-xl flex flex-col justify-between cursor-pointer hover:shadow-2xl hover:scale-[1.01] transition-all duration-300"
           >
             <div className="space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-white/10 text-sky-400 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/15 text-sky-400 flex items-center justify-center">
                 <Award className="w-7 h-7" />
               </div>
-              <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300">
-                Pioneer Heritage
+              <span className="text-xs font-bold uppercase tracking-wider text-sky-300 block">
+                Founders Heritage
               </span>
-              <h3 className="text-xl font-bold text-white">
-                Know MANABS Better
+              <h3 className="text-2xl font-black text-white tracking-tight">
+                20+ Years Pioneer Facility Heritage
               </h3>
-              <p className="text-xs text-gray-300 leading-relaxed">
-                Founders were pioneers in Indian corporate facilities for 20+ years. Discover our dedicated in-house Resource Cell and ISO/EMS quality culture.
+              <p className="text-sm text-slate-300 leading-relaxed font-normal">
+                Discover our dedicated in-house National Resource Cell, 2-week induction program, and 100% statutory adherence.
               </p>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-sky-400 group-hover:text-white transition-colors">
-                Read Full Story
+            <div className="mt-8 pt-5 border-t border-white/15 flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-sky-300 group-hover:text-white transition-colors">
+                Read Company Story
               </span>
-              <div className="w-8 h-8 rounded-full bg-white/10 group-hover:bg-red-500 text-white flex items-center justify-center transition-all">
+              <div className="w-7 h-7 rounded-full bg-white/15 group-hover:bg-red-500 text-white flex items-center justify-center transition-all">
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
             </div>
