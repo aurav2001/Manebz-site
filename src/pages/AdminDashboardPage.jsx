@@ -1,37 +1,37 @@
 import React, { useState } from 'react';
 import logoImg from '../assets/logo.jpg';
-import { 
-  LayoutDashboard, 
-  Layers, 
-  Briefcase, 
-  Users, 
-  Database, 
-  MessageSquare, 
-  Award, 
-  Star, 
-  Settings, 
-  Plus, 
-  Edit3, 
-  Trash2, 
-  CheckCircle2, 
-  Clock, 
-  Search, 
-  Filter, 
-  ArrowRight, 
-  X, 
-  Save, 
-  RotateCcw, 
-  Lock, 
-  Unlock, 
-  Eye, 
-  EyeOff, 
-  Download, 
-  FileText, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  ShieldCheck, 
-  Check, 
+import {
+  LayoutDashboard,
+  Layers,
+  Briefcase,
+  Users,
+  Database,
+  MessageSquare,
+  Award,
+  Star,
+  Settings,
+  Plus,
+  Edit3,
+  Trash2,
+  CheckCircle2,
+  Clock,
+  Search,
+  Filter,
+  ArrowRight,
+  X,
+  Save,
+  RotateCcw,
+  Lock,
+  Unlock,
+  Eye,
+  EyeOff,
+  Download,
+  FileText,
+  Phone,
+  Mail,
+  MapPin,
+  ShieldCheck,
+  Check,
   Sparkles,
   ExternalLink,
   ChevronRight,
@@ -73,7 +73,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
-    if (passwordInput === 'Admin123') {
+    if (passwordInput === 'Admin12345') {
       setIsAuthenticated(true);
       try {
         sessionStorage.setItem('manabs_admin_authenticated', 'true');
@@ -467,13 +467,13 @@ const AdminDashboardPage = ({ onNavigate }) => {
         <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-red-500/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-md w-full bg-white/10 backdrop-blur-2xl border border-white/20 p-8 sm:p-10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] text-center space-y-6 relative z-10">
-          
+
           {/* Main Logo & Security Shield */}
           <div className="flex flex-col items-center gap-3">
             <div className="p-2.5 bg-white rounded-2xl shadow-xl border border-white/30">
-              <img 
-                src={logoImg} 
-                alt="MANABS / MANEBZ Logo" 
+              <img
+                src={logoImg}
+                alt="MANABS / MANEBZ Logo"
                 className="h-12 w-auto object-contain"
               />
             </div>
@@ -497,7 +497,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                 Admin Security Password
               </label>
               <div className="relative">
-                <input 
+                <input
                   type={showPassword ? "text" : "password"}
                   required
                   placeholder="Enter Admin Password"
@@ -552,7 +552,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-slate-50 pt-20 pb-20 text-gray-900 flex flex-col">
-      
+
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-24 right-6 z-50 bg-gray-950 text-white px-6 py-3.5 rounded-2xl shadow-2xl border border-sky-400 flex items-center gap-3 animate-in slide-in-from-top-3 text-sm font-bold">
@@ -564,17 +564,17 @@ const AdminDashboardPage = ({ onNavigate }) => {
       {/* Top Admin Navigation Header Bar with Main Logo & Large Titles */}
       <div className="bg-white border-b border-gray-200 px-6 sm:px-10 py-4 sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          
+
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => onNavigate('home')} 
+            <button
+              onClick={() => onNavigate('home')}
               className="focus:outline-none hover:opacity-90 transition-opacity shrink-0"
               title="Click to view live website"
             >
-              <img 
-                src={logoImg} 
-                alt="MANABS / MANEBZ Logo" 
-                className="h-11 sm:h-12 w-auto object-contain rounded-xl shadow-xs border border-gray-200" 
+              <img
+                src={logoImg}
+                alt="MANABS / MANEBZ Logo"
+                className="h-11 sm:h-12 w-auto object-contain rounded-xl shadow-xs border border-gray-200"
               />
             </button>
             <div>
@@ -627,67 +627,98 @@ const AdminDashboardPage = ({ onNavigate }) => {
       {/* Main Admin Workspace Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* SIDEBAR NAVIGATION (3 of 12 columns) with readable text and clear badges */}
-          <div className="lg:col-span-3 bg-white rounded-3xl border border-gray-200 p-4 shadow-sm space-y-2 sticky lg:top-24">
-            
-            <div className="px-3.5 py-2 text-xs font-black uppercase tracking-widest text-gray-400">
-              Navigation Menu
-            </div>
+
+          {/* SIDEBAR NAVIGATION (3 of 12 columns) - Divided into distinct functional sections */}
+          <div className="lg:col-span-3 space-y-4 sticky lg:top-24">
 
             {[
-              { id: 'overview', label: 'Overview & Metrics', icon: LayoutDashboard, badge: null },
-              { id: 'services', label: 'Services Spectrum', icon: Layers, badge: services.length },
-              { id: 'jobs', label: 'Careers & Vacancies', icon: Briefcase, badge: jobs.length },
-              { id: 'inquiries', label: 'RFQ Quote Leads', icon: MessageSquare, badge: inquiries.length, badgeColor: 'bg-red-100 text-red-700 border border-red-200' },
-              { id: 'applications', label: 'Job Applications', icon: FileText, badge: jobApplications.length, badgeColor: 'bg-sky-100 text-sky-700 border border-sky-200' },
-              { id: 'talent-vault', label: 'Future Talent Bank', icon: Database, badge: talentVaultApplications.length, badgeColor: 'bg-purple-100 text-purple-700 border border-purple-200' },
-              { id: 'company-info', label: 'Company Heritage & Stats', icon: Award, badge: null },
-              { id: 'testimonials', label: 'Client Testimonials', icon: Star, badge: testimonials.length },
-              { id: 'settings', label: 'System & Reset Tools', icon: Settings, badge: null },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeSection === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveSection(tab.id);
-                    setSubSearch('');
-                  }}
-                  className={`w-full text-left px-4 py-3.5 rounded-2xl text-sm sm:text-base font-bold flex items-center justify-between transition-all ${
-                    isActive
-                      ? 'bg-[#0a192f] text-white shadow-md shadow-sky-950/20'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-5 h-5 ${isActive ? 'text-sky-400' : 'text-gray-400'}`} />
-                    <span>{tab.label}</span>
-                  </div>
-                  {tab.badge !== null && (
-                    <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${
-                      isActive ? 'bg-white/20 text-white' : tab.badgeColor || 'bg-gray-100 text-gray-700'
-                    }`}>
-                      {tab.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+              {
+                group: 'Main Hub',
+                items: [
+                  { id: 'overview', label: 'Overview & Metrics', icon: LayoutDashboard, badge: null },
+                ]
+              },
+              {
+                group: 'Leads & Inquiries',
+                items: [
+                  { id: 'inquiries', label: 'RFQ Quote Leads', icon: MessageSquare, badge: inquiries.length, badgeColor: 'bg-red-100 text-red-700 border border-red-200' },
+                ]
+              },
+              {
+                group: 'Careers & Hiring',
+                items: [
+                  { id: 'jobs', label: 'Careers & Vacancies', icon: Briefcase, badge: jobs.length },
+                  { id: 'applications', label: 'Job Applications', icon: FileText, badge: jobApplications.length, badgeColor: 'bg-sky-100 text-sky-700 border border-sky-200' },
+                  { id: 'talent-vault', label: 'Future Talent Bank', icon: Database, badge: talentVaultApplications.length, badgeColor: 'bg-purple-100 text-purple-700 border border-purple-200' },
+                ]
+              },
+              {
+                group: 'Content & Profile',
+                items: [
+                  { id: 'services', label: 'Services Spectrum', icon: Layers, badge: services.length },
+                  { id: 'company-info', label: 'Company Heritage & Stats', icon: Award, badge: null },
+                  { id: 'testimonials', label: 'Client Testimonials', icon: Star, badge: testimonials.length },
+                ]
+              },
+              {
+                group: 'System & Tools',
+                items: [
+                  { id: 'settings', label: 'System & Reset Tools', icon: Settings, badge: null },
+                ]
+              }
+            ].map((section, sIdx) => (
+              <div key={sIdx} className="bg-white rounded-3xl border border-gray-200 p-3 shadow-sm space-y-1.5">
+                <div className="px-3 pt-1.5 pb-1 text-[11px] font-black uppercase tracking-wider text-gray-400 flex items-center justify-between">
+                  <span>{section.group}</span>
+                </div>
+
+                <div className="space-y-1">
+                  {section.items.map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeSection === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => {
+                          setActiveSection(tab.id);
+                          setSubSearch('');
+                        }}
+                        className={`w-full text-left px-3.5 py-2.5 rounded-2xl text-sm font-bold flex items-center justify-between transition-all cursor-pointer ${
+                          isActive
+                            ? 'bg-[#0a192f] text-white shadow-md shadow-sky-950/20'
+                            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <Icon className={`w-4 h-4 ${isActive ? 'text-sky-400' : 'text-gray-400'}`} />
+                          <span className="truncate">{tab.label}</span>
+                        </div>
+                        {tab.badge !== null && (
+                          <span className={`text-[11px] font-black px-2 py-0.5 rounded-full shrink-0 ${
+                            isActive ? 'bg-white/20 text-white' : tab.badgeColor || 'bg-gray-100 text-gray-700'
+                          }`}>
+                            {tab.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
 
           </div>
 
           {/* MAIN CONTENT AREA (9 of 12 columns) */}
           <div className="lg:col-span-9 space-y-6">
-            
+
             {/* SECTION 1: OVERVIEW & METRICS */}
             {activeSection === 'overview' && (
               <div className="space-y-6">
-                
+
                 {/* 6 Quick Metric Cards with Large Numbers and Clear Labels */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  <div 
+                  <div
                     onClick={() => setActiveSection('services')}
                     className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-sky-500 hover:shadow-md transition-all group"
                   >
@@ -699,7 +730,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                     </span>
                   </div>
 
-                  <div 
+                  <div
                     onClick={() => setActiveSection('jobs')}
                     className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-red-500 hover:shadow-md transition-all group"
                   >
@@ -711,7 +742,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                     </span>
                   </div>
 
-                  <div 
+                  <div
                     onClick={() => setActiveSection('inquiries')}
                     className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-emerald-500 hover:shadow-md transition-all group"
                   >
@@ -723,7 +754,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                     </span>
                   </div>
 
-                  <div 
+                  <div
                     onClick={() => setActiveSection('applications')}
                     className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-purple-500 hover:shadow-md transition-all group"
                   >
@@ -735,7 +766,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                     </span>
                   </div>
 
-                  <div 
+                  <div
                     onClick={() => setActiveSection('talent-vault')}
                     className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-amber-500 hover:shadow-md transition-all group"
                   >
@@ -747,7 +778,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                     </span>
                   </div>
 
-                  <div 
+                  <div
                     onClick={() => setActiveSection('testimonials')}
                     className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm cursor-pointer hover:border-sky-500 hover:shadow-md transition-all group"
                   >
@@ -762,7 +793,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
 
                 {/* Recent Leads & Talent Feed with Enhanced Typography */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
+
                   {/* Recent Inquiries */}
                   <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
                     <div className="flex items-center justify-between pb-2 border-b border-gray-100">
@@ -819,7 +850,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
             {/* SECTION 2: SERVICES SPECTRUM MANAGER */}
             {activeSection === 'services' && (
               <div className="space-y-6">
-                
+
                 <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
                   <div>
                     <h3 className="text-xl sm:text-2xl font-black text-gray-950">Services Spectrum ({services.length} Verticals)</h3>
@@ -836,7 +867,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
 
                 <div className="space-y-4">
                   {services.map((srv) => (
-                    <div 
+                    <div
                       key={srv.id}
                       className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-sky-400 hover:shadow-md transition-all"
                     >
@@ -845,9 +876,8 @@ const AdminDashboardPage = ({ onNavigate }) => {
                           <span className="text-xs font-black uppercase px-3 py-1 rounded-lg bg-gray-100 text-gray-700 border border-gray-200">
                             {srv.category}
                           </span>
-                          <span className={`text-xs font-bold px-3 py-1 rounded-lg border ${
-                            srv.accentColor === 'red' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-sky-50 text-sky-700 border-sky-200'
-                          }`}>
+                          <span className={`text-xs font-bold px-3 py-1 rounded-lg border ${srv.accentColor === 'red' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-sky-50 text-sky-700 border-sky-200'
+                            }`}>
                             Accent: {srv.accentColor}
                           </span>
                         </div>
@@ -893,7 +923,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
             {/* SECTION 3: CAREERS & VACANCIES MANAGER */}
             {activeSection === 'jobs' && (
               <div className="space-y-6">
-                
+
                 <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
                   <div>
                     <h3 className="text-xl sm:text-2xl font-black text-gray-950">Job Vacancies ({jobs.length} Active Positions)</h3>
@@ -910,7 +940,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
 
                 <div className="space-y-4">
                   {jobs.map((job) => (
-                    <div 
+                    <div
                       key={job.id}
                       className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-red-400 hover:shadow-md transition-all"
                     >
@@ -982,7 +1012,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                             <span className="text-xs font-mono font-bold text-gray-400 block">{inq.id} • {new Date(inq.date).toLocaleDateString()}</span>
                             <h4 className="text-lg font-black text-gray-950 mt-0.5">{inq.name}</h4>
                           </div>
-                          
+
                           {/* Status Switcher */}
                           <select
                             value={inq.status}
@@ -1141,18 +1171,17 @@ const AdminDashboardPage = ({ onNavigate }) => {
                                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b-2 border-slate-200">
                                   <div>
                                     <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                                      <span className={`text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border inline-block ${
-                                        /\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')
+                                      <span className={`text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border inline-block ${/\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')
                                           ? 'bg-purple-50 text-purple-700 border-purple-200'
                                           : /\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '')
-                                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                          : 'bg-red-50 text-red-600 border-red-200'
-                                      }`}>
+                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                            : 'bg-red-50 text-red-600 border-red-200'
+                                        }`}>
                                         {/\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')
                                           ? 'Image Resume / Document (JPEG/PNG)'
                                           : /\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '')
-                                          ? 'Spreadsheet Resume File (Excel/CSV)'
-                                          : 'Official PDF Resume / Letter'}
+                                            ? 'Spreadsheet Resume File (Excel/CSV)'
+                                            : 'Official PDF Resume / Letter'}
                                       </span>
                                       <span className="text-xs font-mono font-bold text-slate-400">
                                         ID: {app.refId}
@@ -1650,7 +1679,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
             {/* SECTION 7: COMPANY HERITAGE, STATS & STATUTORY COMPLIANCES */}
             {activeSection === 'company-info' && (
               <div className="space-y-6">
-                
+
                 {/* Stats Grid */}
                 <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
                   <div>
@@ -1723,7 +1752,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
             {/* SECTION 8: CLIENT TESTIMONIALS */}
             {activeSection === 'testimonials' && (
               <div className="space-y-6">
-                
+
                 <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
                   <div>
                     <h3 className="text-xl sm:text-2xl font-black text-gray-950">Client Reviews & Testimonials ({testimonials.length})</h3>
@@ -2191,7 +2220,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
       {previewResumeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="relative w-full max-w-4xl max-h-[92vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
-            
+
             {/* Modal Header */}
             <div className="p-4 sm:p-6 bg-slate-900 text-white flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
@@ -2239,9 +2268,9 @@ const AdminDashboardPage = ({ onNavigate }) => {
 
             {/* Modal Body: Full Structured Resume Sheet */}
             <div className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 bg-slate-100">
-              
+
               <div className="bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-6 sm:p-8 space-y-6">
-                
+
                 {/* Candidate Title & Role */}
                 <div className="pb-4 border-b-2 border-slate-200">
                   <span className="text-[10px] font-extrabold uppercase tracking-widest text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-200 inline-block mb-2">
