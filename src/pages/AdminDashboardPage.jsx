@@ -52,10 +52,44 @@ const AdminDashboardPage = ({ onNavigate }) => {
     resetAllToDefaults
   } = useCompany();
 
-  // Authentication State
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // Default logged in for seamless demo; can lock with PIN
-  const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState(false);
+  // Authentication State with 'Admin123' Password Protection
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    try {
+      return sessionStorage.getItem('manabs_admin_authenticated') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    if (passwordInput === 'Admin123') {
+      setIsAuthenticated(true);
+      try {
+        sessionStorage.setItem('manabs_admin_authenticated', 'true');
+      } catch (err) {
+        console.error(err);
+      }
+      setPasswordError('');
+      setPasswordInput('');
+    } else {
+      setPasswordError('Invalid Admin Password. Please enter Admin123');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    try {
+      sessionStorage.removeItem('manabs_admin_authenticated');
+    } catch (err) {
+      console.error(err);
+    }
+    setPasswordInput('');
+    setPasswordError('');
+  };
 
   // Active Sidebar Section
   const [activeSection, setActiveSection] = useState('overview'); // overview, services, jobs, inquiries, applications, talent-vault, company-info, testimonials, settings
@@ -307,38 +341,88 @@ const AdminDashboardPage = ({ onNavigate }) => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#0a192f] flex items-center justify-center p-4 text-white">
-        <div className="max-w-md w-full bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl shadow-2xl text-center space-y-6">
-          <div className="w-16 h-16 rounded-2xl bg-red-600/20 text-red-500 border border-red-500/40 flex items-center justify-center mx-auto shadow-inner">
-            <Lock className="w-8 h-8" />
+      <div className="min-h-screen bg-[#0a192f] flex items-center justify-center p-4 text-white relative overflow-hidden">
+        {/* Glowing Background Orbs */}
+        <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-sky-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-red-500/15 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-md w-full bg-white/10 backdrop-blur-2xl border border-white/20 p-8 sm:p-10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] text-center space-y-6 relative z-10">
+          
+          <div className="relative inline-block">
+            <div className="w-18 h-18 rounded-2xl bg-gradient-to-tr from-red-600 to-sky-600 text-white flex items-center justify-center mx-auto shadow-xl shadow-red-500/20">
+              <Lock className="w-9 h-9" />
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#0a192f] flex items-center justify-center">
+              <ShieldCheck className="w-3.5 h-3.5 text-white" />
+            </div>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold">MANABS Admin Access</h2>
-            <p className="text-xs text-gray-300 mt-1">Enter PIN (default: <span className="font-mono text-sky-400 font-bold">1234</span>) to manage website content.</p>
+
+          <div className="space-y-1.5">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-sky-400 bg-sky-950/60 px-3 py-1 rounded-full border border-sky-500/30 inline-block">
+              MANABS / MANEBZ Admin Portal
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Control Center Login
+            </h2>
+            <p className="text-xs text-gray-300">
+              Restricted access for authorized operations team only.
+            </p>
           </div>
-          <form onSubmit={handlePinSubmit} className="space-y-4">
-            <input 
-              type="password"
-              placeholder="Enter PIN (1234)"
-              value={pinInput}
-              onChange={(e) => setPinInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-center text-lg tracking-widest text-white focus:outline-none focus:border-sky-400"
-            />
-            {pinError && <p className="text-xs text-red-400 font-semibold">Incorrect PIN. Use '1234'</p>}
+
+          <form onSubmit={handlePasswordSubmit} className="space-y-4 text-left">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-300 mb-1.5">
+                Admin Password
+              </label>
+              <div className="relative">
+                <input 
+                  type={showPassword ? "text" : "password"}
+                  required
+                  placeholder="Enter Admin Password"
+                  value={passwordInput}
+                  onChange={(e) => {
+                    setPasswordInput(e.target.value);
+                    if (passwordError) setPasswordError('');
+                  }}
+                  className="w-full px-4 py-3.5 pr-12 rounded-xl bg-white/10 border border-white/20 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-sky-400 focus:bg-white/15 transition-all"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {passwordError && (
+              <div className="p-2.5 rounded-xl bg-red-950/70 border border-red-500/50 text-red-300 text-xs font-semibold flex items-center gap-2">
+                <X className="w-4 h-4 text-red-400 shrink-0" />
+                <span>{passwordError}</span>
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full py-3.5 bg-gradient-to-r from-red-600 to-sky-600 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg"
+              className="w-full py-3.5 bg-gradient-to-r from-red-600 to-sky-600 hover:from-red-500 hover:to-sky-500 font-extrabold text-xs uppercase tracking-wider text-white rounded-xl transition-all shadow-lg shadow-red-500/25 active:scale-98 flex items-center justify-center gap-2"
             >
-              Unlock Dashboard
+              <Unlock className="w-4 h-4" />
+              <span>Unlock Dashboard</span>
             </button>
-            <button
-              type="button"
-              onClick={() => setIsAuthenticated(true)}
-              className="text-xs text-sky-400 underline block mx-auto pt-1"
-            >
-              Demo One-Click Bypass
-            </button>
+
+            <div className="pt-2 text-center">
+              <button
+                type="button"
+                onClick={() => onNavigate('home')}
+                className="text-xs text-gray-400 hover:text-sky-300 transition-colors inline-flex items-center gap-1.5"
+              >
+                <span>← Return to Public Website</span>
+              </button>
+            </div>
           </form>
+
         </div>
       </div>
     );
@@ -398,11 +482,12 @@ const AdminDashboardPage = ({ onNavigate }) => {
             </button>
 
             <button
-              onClick={() => setIsAuthenticated(false)}
-              className="p-2 rounded-xl bg-gray-100 hover:bg-red-50 text-gray-500 hover:text-red-600 transition-colors"
-              title="Lock Admin Panel"
+              onClick={handleLogout}
+              className="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold flex items-center gap-1.5 transition-colors"
+              title="Lock Admin Panel / Logout"
             >
-              <Lock className="w-4 h-4" />
+              <Lock className="w-3.5 h-3.5" />
+              <span>Lock / Logout</span>
             </button>
           </div>
 
