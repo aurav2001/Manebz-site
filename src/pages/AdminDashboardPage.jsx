@@ -41,7 +41,8 @@ import {
   CheckSquare,
   Paperclip,
   AlertCircle,
-  Table
+  Table,
+  LogOut
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
 
@@ -551,170 +552,152 @@ const AdminDashboardPage = ({ onNavigate }) => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-20 pb-20 text-gray-900 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row text-gray-900 font-sans">
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-24 right-6 z-50 bg-gray-950 text-white px-6 py-3.5 rounded-2xl shadow-2xl border border-sky-400 flex items-center gap-3 animate-in slide-in-from-top-3 text-sm font-bold">
+        <div className="fixed top-6 right-6 z-50 bg-gray-950 text-white px-6 py-3.5 rounded-2xl shadow-2xl border border-sky-400 flex items-center gap-3 animate-in slide-in-from-top-3 text-sm font-bold">
           <CheckCircle2 className="w-5 h-5 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Top Admin Navigation Header Bar with Main Logo & Large Titles */}
-      <div className="bg-white border-b border-gray-200 px-6 sm:px-10 py-4 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* LEFT SIDEBAR (Matching User's Reference Screenshot) */}
+      <aside className="w-full md:w-64 lg:w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 md:sticky md:top-0 md:h-screen z-30 shadow-xs">
+        
+        {/* Admin Panel Branding Header */}
+        <div className="p-5 border-b border-slate-100 flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-[#0f172a] text-white flex items-center justify-center shadow-md shrink-0">
+            <Settings className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h2 className="text-base font-extrabold text-slate-900 leading-tight">Admin Panel</h2>
+            <p className="text-xs text-slate-400 font-semibold">UnioTech CMS</p>
+          </div>
+        </div>
 
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => onNavigate('home')}
-              className="focus:outline-none hover:opacity-90 transition-opacity shrink-0"
-              title="Click to view live website"
-            >
-              <img
-                src={logoImg}
-                alt="MANABS / MANEBZ Logo"
-                className="h-11 sm:h-12 w-auto object-contain rounded-xl shadow-xs border border-gray-200"
-              />
-            </button>
-            <div>
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-950">
-                  MANABS Control Center
-                </h1>
-                <span className="text-xs bg-emerald-100 text-emerald-800 font-black px-2.5 py-0.5 rounded-full border border-emerald-200">
-                  LIVE DYNAMIC
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-gray-600 font-medium">
-                Unified Content, Inquiries, Careers & Operations Management Portal
-              </p>
-            </div>
+        {/* Vertical Navigation Menu */}
+        <nav className="flex-1 p-3.5 space-y-1 overflow-y-auto">
+          {[
+            { id: 'overview', label: 'Dashboard', icon: LayoutDashboard, badge: null },
+            { id: 'inquiries', label: 'Requests', icon: MessageSquare, badge: inquiries.length, badgeColor: 'bg-red-100 text-red-700' },
+            { id: 'services', label: 'Client Accounts', icon: Users, badge: services.length },
+            { id: 'jobs', label: 'Careers', icon: Briefcase, badge: jobs.length },
+            { id: 'applications', label: 'Job Applications', icon: FileText, badge: jobApplications.length, badgeColor: 'bg-sky-100 text-sky-700' },
+            { id: 'talent-vault', label: 'Talent Bank', icon: Database, badge: talentVaultApplications.length, badgeColor: 'bg-purple-100 text-purple-700' },
+            { id: 'company-info', label: 'Content & Heritage', icon: Edit3, badge: null },
+            { id: 'testimonials', label: 'Testimonials', icon: Star, badge: testimonials.length },
+            { id: 'settings', label: 'System Settings', icon: Settings, badge: null },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeSection === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveSection(tab.id);
+                  setSubSearch('');
+                }}
+                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-between transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-[#0f172a] text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                  <span>{tab.label}</span>
+                </div>
+                {tab.badge !== null && (
+                  <span className={`text-[11px] font-black px-2 py-0.5 rounded-full ${
+                    isActive ? 'bg-white/20 text-white' : tab.badgeColor || 'bg-slate-100 text-slate-700'
+                  }`}>
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Sidebar Footer with Logout Button */}
+        <div className="p-4 border-t border-slate-100">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:text-red-600 hover:bg-red-50 font-bold transition-all text-sm cursor-pointer"
+          >
+            <LogOut className="w-5 h-5 text-slate-500" />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* RIGHT MAIN VIEW AREA */}
+      <div className="flex-1 flex flex-col min-w-0 bg-[#f8fafc]">
+        
+        {/* Top Header Bar across main area */}
+        <header className="bg-white border-b border-slate-200 px-6 sm:px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sticky top-0 z-20 shadow-2xs">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 capitalize">
+              {activeSection === 'overview' ? 'Dashboard' :
+               activeSection === 'inquiries' ? 'Requests & RFQs' :
+               activeSection === 'services' ? 'Client Accounts / Services' :
+               activeSection === 'jobs' ? 'Careers & Vacancies' :
+               activeSection === 'applications' ? 'Job Applications' :
+               activeSection === 'talent-vault' ? 'Future Talent Bank' :
+               activeSection === 'company-info' ? 'Company Heritage & Content' :
+               activeSection === 'testimonials' ? 'Client Testimonials' : 'System Settings'}
+            </h1>
           </div>
 
-          {/* Top Quick Actions */}
           <div className="flex items-center gap-3">
+            <span className="hidden sm:inline-flex text-xs bg-emerald-100 text-emerald-800 font-extrabold px-3 py-1 rounded-full border border-emerald-200">
+              ● LIVE DYNAMIC
+            </span>
             <button
               onClick={() => onNavigate('home')}
-              className="px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors shadow-xs"
+              className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer"
+              title="Preview public website"
             >
               <Eye className="w-4 h-4 text-sky-600" />
-              <span>Preview Live Site</span>
+              <span>Live Site</span>
             </button>
-
             <button
               onClick={handleExportBackup}
-              className="px-4 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors border border-sky-200 shadow-xs"
-              title="Download full JSON backup of website data"
+              className="px-3.5 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors border border-sky-200 cursor-pointer"
+              title="Export database backup"
             >
               <Download className="w-4 h-4" />
-              <span>Export Backup</span>
-            </button>
-
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors border border-red-200 shadow-xs"
-              title="Lock Admin Panel / Logout"
-            >
-              <Lock className="w-4 h-4" />
-              <span>Lock / Logout</span>
+              <span>Backup</span>
             </button>
           </div>
+        </header>
 
-        </div>
-      </div>
+        {/* Main Content Body */}
+        <main className="p-4 sm:p-8 space-y-6 max-w-6xl w-full flex-1">
 
-      {/* Main Admin Workspace Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* SECTION 1: OVERVIEW & METRICS */}
+          {activeSection === 'overview' && (
+            <div className="space-y-6">
 
-          {/* SIDEBAR NAVIGATION (3 of 12 columns) - Divided into distinct functional sections */}
-          <div className="lg:col-span-3 space-y-4 sticky lg:top-24">
-
-            {[
-              {
-                group: 'Main Hub',
-                items: [
-                  { id: 'overview', label: 'Overview & Metrics', icon: LayoutDashboard, badge: null },
-                ]
-              },
-              {
-                group: 'Leads & Inquiries',
-                items: [
-                  { id: 'inquiries', label: 'RFQ Quote Leads', icon: MessageSquare, badge: inquiries.length, badgeColor: 'bg-red-100 text-red-700 border border-red-200' },
-                ]
-              },
-              {
-                group: 'Careers & Hiring',
-                items: [
-                  { id: 'jobs', label: 'Careers & Vacancies', icon: Briefcase, badge: jobs.length },
-                  { id: 'applications', label: 'Job Applications', icon: FileText, badge: jobApplications.length, badgeColor: 'bg-sky-100 text-sky-700 border border-sky-200' },
-                  { id: 'talent-vault', label: 'Future Talent Bank', icon: Database, badge: talentVaultApplications.length, badgeColor: 'bg-purple-100 text-purple-700 border border-purple-200' },
-                ]
-              },
-              {
-                group: 'Content & Profile',
-                items: [
-                  { id: 'services', label: 'Services Spectrum', icon: Layers, badge: services.length },
-                  { id: 'company-info', label: 'Company Heritage & Stats', icon: Award, badge: null },
-                  { id: 'testimonials', label: 'Client Testimonials', icon: Star, badge: testimonials.length },
-                ]
-              },
-              {
-                group: 'System & Tools',
-                items: [
-                  { id: 'settings', label: 'System & Reset Tools', icon: Settings, badge: null },
-                ]
-              }
-            ].map((section, sIdx) => (
-              <div key={sIdx} className="bg-white rounded-3xl border border-gray-200 p-3 shadow-sm space-y-1.5">
-                <div className="px-3 pt-1.5 pb-1 text-[11px] font-black uppercase tracking-wider text-gray-400 flex items-center justify-between">
-                  <span>{section.group}</span>
+              {/* Welcome Banner Card (matching reference design) */}
+              <div className="bg-[#0f172a] text-white p-6 sm:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-slate-800">
+                <div className="space-y-2">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                    Welcome back, Administrator 👋
+                  </h2>
+                  <p className="text-sm sm:text-base text-slate-300 font-medium">
+                    Manage your website content, candidate inquiries, job applications, and workforce operations in real-time.
+                  </p>
                 </div>
-
-                <div className="space-y-1">
-                  {section.items.map((tab) => {
-                    const Icon = tab.icon;
-                    const isActive = activeSection === tab.id;
-                    return (
-                      <button
-                        key={tab.id}
-                        onClick={() => {
-                          setActiveSection(tab.id);
-                          setSubSearch('');
-                        }}
-                        className={`w-full text-left px-3.5 py-2.5 rounded-2xl text-sm font-bold flex items-center justify-between transition-all cursor-pointer ${
-                          isActive
-                            ? 'bg-[#0a192f] text-white shadow-md shadow-sky-950/20'
-                            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <Icon className={`w-4 h-4 ${isActive ? 'text-sky-400' : 'text-gray-400'}`} />
-                          <span className="truncate">{tab.label}</span>
-                        </div>
-                        {tab.badge !== null && (
-                          <span className={`text-[11px] font-black px-2 py-0.5 rounded-full shrink-0 ${
-                            isActive ? 'bg-white/20 text-white' : tab.badgeColor || 'bg-gray-100 text-gray-700'
-                          }`}>
-                            {tab.badge}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+                <button
+                  onClick={() => onNavigate('home')}
+                  className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-2 shrink-0 cursor-pointer"
+                >
+                  <span>Preview Site</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
-            ))}
-
-          </div>
-
-          {/* MAIN CONTENT AREA (9 of 12 columns) */}
-          <div className="lg:col-span-9 space-y-6">
-
-            {/* SECTION 1: OVERVIEW & METRICS */}
-            {activeSection === 'overview' && (
-              <div className="space-y-6">
 
                 {/* 6 Quick Metric Cards with Large Numbers and Clear Labels */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -1858,9 +1841,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
               </div>
             )}
 
-          </div>
-
-        </div>
+        </main>
       </div>
 
       {/* SERVICE EDIT/CREATE MODAL */}
