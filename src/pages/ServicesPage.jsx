@@ -116,9 +116,9 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
         </div>
       </section>
 
-      {/* 2. INTERACTIVE SERVICE SELECTOR TABS BAR */}
-      <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      {/* 2. INTERACTIVE SERVICE SELECTOR TABS BAR (Normal flow, scrolls up naturally) */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
             
             {/* All Overview Button */}
