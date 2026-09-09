@@ -492,7 +492,20 @@ export const jobOpenings = [
     experience: "5 - 9 Years",
     salary: "₹5.5L - ₹8.5L / Annum",
     description: "Lead 24/7 facility operations for multi-tenant corporate tech parks. Oversee housekeeping, MEP maintenance, vendor management, and SLA compliance.",
+    responsibilities: [
+      "Manage 24/7 facility maintenance across 400,000+ sq.ft commercial campus.",
+      "Lead a team of 45+ technical staff, supervisors, and soft service operators.",
+      "Ensure 100% adherence to ISO 9001 and EMS environmental safety protocols.",
+      "Coordinate client SLA reviews, periodic audit checklists, and billing reconciliations."
+    ],
+    qualifications: [
+      "Degree / Diploma in Hotel Management, Engineering, or Facilities Management.",
+      "5+ years proven experience in commercial tech park operations.",
+      "Strong command over BMS systems, MEP machinery, and vendor coordination."
+    ],
     skills: ["Building Management (BMS)", "Vendor Management", "MEP Oversight", "ISO/EMS Audits"],
+    workingHours: "Rotational Day / General Shift",
+    openingsCount: 2,
     isHot: true,
   },
   {
@@ -504,7 +517,20 @@ export const jobOpenings = [
     experience: "3 - 6 Years",
     salary: "₹4.0L - ₹6.0L / Annum",
     description: "Manage end-to-end statutory compliances (EPFO monthly ECR, ESIC returns, PT, PAN & GST TDS reconciliation) for 3,000+ deployed associates.",
+    responsibilities: [
+      "Execute monthly EPFO Electronic Challan cum Return (ECR) generation and filings.",
+      "Administer ESIC monthly return filings, IP generation, and employee health card distribution.",
+      "Reconcile monthly wage registers, bonus computation, and gratuity payouts.",
+      "Maintain timestamped compliance registers for client audit verification."
+    ],
+    qualifications: [
+      "MBA / PGDM in HR or Bachelor of Laws (LLB) with compliance specialization.",
+      "3+ years experience with high-volume staffing payroll compliance.",
+      "Hands-on expertise on EPFO Unified Portal, ESIC Portal, and Shram Suvidha."
+    ],
     skills: ["EPFO Portal ECR", "ESIC Returns", "Payroll Computation", "Labour Laws"],
+    workingHours: "General Shift (9:30 AM - 6:30 PM)",
+    openingsCount: 3,
     isHot: true,
   },
   {
@@ -516,7 +542,20 @@ export const jobOpenings = [
     experience: "4 - 8 Years",
     salary: "₹3.6L - ₹5.2L / Annum",
     description: "Supervise heavy electrical panels, DG sets, central chiller plants, UPS backup systems, and fire fighting safety infrastructure.",
+    responsibilities: [
+      "Oversee preventive maintenance schedules for HT/LT electrical panels and transformers.",
+      "Supervise HVAC water-cooled central chiller plants and AHU air balancing.",
+      "Execute synchronized DG set load tests and emergency UPS battery inspections.",
+      "Maintain daily energy logs and coordinate with state electricity distribution boards."
+    ],
+    qualifications: [
+      "B.Tech / Diploma in Electrical or Mechanical Engineering.",
+      "Valid Electrical Supervisory License / 'A' Grade certification preferred.",
+      "4+ years industrial / commercial plant maintenance experience."
+    ],
     skills: ["HVAC Chillers", "DG Synchronizing", "HT/LT Panels", "Preventive Maintenance"],
+    workingHours: "24/7 Rotational Shift Support",
+    openingsCount: 4,
     isHot: false,
   },
   {
@@ -528,7 +567,20 @@ export const jobOpenings = [
     experience: "2 - 5 Years",
     salary: "₹3.2L - ₹4.8L / Annum",
     description: "Manage daily warehouse dock operations, JIT inventory staging, material handling staff shifts, and vehicle turnaround dispatch.",
+    responsibilities: [
+      "Coordinate Just-In-Time (JIT) material inflow, sorting, and dispatch schedules.",
+      "Supervise certified forklift and BOPT operators for safe pallet staging.",
+      "Perform daily inventory cycle counts, barcode audits, and stock discrepancy checks.",
+      "Enforce warehouse floor housekeeping and 5S industrial safety standards."
+    ],
+    qualifications: [
+      "Graduate in Logistics / Supply Chain / Commerce.",
+      "2+ years experience in FMCG, E-Commerce, or 3PL warehouse operations.",
+      "Proficient in ERP / WMS software and dock scheduling tools."
+    ],
     skills: ["JIT Inventory", "Floor Housekeeping", "Forklift Safety", "Shift Scheduling"],
+    workingHours: "Rotational Day / Night Shift",
+    openingsCount: 5,
     isHot: false,
   },
   {
@@ -540,14 +592,45 @@ export const jobOpenings = [
     experience: "3 - 7 Years",
     salary: "₹3.0L - ₹4.5L / Annum",
     description: "Conduct structured daily/weekly location checklists, bio-friendly chemical audits, Suggestion Register checks, and surprise field inspections.",
+    responsibilities: [
+      "Perform unannounced surprise audits across manufacturing & client sites.",
+      "Verify dilution ratios and usage of certified bio-friendly cleaning chemicals.",
+      "Inspect physical Suggestion Registers and issue Corrective Action Reports (CAR).",
+      "Conduct refresher safety training sessions for frontline facility associates."
+    ],
+    qualifications: [
+      "Graduate / Diploma in Quality Management or Environmental Sciences.",
+      "Certified ISO 9001 / ISO 14001 Internal Auditor credentials preferred.",
+      "Strong report writing and multi-site field mobility."
+    ],
     skills: ["ISO 9001/EMS", "Quality Audits", "Chemical Safety", "Training SOPs"],
+    workingHours: "Field Audit Schedule (Mon - Sat)",
+    openingsCount: 2,
     isHot: false,
   },
   {
     id: "job-6",
     title: "Corporate Account Executive (B2B Staffing)",
     department: "Sales & Client Relations",
+    location: "Delhi NCR / Pan-India",
+    type: "Full-Time",
+    experience: "2 - 5 Years",
+    salary: "₹4.5L - ₹7.0L / Annum + Incentives",
+    description: "Drive B2B enterprise client acquisition for facilities management and workforce staffing across corporate parks and logistics hubs.",
+    responsibilities: [
+      "Identify corporate clients requiring facilities management and large-scale staffing.",
+      "Prepare customized RFQ proposals, rate cards, and statutory compliance dossiers.",
+      "Negotiate commercial contracts with VP Administration and Procurement Heads.",
+      "Conduct regular SLA review meetings and expand service vertical penetration."
+    ],
+    qualifications: [
+      "MBA in Marketing / Sales or equivalent degree.",
+      "2+ years B2B corporate sales experience in facility management or HR staffing.",
+      "Strong presentation, pitching, and client relationship management skills."
+    ],
     skills: ["B2B Sales", "Staffing Deals", "Client Relationship", "Proposal Negotiation"],
+    workingHours: "Corporate Hours (9:30 AM - 6:30 PM)",
+    openingsCount: 2,
     isHot: true,
   },
 ];
