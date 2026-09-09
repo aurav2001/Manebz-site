@@ -17,6 +17,7 @@ import {
   GraduationCap
 } from 'lucide-react';
 import { servicesData, companyStats, qualityAssurancePoints } from '../data/companyData';
+import { useCompany } from '../context/CompanyContext';
 import PayrollSection from '../components/PayrollSection';
 import TestimonialsSlider from '../components/TestimonialsSlider';
 
@@ -60,12 +61,20 @@ const workSteps = [
 ];
 
 const HomePage = ({ onNavigate }) => {
+  const { services, companyStats: dynamicStats, addInquiry } = useCompany();
   const [emailInput, setEmailInput] = useState('');
   const [emailSubmitted, setEmailSubmitted] = useState(false);
 
   const handleEmailSubmit = (e) => {
     e.preventDefault();
     if (!emailInput) return;
+    addInquiry({
+      name: 'Web Visitor',
+      email: emailInput,
+      phone: 'Not provided',
+      service: 'General Corporate Proposal',
+      message: 'Requested quote proposal from Homepage Hero'
+    });
     setEmailSubmitted(true);
   };
 
@@ -170,7 +179,7 @@ const HomePage = ({ onNavigate }) => {
 
         {/* 5 Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {servicesData.map((srv) => {
+          {services.map((srv) => {
             const Icon = iconMap[srv.icon] || Building2;
             const isRed = srv.accentColor === 'red';
             return (

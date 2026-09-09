@@ -20,8 +20,16 @@ import {
   coreValues, 
   regionsServed 
 } from '../data/companyData';
+import { useCompany } from '../context/CompanyContext';
 
 const AboutPage = ({ onNavigate }) => {
+  const { 
+    companyStats: dynamicStats, 
+    statutoryCompliances: dynamicCompliances, 
+    qualityAssurancePoints: dynamicQA, 
+    regionsServed: dynamicRegions,
+    coreValues: dynamicCoreValues
+  } = useCompany();
   return (
     <div className="bg-white pt-28 pb-24">
       
@@ -76,7 +84,7 @@ const AboutPage = ({ onNavigate }) => {
                 <span>Geographical Operational Base</span>
               </h4>
               <div className="flex flex-wrap gap-2">
-                {['Delhi & NCR', 'Uttar Pradesh', 'Haryana', 'Uttarakhand', 'Pan-India Corporate Network'].map((region, i) => (
+                {(dynamicRegions || regionsServed).map((region, i) => (
                   <span key={i} className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-lg text-xs font-semibold border border-gray-200">
                     {region}
                   </span>
@@ -191,7 +199,7 @@ const AboutPage = ({ onNavigate }) => {
               </h4>
 
               <div className="space-y-3 pt-2">
-                {statutoryCompliances.map((item, idx) => (
+                {(dynamicCompliances || statutoryCompliances).map((item, idx) => (
                   <div key={idx} className="flex items-start gap-3 p-2.5 rounded-xl bg-white/5 border border-white/10">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                     <div>
@@ -226,7 +234,7 @@ const AboutPage = ({ onNavigate }) => {
 
         {/* 7 QA Points from User Prompt */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {qualityAssurancePoints.map((qa, index) => (
+          {(dynamicQA || qualityAssurancePoints).map((qa, index) => (
             <div 
               key={index}
               className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:border-sky-500 hover:shadow-lg transition-all space-y-3 group"

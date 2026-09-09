@@ -25,6 +25,7 @@ import {
   Star
 } from 'lucide-react';
 import { servicesData, statutoryCompliances, qualityAssurancePoints } from '../data/companyData';
+import { useCompany } from '../context/CompanyContext';
 import PayrollSection from '../components/PayrollSection';
 
 const iconMap = {
@@ -36,6 +37,7 @@ const iconMap = {
 };
 
 const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
+  const { services, qualityAssurancePoints: dynamicQA, statutoryCompliances: dynamicCompliances, addInquiry } = useCompany();
   const [activeTab, setActiveTab] = useState(initialServiceSlug || 'all');
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [quoteForm, setQuoteForm] = useState({
@@ -63,6 +65,13 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
   const handleQuoteSubmit = (e, serviceTitle) => {
     e.preventDefault();
     if (!quoteForm.phone || !quoteForm.name) return;
+    addInquiry({
+      name: quoteForm.name,
+      phone: quoteForm.phone,
+      email: quoteForm.email,
+      service: serviceTitle || quoteForm.serviceName || 'Service Page RFQ',
+      message: `City: ${quoteForm.city || 'Delhi NCR'} | Details: ${quoteForm.requirements || 'General RFQ'}`
+    });
     setQuoteSubmitted(true);
     setTimeout(() => {
       setQuoteSubmitted(false);
@@ -78,7 +87,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
   };
 
   // Find active service object if a specific service is selected
-  const currentService = servicesData.find(
+  const currentService = (services || []).find(
     (s) => s.slug === activeTab || s.id === activeTab
   );
 
@@ -126,7 +135,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
             </button>
 
             {/* Individual Service Tabs */}
-            {servicesData.map((s) => {
+            {(services || []).map((s) => {
               const Icon = iconMap[s.icon] || Building2;
               const isActive = activeTab === s.slug || activeTab === s.id;
               const isRed = s.accentColor === 'red';
@@ -184,7 +193,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
 
             {/* 5 Services Deep Cards List */}
             <div className="space-y-10">
-              {servicesData.map((srv, index) => {
+              {(services || []).map((srv, index) => {
                 const Icon = iconMap[srv.icon] || Building2;
                 const isRed = srv.accentColor === 'red';
                 return (
@@ -679,7 +688,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
-            {qualityAssurancePoints.slice(0, 6).map((qa, i) => (
+            {(dynamicQA || qualityAssurancePoints).slice(0, 6).map((qa, i) => (
               <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-1">
                 <span className="font-bold text-sky-400 block">{qa.title}</span>
                 <p className="text-gray-300 text-[11px] leading-relaxed">{qa.desc}</p>

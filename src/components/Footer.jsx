@@ -76,6 +76,15 @@ const Footer = ({ onNavigate }) => {
               <li><button onClick={() => onNavigate('payroll')} className="hover:text-red-600 font-bold">Payroll & Statutory Suite</button></li>
               <li><button onClick={() => onNavigate('careers')} className="hover:text-red-600 font-bold">Careers & Openings</button></li>
               <li><button onClick={() => onNavigate('contact')} className="hover:text-sky-600">Request Proposal</button></li>
+              <li>
+                <button 
+                  onClick={() => onNavigate('admin')} 
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-sky-700 hover:text-red-600 bg-sky-50 hover:bg-red-50 px-2 py-0.5 rounded-md border border-sky-200 mt-1 transition-colors"
+                >
+                  <ShieldCheck className="w-3 h-3" />
+                  <span>Admin Control Center</span>
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -111,7 +120,11 @@ const Footer = ({ onNavigate }) => {
           <div>
             © {new Date().getFullYear()} MANABS / MANEBZ Facilities & Workforce Management. All rights reserved. Founded 27th Feb 2014.
           </div>
-          <div className="flex gap-6">
+          <div className="flex items-center gap-6">
+            <button onClick={() => onNavigate('admin')} className="hover:text-red-600 cursor-pointer font-bold flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Admin Portal</span>
+            </button>
             <span className="hover:text-sky-600 cursor-pointer">Statutory Compliance Policy</span>
             <span className="hover:text-sky-600 cursor-pointer">ISO & EMS Framework</span>
             <span className="hover:text-sky-600 cursor-pointer">Privacy & Governance</span>

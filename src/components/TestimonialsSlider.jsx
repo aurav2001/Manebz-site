@@ -12,15 +12,19 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { testimonialsData } from '../data/companyData';
+import { useCompany } from '../context/CompanyContext';
 
 const TestimonialsSlider = ({ onNavigate }) => {
+  const { testimonials: dynamicTestimonials } = useCompany();
+  const testimonialsList = dynamicTestimonials && dynamicTestimonials.length > 0 ? dynamicTestimonials : testimonialsData;
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const totalSlides = testimonialsData.length;
+  const totalSlides = testimonialsList.length;
 
   // Auto-slide effect every 4.5 seconds
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || totalSlides === 0) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % totalSlides);
     }, 4500);
@@ -29,16 +33,20 @@ const TestimonialsSlider = ({ onNavigate }) => {
   }, [isPaused, totalSlides]);
 
   const handlePrev = () => {
+    if (totalSlides === 0) return;
     setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
   };
 
   const handleNext = () => {
+    if (totalSlides === 0) return;
     setCurrentIndex((prev) => (prev + 1) % totalSlides);
   };
 
-  const currentItem = testimonialsData[currentIndex];
+  const currentItem = testimonialsList[currentIndex] || testimonialsList[0];
   // Next item for side-by-side card preview
-  const nextItem = testimonialsData[(currentIndex + 1) % totalSlides];
+  const nextItem = testimonialsList[(currentIndex + 1) % totalSlides] || testimonialsList[0];
+
+  if (!currentItem) return null;
 
   return (
     <section 
@@ -215,7 +223,7 @@ const TestimonialsSlider = ({ onNavigate }) => {
 
         {/* Dynamic Dot Indicators */}
         <div className="flex items-center justify-center gap-2 mt-10">
-          {testimonialsData.map((_, idx) => (
+          {testimonialsList.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentIndex(idx)}

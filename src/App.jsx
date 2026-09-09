@@ -2,6 +2,7 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import SEOHead from './components/SEOHead';
+import { CompanyProvider } from './context/CompanyContext';
 
 // Code-split dynamic page loading for maximum performance & fast FCP/LCP
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -10,6 +11,7 @@ const ServicesPage = lazy(() => import('./pages/ServicesPage'));
 const PayrollPage = lazy(() => import('./pages/PayrollPage'));
 const CareersPage = lazy(() => import('./pages/CareersPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
+const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 
 // Optimized Skeleton Loader during lazy route transition
 const PageLoadingFallback = () => (
@@ -22,13 +24,13 @@ const PageLoadingFallback = () => (
   </div>
 );
 
-function App() {
+function AppContent() {
   const getRouteInfoFromHash = () => {
     const rawHash = window.location.hash.replace('#/', '').replace('#', '');
     const parts = rawHash.split('/');
     const mainPage = parts[0] || 'home';
     const subRoute = parts[1] || null;
-    const validPages = ['home', 'about', 'services', 'payroll', 'careers', 'contact'];
+    const validPages = ['home', 'about', 'services', 'payroll', 'careers', 'contact', 'admin'];
     return {
       page: validPages.includes(mainPage) ? mainPage : 'home',
       subRoute: subRoute
@@ -76,22 +78,28 @@ function App() {
         return <CareersPage onNavigate={handleNavigate} />;
       case 'contact':
         return <ContactPage onNavigate={handleNavigate} />;
+      case 'admin':
+        return <AdminDashboardPage onNavigate={handleNavigate} />;
       case 'home':
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }
   };
 
+  const isAdminPage = routeInfo.page === 'admin';
+
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col justify-between selection:bg-sky-500 selection:text-white font-sans antialiased">
       {/* 100% Dynamic SEO Meta Tags & Schema.org JSON-LD Manager */}
       <SEOHead currentPage={routeInfo.page} />
 
-      {/* Pinned Top Navbar */}
-      <Navbar 
-        currentPage={routeInfo.page} 
-        onNavigate={handleNavigate} 
-      />
+      {/* Pinned Top Navbar (Hidden on full Admin Dashboard for clean UI) */}
+      {!isAdminPage && (
+        <Navbar 
+          currentPage={routeInfo.page} 
+          onNavigate={handleNavigate} 
+        />
+      )}
 
       {/* Code-split Main Content with Suspense */}
       <main className="flex-grow" role="main">
@@ -101,8 +109,16 @@ function App() {
       </main>
 
       {/* Clean Optimized Footer */}
-      <Footer onNavigate={handleNavigate} />
+      {!isAdminPage && <Footer onNavigate={handleNavigate} />}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <CompanyProvider>
+      <AppContent />
+    </CompanyProvider>
   );
 }
 

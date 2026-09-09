@@ -33,6 +33,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { jobOpenings as defaultJobOpenings, employeePerks } from '../data/companyData';
+import { useCompany } from '../context/CompanyContext';
 
 const perkIcons = {
   ShieldCheck: ShieldCheck,
@@ -41,31 +42,17 @@ const perkIcons = {
   Award: Award,
 };
 
-const STORAGE_KEY = 'manabs_dynamic_job_openings';
-
 const CareersPage = ({ onNavigate }) => {
-  // 1. Dynamic Job List State with LocalStorage Persistence
-  const [jobs, setJobs] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {
-      console.error(e);
-    }
-    return defaultJobOpenings;
-  });
-
-  // Save to LocalStorage whenever jobs change
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
-    } catch (e) {
-      console.error(e);
-    }
-  }, [jobs]);
+  const { 
+    jobs, 
+    addJob, 
+    updateJob, 
+    deleteJob, 
+    resetJobs, 
+    addJobApplication, 
+    addTalentVaultApplication,
+    employeePerks: dynamicPerks 
+  } = useCompany();
 
   // 2. Filters & Search State
   const [selectedDept, setSelectedDept] = useState('All');
@@ -164,19 +151,12 @@ const CareersPage = ({ onNavigate }) => {
     const ref = `MNB-APP-${Math.floor(100000 + Math.random() * 900000)}`;
     setApplyRefId(ref);
 
-    try {
-      const existing = JSON.parse(localStorage.getItem('manabs_direct_applications') || '[]');
-      existing.push({
-        refId: ref,
-        jobId: activeJob?.id,
-        jobTitle: activeJob?.title,
-        date: new Date().toISOString(),
-        ...applyForm
-      });
-      localStorage.setItem('manabs_direct_applications', JSON.stringify(existing));
-    } catch (err) {
-      console.error(err);
-    }
+    addJobApplication({
+      refId: ref,
+      jobId: activeJob?.id,
+      jobTitle: activeJob?.title,
+      ...applyForm
+    });
 
     setApplySubmitted(true);
   };
@@ -189,17 +169,10 @@ const CareersPage = ({ onNavigate }) => {
     const generatedId = `MNB-TALENT-${Math.floor(100000 + Math.random() * 900000)}`;
     setTalentAppId(generatedId);
 
-    try {
-      const existing = JSON.parse(localStorage.getItem('manabs_future_talent_bank') || '[]');
-      existing.push({
-        id: generatedId,
-        date: new Date().toISOString(),
-        ...talentForm
-      });
-      localStorage.setItem('manabs_future_talent_bank', JSON.stringify(existing));
-    } catch (err) {
-      console.error(err);
-    }
+    addTalentVaultApplication({
+      id: generatedId,
+      ...talentForm
+    });
 
     setTalentSubmitted(true);
   };
@@ -268,30 +241,21 @@ const CareersPage = ({ onNavigate }) => {
 
     if (editingJob) {
       // Update existing
-      const updated = jobs.map(j => {
-        if (j.id === editingJob.id) {
-          return {
-            ...j,
-            ...adminJobForm,
-            responsibilities,
-            qualifications,
-            skills,
-          };
-        }
-        return j;
-      });
-      setJobs(updated);
-    } else {
-      // Create new
-      const newJob = {
-        id: `job-custom-${Date.now()}`,
+      updateJob(editingJob.id, {
         ...adminJobForm,
         responsibilities,
         qualifications,
         skills,
-      };
-      setJobs([newJob, ...jobs]);
-      setSelectedJobId(newJob.id);
+      });
+    } else {
+      // Create new
+      const newJob = addJob({
+        ...adminJobForm,
+        responsibilities,
+        qualifications,
+        skills,
+      });
+      if (newJob) setSelectedJobId(newJob.id);
     }
 
     setAdminModalOpen(false);
@@ -300,20 +264,14 @@ const CareersPage = ({ onNavigate }) => {
   // Admin: Delete Job
   const handleDeleteJob = (jobId) => {
     if (window.confirm('Are you sure you want to delete this job vacancy?')) {
-      const updated = jobs.filter(j => j.id !== jobId);
-      setJobs(updated);
-      if (selectedJobId === jobId && updated.length > 0) {
-        setSelectedJobId(updated[0].id);
-      }
+      deleteJob(jobId);
     }
   };
 
   // Admin: Reset to default jobs
   const handleResetDefaultJobs = () => {
     if (window.confirm('Reset all jobs back to default MANABS positions?')) {
-      setJobs(defaultJobOpenings);
-      setSelectedJobId(defaultJobOpenings[0].id);
-      localStorage.removeItem(STORAGE_KEY);
+      resetJobs();
     }
   };
 

@@ -20,9 +20,18 @@ import {
   FileCheck2,
   Calculator
 } from 'lucide-react';
-import { servicesData } from '../data/companyData';
+import { useCompany } from '../context/CompanyContext';
+
+const iconMap = {
+  Users: Users,
+  Truck: Truck,
+  Building2: Building2,
+  Briefcase: Briefcase,
+  ShieldCheck: ShieldCheck,
+};
 
 const Navbar = ({ currentPage, onNavigate }) => {
+  const { services, addInquiry } = useCompany();
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
   const [hoveredTab, setHoveredTab] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -48,45 +57,6 @@ const Navbar = ({ currentPage, onNavigate }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // 5 exact services from user screenshot & requirements
-  const menuServices = [
-    {
-      title: "HR STAFFING & PAYROLL MANAGEMENT",
-      desc: "Resource Cell, 2-week training, PF & ESI compliances",
-      icon: Users,
-      id: "srv-hr-staffing",
-      slug: "hr-staffing"
-    },
-    {
-      title: "LOGISTICS & WAREHOUSE MANAGEMENT",
-      desc: "JIT management, facility upkeep, floor operations",
-      icon: Truck,
-      id: "srv-logistics-warehouse",
-      slug: "logistics-warehouse"
-    },
-    {
-      title: "INTEGRATED FACILITIES MANAGEMENT",
-      desc: "24/7 operations, bio-friendly consumables & modern machinery",
-      icon: Building2,
-      id: "srv-facilities-management",
-      slug: "facilities-management"
-    },
-    {
-      title: "REAL ESTATE ADVISORY LEASING & RELOCATION SERVICES",
-      desc: "Corporate space leasing, site setup & asset relocation",
-      icon: Briefcase,
-      id: "srv-real-estate",
-      slug: "real-estate"
-    },
-    {
-      title: "COMPLIANCE MANAGEMENT",
-      desc: "PF, ESI, PAN, ISO/EMS standards, surprise audits & checklists",
-      icon: ShieldCheck,
-      id: "srv-compliance-management",
-      slug: "compliance-management"
-    }
-  ];
-
   // Bottom dock tabs
   const dockTabs = [
     { id: 'home', name: 'Home', icon: Home },
@@ -99,6 +69,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
   const handleQuoteSubmit = (e) => {
     e.preventDefault();
     if (!quoteForm.phone || !quoteForm.name) return;
+    addInquiry(quoteForm);
     setQuoteSubmitted(true);
     setTimeout(() => {
       setQuoteSubmitted(false);
@@ -173,12 +144,12 @@ const Navbar = ({ currentPage, onNavigate }) => {
               {/* Exact Dropdown Menu */}
               {servicesDropdownOpen && (
                 <div className="absolute top-full -left-16 pt-2 w-96 animate-in fade-in slide-in-from-top-2 duration-150 z-50">
-                  <div className="bg-white rounded-2xl p-3 shadow-2xl border border-gray-100 divide-y divide-gray-50">
-                    {menuServices.map((srv, idx) => {
-                      const Icon = srv.icon;
+                  <div className="bg-white rounded-2xl p-3 shadow-2xl border border-gray-100 divide-y divide-gray-50 max-h-[380px] overflow-y-auto">
+                    {services.map((srv, idx) => {
+                      const Icon = iconMap[srv.icon] || Building2;
                       return (
                         <div
-                          key={idx}
+                          key={srv.id || idx}
                           onClick={() => {
                             setServicesDropdownOpen(false);
                             onNavigate('services', srv.slug);
@@ -286,12 +257,12 @@ const Navbar = ({ currentPage, onNavigate }) => {
               </button>
             </div>
 
-            <div className="space-y-1">
-              {menuServices.map((qs, i) => {
-                const Icon = qs.icon;
+            <div className="space-y-1 max-h-64 overflow-y-auto">
+              {services.map((qs, i) => {
+                const Icon = iconMap[qs.icon] || Building2;
                 return (
                   <div
-                    key={i}
+                    key={qs.id || i}
                     onClick={() => {
                       setServicesLauncherOpen(false);
                       onNavigate('services', qs.slug);
@@ -403,11 +374,11 @@ const Navbar = ({ currentPage, onNavigate }) => {
             ABOUT
           </button>
           
-          <div className="py-2 border-y border-gray-100">
+          <div className="py-2 border-y border-gray-100 max-h-48 overflow-y-auto">
             <span className="block px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">SERVICES</span>
-            {menuServices.map((srv, idx) => (
+            {services.map((srv, idx) => (
               <button
-                key={idx}
+                key={srv.id || idx}
                 onClick={() => { onNavigate('services', srv.slug); setMobileMenuOpen(false); }}
                 className="w-full text-left py-2 px-4 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50"
               >
