@@ -15,8 +15,6 @@ import {
   MapPin, 
   Check, 
   GraduationCap,
-  ChevronLeft,
-  ChevronRight,
   Sparkles
 } from 'lucide-react';
 import { servicesData, companyStats, qualityAssurancePoints } from '../data/companyData';
@@ -34,13 +32,13 @@ const iconMap = {
 
 const heroSlides = [
   {
-    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop',
     title: 'Integrated Facilities Management',
     tagline: 'Modern Corporate Infrastructure & Soft Services Governance',
     badge: 'Integrated Facilities'
   },
   {
-    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=2074&auto=format&fit=crop',
     title: 'Corporate Staffing & Payroll',
     tagline: '100% Statutory Compliant Workforce & Resource Cell',
     badge: 'Staffing & Payroll'
@@ -52,7 +50,7 @@ const heroSlides = [
     badge: 'Logistics Operations'
   },
   {
-    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2070&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=2070&auto=format&fit=crop',
     title: 'Engineering & Maintenance (MEP)',
     tagline: '24/7/365 HVAC, Electrical & Facility Uptime Governance',
     badge: 'Engineering & MEP'
@@ -104,14 +102,6 @@ const HomePage = ({ onNavigate }) => {
     return () => clearInterval(timer);
   }, []);
 
-  const handleNextSlide = () => {
-    setActiveSlide((prev) => (prev + 1) % heroSlides.length);
-  };
-
-  const handlePrevSlide = () => {
-    setActiveSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
-  };
-
   const handleEmailSubmit = (e) => {
     e.preventDefault();
     if (!emailInput) return;
@@ -146,34 +136,15 @@ const HomePage = ({ onNavigate }) => {
                 activeSlide === idx ? 'scale-105' : 'scale-100'
               }`}
             />
-            {/* Cinematic Gradient Overlays for perfect text readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-[#071324]/80" />
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+            {/* Crisp, clear, luminous overlays for visual clarity and text legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#071324] via-[#071324]/60 to-[#071324]/30" />
+            <div className="absolute inset-0 bg-slate-950/30" />
           </div>
         ))}
 
         {/* Ambient Glows */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-500/20 rounded-full blur-3xl pointer-events-none z-1" />
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-500/20 rounded-full blur-3xl pointer-events-none z-1" />
-
-        {/* Left / Right Carousel Arrow Buttons */}
-        <button
-          type="button"
-          onClick={handlePrevSlide}
-          className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 hover:bg-red-600/90 text-white border border-white/20 items-center justify-center backdrop-blur-md transition-all shadow-xl hover:scale-105 cursor-pointer"
-          title="Previous Sector"
-        >
-          <ChevronLeft className="w-6 h-6" />
-        </button>
-
-        <button
-          type="button"
-          onClick={handleNextSlide}
-          className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 hover:bg-sky-600/90 text-white border border-white/20 items-center justify-center backdrop-blur-md transition-all shadow-xl hover:scale-105 cursor-pointer"
-          title="Next Sector"
-        >
-          <ChevronRight className="w-6 h-6" />
-        </button>
 
         {/* Main Content Container */}
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
