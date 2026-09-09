@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   Truck, 
@@ -14,7 +14,10 @@ import {
   Award, 
   MapPin, 
   Check, 
-  GraduationCap
+  GraduationCap,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 import { servicesData, companyStats, qualityAssurancePoints } from '../data/companyData';
 import { useCompany } from '../context/CompanyContext';
@@ -28,6 +31,33 @@ const iconMap = {
   Briefcase: Briefcase,
   ShieldCheck: ShieldCheck,
 };
+
+const heroSlides = [
+  {
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop',
+    title: 'Integrated Facilities Management',
+    tagline: 'Modern Corporate Infrastructure & Soft Services Governance',
+    badge: 'Integrated Facilities'
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop',
+    title: 'Corporate Staffing & Payroll',
+    tagline: '100% Statutory Compliant Workforce & Resource Cell',
+    badge: 'Staffing & Payroll'
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop',
+    title: 'Logistics & Warehousing',
+    tagline: 'JIT Supply Chain & Certified Operations Crew',
+    badge: 'Logistics Operations'
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2070&auto=format&fit=crop',
+    title: 'Engineering & Maintenance (MEP)',
+    tagline: '24/7/365 HVAC, Electrical & Facility Uptime Governance',
+    badge: 'Engineering & MEP'
+  }
+];
 
 const workSteps = [
   {
@@ -64,6 +94,23 @@ const HomePage = ({ onNavigate }) => {
   const { services, companyStats: dynamicStats, addInquiry } = useCompany();
   const [emailInput, setEmailInput] = useState('');
   const [emailSubmitted, setEmailSubmitted] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  // Auto-rotate hero images every 10 seconds (10000ms)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 10000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleNextSlide = () => {
+    setActiveSlide((prev) => (prev + 1) % heroSlides.length);
+  };
+
+  const handlePrevSlide = () => {
+    setActiveSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+  };
 
   const handleEmailSubmit = (e) => {
     e.preventDefault();
@@ -81,20 +128,70 @@ const HomePage = ({ onNavigate }) => {
   return (
     <div className="bg-white">
       
-      {/* 1. HERO BANNER with Blue/Red Ambient Atmosphere */}
-      <section className="relative bg-[#0a192f] text-white pt-36 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      {/* 1. HERO BANNER WITH DYNAMIC 10-SEC AUTO-CHANGING BACKGROUND IMAGES */}
+      <section className="relative bg-[#071324] text-white pt-36 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[640px] flex items-center justify-center">
         
-        {/* Subtle Sky Blue & Coral Red gradient glow matching logo */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-500/15 rounded-full blur-3xl pointer-events-none -z-10" />
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-500/15 rounded-full blur-3xl pointer-events-none -z-10" />
+        {/* Background Image Carousel (Smooth Cross-fade Every 10s) */}
+        {heroSlides.map((slide, idx) => (
+          <div
+            key={idx}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              activeSlide === idx ? 'opacity-100 z-0' : 'opacity-0 -z-10 pointer-events-none'
+            }`}
+          >
+            <img
+              src={slide.image}
+              alt={slide.title}
+              className={`w-full h-full object-cover transform transition-transform duration-[10000ms] ease-out ${
+                activeSlide === idx ? 'scale-105' : 'scale-100'
+              }`}
+            />
+            {/* Cinematic Gradient Overlays for perfect text readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-[#071324]/80" />
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+          </div>
+        ))}
 
+        {/* Ambient Glows */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-500/20 rounded-full blur-3xl pointer-events-none z-1" />
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-500/20 rounded-full blur-3xl pointer-events-none z-1" />
+
+        {/* Left / Right Carousel Arrow Buttons */}
+        <button
+          type="button"
+          onClick={handlePrevSlide}
+          className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 hover:bg-red-600/90 text-white border border-white/20 items-center justify-center backdrop-blur-md transition-all shadow-xl hover:scale-105 cursor-pointer"
+          title="Previous Sector"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+
+        <button
+          type="button"
+          onClick={handleNextSlide}
+          className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 hover:bg-sky-600/90 text-white border border-white/20 items-center justify-center backdrop-blur-md transition-all shadow-xl hover:scale-105 cursor-pointer"
+          title="Next Sector"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+
+        {/* Main Content Container */}
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
           
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-sky-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-            <Award className="w-3.5 h-3.5 text-red-400" />
-            <span>Founded Feb 27, 2014 • Delhi NCR • UP • Haryana • Uttarakhand</span>
+          {/* Top Tagline & Active Sector Badge */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-sky-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-xs">
+              <Award className="w-3.5 h-3.5 text-red-400" />
+              <span>Founded Feb 27, 2014 • Delhi NCR • UP • Haryana • Uttarakhand</span>
+            </div>
+
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600/30 border border-red-500/40 text-red-300 text-xs font-bold backdrop-blur-md animate-pulse">
+              <Sparkles className="w-3 h-3 text-red-400" />
+              <span>{heroSlides[activeSlide].badge}</span>
+            </div>
           </div>
 
+          {/* Heading */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
             Strategic Facilities Management & <br className="hidden sm:inline" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-sky-200 to-red-500">
@@ -102,8 +199,8 @@ const HomePage = ({ onNavigate }) => {
             </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Delivering state-of-the-art machines, bio-friendly consumables, trained personnel, and 100% statutory compliance (PF, ESI, PAN) to leading Indian corporates 24 hours a day, 7 days a week.
+          <p className="text-sm sm:text-base text-gray-200 max-w-3xl mx-auto leading-relaxed drop-shadow-sm font-medium">
+            {heroSlides[activeSlide].tagline} — Delivering state-of-the-art machines, bio-friendly consumables, trained personnel, and 100% statutory compliance (PF, ESI, PAN) 24 hours a day, 7 days a week.
           </p>
 
           {/* Consultation Quote Request Form */}
@@ -118,40 +215,72 @@ const HomePage = ({ onNavigate }) => {
                     placeholder="Enter corporate email for proposal"
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
-                    className="w-full h-14 pl-12 pr-4 bg-white/10 border border-white/20 rounded-full text-white placeholder-gray-400 focus:outline-none focus:border-sky-400 text-sm backdrop-blur-md"
+                    className="w-full h-14 pl-12 pr-4 bg-white/15 border border-white/30 rounded-full text-white placeholder-gray-300 focus:outline-none focus:border-sky-400 text-sm backdrop-blur-md shadow-inner"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="h-14 px-7 rounded-full bg-gradient-to-r from-red-600 to-sky-600 hover:from-red-700 hover:to-sky-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-red-500/25 flex items-center justify-center gap-2 shrink-0 active:scale-95"
+                  className="h-14 px-7 rounded-full bg-gradient-to-r from-red-600 to-sky-600 hover:from-red-700 hover:to-sky-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-red-500/30 flex items-center justify-center gap-2 shrink-0 active:scale-95 cursor-pointer"
                 >
                   <span>Request Quote</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </form>
             ) : (
-              <div className="p-3.5 rounded-full bg-white/10 border border-emerald-400 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-2">
+              <div className="p-3.5 rounded-full bg-emerald-950/80 border border-emerald-400 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-2 backdrop-blur-md">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 <span>Thank you! Our operations head will reach out at {emailInput}.</span>
               </div>
             )}
           </div>
 
+          {/* 10-Second Auto Slider Indicator & Sector Pills */}
+          <div className="pt-3 flex flex-col items-center gap-3">
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              {heroSlides.map((slide, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setActiveSlide(idx)}
+                  className={`px-3 py-1.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeSlide === idx
+                      ? 'bg-white text-slate-950 shadow-lg scale-105'
+                      : 'bg-white/10 hover:bg-white/20 text-gray-300 border border-white/10'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${activeSlide === idx ? 'bg-red-600 animate-ping' : 'bg-gray-400'}`} />
+                  <span>{slide.badge}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* 10-Second Continuous Progress Indicator Bar */}
+            <div className="w-48 h-1 bg-white/20 rounded-full overflow-hidden">
+              <div
+                key={activeSlide}
+                className="h-full bg-gradient-to-r from-red-500 via-sky-400 to-emerald-400 rounded-full animate-[progress_10s_linear]"
+                style={{
+                  animation: 'growWidth 10s linear forwards'
+                }}
+              />
+            </div>
+          </div>
+
           {/* Quick Stats Badges */}
-          <div className="pt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto text-left">
-            <div className="bg-white/5 border border-white/10 p-3.5 rounded-2xl">
+          <div className="pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto text-left">
+            <div className="bg-white/10 backdrop-blur-md border border-white/15 p-3.5 rounded-2xl">
               <span className="text-xl font-extrabold text-sky-400">10+ Years</span>
               <p className="text-[11px] text-gray-300">Excellence Since 2014</p>
             </div>
-            <div className="bg-white/5 border border-white/10 p-3.5 rounded-2xl">
+            <div className="bg-white/10 backdrop-blur-md border border-white/15 p-3.5 rounded-2xl">
               <span className="text-xl font-extrabold text-red-400">24/7/365</span>
               <p className="text-[11px] text-gray-300">Round-the-Clock Ops</p>
             </div>
-            <div className="bg-white/5 border border-white/10 p-3.5 rounded-2xl">
+            <div className="bg-white/10 backdrop-blur-md border border-white/15 p-3.5 rounded-2xl">
               <span className="text-xl font-extrabold text-sky-400">100%</span>
               <p className="text-[11px] text-gray-300">Statutory Compliances</p>
             </div>
-            <div className="bg-white/5 border border-white/10 p-3.5 rounded-2xl">
+            <div className="bg-white/10 backdrop-blur-md border border-white/15 p-3.5 rounded-2xl">
               <span className="text-xl font-extrabold text-red-400">Pan-India</span>
               <p className="text-[11px] text-gray-300">Operational Reach</p>
             </div>
