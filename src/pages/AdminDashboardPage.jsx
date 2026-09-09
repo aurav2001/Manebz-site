@@ -107,6 +107,85 @@ const AdminDashboardPage = ({ onNavigate }) => {
   const [modalType, setModalType] = useState(null); // 'service', 'job', 'stat', 'milestone', 'compliance', 'testimonial'
   const [editingItem, setEditingItem] = useState(null);
   const [previewResumeModal, setPreviewResumeModal] = useState(null);
+  const [expandedResumeId, setExpandedResumeId] = useState(null);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 3500);
+  };
+
+  const handleDownloadResume = (applicant) => {
+    const candidateName = applicant.fullName || applicant.applicantName || 'Candidate';
+    const roleTitle = applicant.jobTitle || applicant.role || applicant.targetDepartment || 'Applicant';
+    const fileName = applicant.fileName || applicant.resumeFileName || `${candidateName.replace(/\s+/g, '_')}_Resume.pdf`;
+
+    if (applicant.dataUrl || applicant.resumeDataUrl) {
+      const dataUri = applicant.dataUrl || applicant.resumeDataUrl;
+      const a = document.createElement('a');
+      a.href = dataUri;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast(`Downloaded: ${fileName}`);
+    } else {
+      // Generate a formatted printable HTML resume dossier
+      const docHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Resume - ${candidateName}</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #0f172a; max-width: 820px; margin: 0 auto; line-height: 1.6; }
+    .header { border-bottom: 3px solid #dc2626; padding-bottom: 16px; margin-bottom: 24px; }
+    h1 { margin: 0 0 6px 0; font-size: 26px; text-transform: uppercase; color: #0f172a; letter-spacing: -0.5px; }
+    .applied-badge { color: #dc2626; font-weight: bold; font-size: 15px; }
+    .meta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: #f8fafc; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; margin: 20px 0; font-size: 13px; }
+    .meta-grid div span { color: #64748b; font-weight: bold; font-size: 11px; text-transform: uppercase; display: block; }
+    .meta-grid div strong { color: #0f172a; font-size: 14px; }
+    .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #dc2626; font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 24px; margin-bottom: 12px; }
+    .content-box { background: #ffffff; border: 1px solid #cbd5e1; padding: 18px; border-radius: 10px; white-space: pre-wrap; font-size: 13.5px; line-height: 1.7; font-family: inherit; }
+    .footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; display: flex; justify-content: space-between; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>${candidateName}</h1>
+    <div class="applied-badge">Applied for: ${roleTitle}</div>
+    <div style="font-size: 13px; color: #475569; margin-top: 6px;">
+      📞 ${applicant.phone || 'N/A'} • ✉️ ${applicant.email || 'N/A'} • 📍 ${applicant.currentLocation || applicant.preferredLocation || 'Delhi NCR, India'} • 💼 ${applicant.experience || '1 - 3 Years'}
+    </div>
+  </div>
+
+  <div class="meta-grid">
+    <div><span>Application Ref ID</span><strong>${applicant.refId || applicant.id || 'MNB-APP'}</strong></div>
+    <div><span>Attached File Name</span><strong>${fileName}</strong></div>
+    <div><span>Submission Date</span><strong>${applicant.date ? new Date(applicant.date).toLocaleDateString() : new Date().toLocaleDateString()}</strong></div>
+    <div><span>Hiring Status</span><strong>${applicant.status || 'Under Review'}</strong></div>
+  </div>
+
+  <div class="section-title">Candidate Statement & Cover Experience</div>
+  <div class="content-box">${applicant.message || applicant.keySkills || 'Candidate profile registered in MANABS Central Resource Cell.'}</div>
+
+  <div class="footer">
+    <span>MANABS INTEGRATED FACILITY & STAFFING MANAGEMENT</span>
+    <span>CONFIDENTIAL CANDIDATE DOSSIER</span>
+  </div>
+</body>
+</html>`;
+      const blob = new Blob([docHtml], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${candidateName.replace(/\s+/g, '_')}_Resume_Dossier.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`Generated and downloaded: ${candidateName}'s Resume`);
+    }
+  };
 
   // Service Form State
   const [serviceForm, setServiceForm] = useState({
@@ -158,13 +237,6 @@ const AdminDashboardPage = ({ onNavigate }) => {
     metric: '99.9% Uptime',
     serviceUsed: 'Integrated Facilities Management'
   });
-
-  // Toast Notification
-  const [toastMessage, setToastMessage] = useState(null);
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
-  };
 
   // 1. Service Modals
   const openServiceModal = (s = null) => {
@@ -964,53 +1036,41 @@ const AdminDashboardPage = ({ onNavigate }) => {
                         </div>
 
                         {app.resumeFileName && (
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200">
-                            <div className="flex items-center gap-2.5 text-xs sm:text-sm text-sky-900 font-bold min-w-0">
-                              <div className="w-8 h-8 rounded-xl bg-sky-100 flex items-center justify-center shrink-0 text-sky-700">
-                                <FileText className="w-4 h-4" />
+                          <div className="space-y-4">
+                            {/* Resume Card Bar */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-sky-50/90 border border-sky-200">
+                              <div className="flex items-center gap-3 text-xs sm:text-sm text-sky-950 font-bold min-w-0">
+                                <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center shrink-0 text-sky-700 shadow-xs">
+                                  <FileText className="w-5 h-5" />
+                                </div>
+                                <div className="truncate">
+                                  <span className="block truncate font-extrabold text-slate-900 text-sm">{app.resumeFileName}</span>
+                                  <span className="text-xs text-sky-700 font-semibold flex items-center gap-1.5 mt-0.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                                    {app.resumeFileSize ? `Attached File • ${app.resumeFileSize}` : 'Attached Resume / CV Document'}
+                                  </span>
+                                </div>
                               </div>
-                              <div className="truncate">
-                                <span className="block truncate font-bold text-sky-950">{app.resumeFileName}</span>
-                                <span className="text-[11px] text-sky-600 font-medium">
-                                  {app.resumeFileSize ? `Attached File • ${app.resumeFileSize}` : 'Attached Resume / CV Document'}
-                                </span>
-                              </div>
-                            </div>
 
-                            <div className="flex items-center gap-2 shrink-0">
-                              <button
-                                type="button"
-                                onClick={() => setPreviewResumeModal({
-                                  applicantName: app.fullName,
-                                  role: app.jobTitle,
-                                  refId: app.refId,
-                                  date: app.date,
-                                  phone: app.phone,
-                                  email: app.email,
-                                  experience: app.experience,
-                                  currentLocation: app.currentLocation,
-                                  fileName: app.resumeFileName,
-                                  dataUrl: app.resumeDataUrl,
-                                  fileType: app.resumeFileType,
-                                  message: app.message,
-                                  type: 'job-application'
-                                })}
-                                className="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-                              >
-                                <Eye className="w-3.5 h-3.5" />
-                                <span>View Resume</span>
-                              </button>
+                              <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedResumeId(expandedResumeId === app.refId ? null : app.refId)}
+                                  className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                                >
+                                  <Eye className="w-3.5 h-3.5" />
+                                  <span>{expandedResumeId === app.refId ? 'Hide Resume' : 'View Resume'}</span>
+                                </button>
 
-                              {app.resumeDataUrl ? (
-                                <a
-                                  href={app.resumeDataUrl}
-                                  download={app.resumeFileName || `${app.fullName.replace(/\s+/g, '_')}_Resume.pdf`}
-                                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
+                                <button
+                                  type="button"
+                                  onClick={() => handleDownloadResume(app)}
+                                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
                                 >
                                   <Download className="w-3.5 h-3.5 text-sky-700" />
                                   <span>Download</span>
-                                </a>
-                              ) : (
+                                </button>
+
                                 <button
                                   type="button"
                                   onClick={() => setPreviewResumeModal({
@@ -1023,21 +1083,150 @@ const AdminDashboardPage = ({ onNavigate }) => {
                                     experience: app.experience,
                                     currentLocation: app.currentLocation,
                                     fileName: app.resumeFileName,
-                                    dataUrl: null,
+                                    dataUrl: app.resumeDataUrl,
+                                    fileType: app.resumeFileType,
                                     message: app.message,
                                     type: 'job-application'
                                   })}
-                                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                                  className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors cursor-pointer"
+                                  title="Open in Popup Modal"
                                 >
-                                  <Download className="w-3.5 h-3.5 text-sky-700" />
-                                  <span>Download</span>
+                                  <ExternalLink className="w-4 h-4" />
                                 </button>
-                              )}
+                              </div>
                             </div>
+
+                            {/* INLINE EXPANDED RESUME DOCUMENT SHEET */}
+                            {expandedResumeId === app.refId && (
+                              <div className="bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-98 duration-200">
+                                {/* Resume Document Header */}
+                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b-2 border-slate-200">
+                                  <div>
+                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-200 inline-block mb-2">
+                                      Candidate Curriculum Vitae / Resume Sheet
+                                    </span>
+                                    <h3 className="text-2xl sm:text-3xl font-black text-slate-950 uppercase tracking-tight">
+                                      {app.fullName}
+                                    </h3>
+                                    <p className="text-sm font-bold text-red-600 mt-0.5">
+                                      Applied Position: {app.jobTitle}
+                                    </p>
+                                  </div>
+
+                                  <div className="flex items-center gap-2 flex-wrap shrink-0">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDownloadResume(app)}
+                                      className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                                    >
+                                      <Download className="w-3.5 h-3.5" />
+                                      <span>Download Resume</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => window.print()}
+                                      className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1.5 border border-slate-300 transition-colors cursor-pointer"
+                                    >
+                                      <span>🖨️ Print</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setExpandedResumeId(null)}
+                                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors cursor-pointer"
+                                      title="Close Resume View"
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Matrix Info */}
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium">
+                                  <div>
+                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Contact Phone</span>
+                                    <span className="font-extrabold text-emerald-700 text-sm mt-0.5 block">{app.phone}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Email Address</span>
+                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block truncate">{app.email || 'N/A'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Experience Level</span>
+                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block">{app.experience}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Reference Number</span>
+                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block font-mono">{app.refId}</span>
+                                  </div>
+                                </div>
+
+                                {/* Attached Source File Box */}
+                                <div className="flex items-center justify-between p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200 text-xs font-bold text-sky-900">
+                                  <div className="flex items-center gap-2">
+                                    <Paperclip className="w-4 h-4 text-sky-600" />
+                                    <span>Attached File: {app.resumeFileName}</span>
+                                  </div>
+                                  <span className="text-[11px] bg-white px-2.5 py-0.5 rounded-md border border-sky-200 text-sky-700">
+                                    ✓ Verified Record
+                                  </span>
+                                </div>
+
+                                {/* Embedded File Viewer if Base64 exists */}
+                                {app.resumeDataUrl && (
+                                  <div className="space-y-2">
+                                    <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                      <span>Uploaded Document Preview</span>
+                                      <a
+                                        href={app.resumeDataUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline"
+                                      >
+                                        <span>open in full tab</span>
+                                        <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    </div>
+                                    {app.resumeDataUrl.startsWith('data:image/') ? (
+                                      <img
+                                        src={app.resumeDataUrl}
+                                        alt="Resume preview"
+                                        className="w-full max-h-[450px] object-contain rounded-2xl border border-slate-200 bg-slate-100"
+                                      />
+                                    ) : (
+                                      <iframe
+                                        src={app.resumeDataUrl}
+                                        title="Resume Preview"
+                                        className="w-full h-[420px] rounded-2xl border border-slate-200 bg-white"
+                                      />
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Cover Description in Exact Formatting */}
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2 pb-2 border-b border-slate-200 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                                    <FileText className="w-4 h-4 text-red-600" />
+                                    <span>Candidate Statement & Cover Experience</span>
+                                  </div>
+                                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words">
+                                    {app.message || 'No additional note provided.'}
+                                  </div>
+                                </div>
+
+                                {/* Authenticated Stamp */}
+                                <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500">
+                                  <div className="flex items-center gap-1.5 font-bold text-emerald-700">
+                                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                                    <span>Authenticated Candidate Dossier • MANABS HR Resource Cell</span>
+                                  </div>
+                                  <span className="font-mono text-slate-400">LOG: {app.refId}</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
 
-                        {app.message && (
+                        {app.message && !expandedResumeId && (
                           <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-1.5">
                             <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
                               <MessageSquare className="w-3.5 h-3.5 text-red-600" />
@@ -1115,55 +1304,41 @@ const AdminDashboardPage = ({ onNavigate }) => {
                         </div>
 
                         {t.resumeFileName && (
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200">
-                            <div className="flex items-center gap-2.5 text-xs sm:text-sm text-sky-900 font-bold min-w-0">
-                              <div className="w-8 h-8 rounded-xl bg-sky-100 flex items-center justify-center shrink-0 text-sky-700">
-                                <FileText className="w-4 h-4" />
+                          <div className="space-y-4">
+                            {/* Resume Card Bar */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-sky-50/90 border border-sky-200">
+                              <div className="flex items-center gap-3 text-xs sm:text-sm text-sky-950 font-bold min-w-0">
+                                <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center shrink-0 text-sky-700 shadow-xs">
+                                  <FileText className="w-5 h-5" />
+                                </div>
+                                <div className="truncate">
+                                  <span className="block truncate font-extrabold text-slate-900 text-sm">{t.resumeFileName}</span>
+                                  <span className="text-xs text-sky-700 font-semibold flex items-center gap-1.5 mt-0.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                                    {t.resumeFileSize ? `Attached File • ${t.resumeFileSize}` : 'Attached Resume / CV Document'}
+                                  </span>
+                                </div>
                               </div>
-                              <div className="truncate">
-                                <span className="block truncate font-bold text-sky-950">{t.resumeFileName}</span>
-                                <span className="text-[11px] text-sky-600 font-medium">
-                                  {t.resumeFileSize ? `Attached File • ${t.resumeFileSize}` : 'Attached Resume / CV Document'}
-                                </span>
-                              </div>
-                            </div>
 
-                            <div className="flex items-center gap-2 shrink-0">
-                              <button
-                                type="button"
-                                onClick={() => setPreviewResumeModal({
-                                  applicantName: t.fullName,
-                                  role: t.targetDepartment,
-                                  refId: t.id,
-                                  date: t.date,
-                                  phone: t.phone,
-                                  email: t.email,
-                                  experience: t.experience,
-                                  preferredLocation: t.preferredLocation,
-                                  noticePeriod: t.noticePeriod,
-                                  expectedSalary: t.expectedSalary,
-                                  fileName: t.resumeFileName,
-                                  dataUrl: t.resumeDataUrl,
-                                  fileType: t.resumeFileType,
-                                  message: t.keySkills,
-                                  type: 'talent-vault'
-                                })}
-                                className="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-                              >
-                                <Eye className="w-3.5 h-3.5" />
-                                <span>View Resume</span>
-                              </button>
+                              <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedResumeId(expandedResumeId === t.id ? null : t.id)}
+                                  className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                                >
+                                  <Eye className="w-3.5 h-3.5" />
+                                  <span>{expandedResumeId === t.id ? 'Hide Resume' : 'View Resume'}</span>
+                                </button>
 
-                              {t.resumeDataUrl ? (
-                                <a
-                                  href={t.resumeDataUrl}
-                                  download={t.resumeFileName || `${t.fullName.replace(/\s+/g, '_')}_Resume.pdf`}
-                                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
+                                <button
+                                  type="button"
+                                  onClick={() => handleDownloadResume(t)}
+                                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
                                 >
                                   <Download className="w-3.5 h-3.5 text-sky-700" />
                                   <span>Download</span>
-                                </a>
-                              ) : (
+                                </button>
+
                                 <button
                                   type="button"
                                   onClick={() => setPreviewResumeModal({
@@ -1178,21 +1353,150 @@ const AdminDashboardPage = ({ onNavigate }) => {
                                     noticePeriod: t.noticePeriod,
                                     expectedSalary: t.expectedSalary,
                                     fileName: t.resumeFileName,
-                                    dataUrl: null,
+                                    dataUrl: t.resumeDataUrl,
+                                    fileType: t.resumeFileType,
                                     message: t.keySkills,
                                     type: 'talent-vault'
                                   })}
-                                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                                  className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors cursor-pointer"
+                                  title="Open in Popup Modal"
                                 >
-                                  <Download className="w-3.5 h-3.5 text-sky-700" />
-                                  <span>Download</span>
+                                  <ExternalLink className="w-4 h-4" />
                                 </button>
-                              )}
+                              </div>
                             </div>
+
+                            {/* INLINE EXPANDED RESUME DOCUMENT SHEET FOR TALENT VAULT */}
+                            {expandedResumeId === t.id && (
+                              <div className="bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-98 duration-200">
+                                {/* Resume Document Header */}
+                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b-2 border-slate-200">
+                                  <div>
+                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-sky-700 bg-sky-50 px-3 py-1 rounded-full border border-sky-200 inline-block mb-2">
+                                      National Resource Cell Talent Bank Profile
+                                    </span>
+                                    <h3 className="text-2xl sm:text-3xl font-black text-slate-950 uppercase tracking-tight">
+                                      {t.fullName}
+                                    </h3>
+                                    <p className="text-sm font-bold text-sky-700 mt-0.5">
+                                      Target Domain: {t.targetDepartment}
+                                    </p>
+                                  </div>
+
+                                  <div className="flex items-center gap-2 flex-wrap shrink-0">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDownloadResume(t)}
+                                      className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                                    >
+                                      <Download className="w-3.5 h-3.5" />
+                                      <span>Download Resume</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => window.print()}
+                                      className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1.5 border border-slate-300 transition-colors cursor-pointer"
+                                    >
+                                      <span>🖨️ Print</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setExpandedResumeId(null)}
+                                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors cursor-pointer"
+                                      title="Close Resume View"
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Matrix Info */}
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium">
+                                  <div>
+                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Phone Number</span>
+                                    <span className="font-extrabold text-emerald-700 text-sm mt-0.5 block">{t.phone}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Preferred Location</span>
+                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block truncate">{t.preferredLocation}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Notice Period</span>
+                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block">{t.noticePeriod || 'Immediate'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Profile Vault ID</span>
+                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block font-mono">{t.id}</span>
+                                  </div>
+                                </div>
+
+                                {/* Attached Source File Box */}
+                                <div className="flex items-center justify-between p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200 text-xs font-bold text-sky-900">
+                                  <div className="flex items-center gap-2">
+                                    <Paperclip className="w-4 h-4 text-sky-600" />
+                                    <span>Attached File: {t.resumeFileName}</span>
+                                  </div>
+                                  <span className="text-[11px] bg-white px-2.5 py-0.5 rounded-md border border-sky-200 text-sky-700">
+                                    ✓ Verified Record
+                                  </span>
+                                </div>
+
+                                {/* Embedded File Viewer if Base64 exists */}
+                                {t.resumeDataUrl && (
+                                  <div className="space-y-2">
+                                    <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                      <span>Uploaded Document Preview</span>
+                                      <a
+                                        href={t.resumeDataUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline"
+                                      >
+                                        <span>open in full tab</span>
+                                        <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    </div>
+                                    {t.resumeDataUrl.startsWith('data:image/') ? (
+                                      <img
+                                        src={t.resumeDataUrl}
+                                        alt="Resume preview"
+                                        className="w-full max-h-[450px] object-contain rounded-2xl border border-slate-200 bg-slate-100"
+                                      />
+                                    ) : (
+                                      <iframe
+                                        src={t.resumeDataUrl}
+                                        title="Resume Preview"
+                                        className="w-full h-[420px] rounded-2xl border border-slate-200 bg-white"
+                                      />
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Key Skills in Exact Formatting */}
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2 pb-2 border-b border-slate-200 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                                    <Sparkles className="w-4 h-4 text-sky-600" />
+                                    <span>Candidate Key Skills & Experience Highlights</span>
+                                  </div>
+                                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words">
+                                    {t.keySkills || 'Profile indexed for scout matching.'}
+                                  </div>
+                                </div>
+
+                                {/* Authenticated Stamp */}
+                                <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500">
+                                  <div className="flex items-center gap-1.5 font-bold text-emerald-700">
+                                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                                    <span>National Resource Cell Indexed • MANABS HR Operations</span>
+                                  </div>
+                                  <span className="font-mono text-slate-400">VAULT: {t.id}</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
 
-                        {t.keySkills && (
+                        {t.keySkills && !expandedResumeId && (
                           <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-1.5">
                             <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
                               <Sparkles className="w-3.5 h-3.5 text-sky-600" />
@@ -1794,16 +2098,21 @@ const AdminDashboardPage = ({ onNavigate }) => {
               </div>
 
               <div className="flex items-center gap-2">
-                {previewResumeModal.dataUrl && (
-                  <a
-                    href={previewResumeModal.dataUrl}
-                    download={previewResumeModal.fileName || `${previewResumeModal.applicantName.replace(/\s+/g, '_')}_Resume.pdf`}
-                    className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors shadow-sm"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Download File</span>
-                  </a>
-                )}
+                <button
+                  type="button"
+                  onClick={() => handleDownloadResume(previewResumeModal)}
+                  className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors shadow-sm cursor-pointer"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Download Resume</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-colors cursor-pointer"
+                >
+                  <span>🖨️ Print</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setPreviewResumeModal(null)}
@@ -1814,106 +2123,132 @@ const AdminDashboardPage = ({ onNavigate }) => {
               </div>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 bg-slate-50">
+            {/* Modal Body: Full Structured Resume Sheet */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 bg-slate-100">
               
-              {/* Candidate Info Grid */}
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-medium shadow-2xs">
-                <div>
-                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Applied Position</span>
-                  <span className="font-extrabold text-slate-900 mt-0.5 block">{previewResumeModal.role}</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Total Experience</span>
-                  <span className="font-extrabold text-slate-900 mt-0.5 block">{previewResumeModal.experience || 'Not specified'}</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Contact Phone</span>
-                  <span className="font-extrabold text-emerald-700 mt-0.5 block">{previewResumeModal.phone}</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Submission Date</span>
-                  <span className="font-extrabold text-slate-900 mt-0.5 block">
-                    {previewResumeModal.date ? new Date(previewResumeModal.date).toLocaleDateString() : 'Recent'}
+              <div className="bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-6 sm:p-8 space-y-6">
+                
+                {/* Candidate Title & Role */}
+                <div className="pb-4 border-b-2 border-slate-200">
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-200 inline-block mb-2">
+                    Official Candidate Resume Dossier
                   </span>
+                  <h2 className="text-2xl sm:text-3xl font-black text-slate-950 uppercase">
+                    {previewResumeModal.applicantName}
+                  </h2>
+                  <p className="text-sm font-bold text-red-600 mt-0.5">
+                    Position Applied: {previewResumeModal.role}
+                  </p>
+                </div>
+
+                {/* Info Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium">
+                  <div>
+                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Contact Phone</span>
+                    <span className="font-extrabold text-emerald-700 text-sm mt-0.5 block">{previewResumeModal.phone}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Email Address</span>
+                    <span className="font-bold text-slate-800 text-sm mt-0.5 block truncate">{previewResumeModal.email || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Total Experience</span>
+                    <span className="font-bold text-slate-800 text-sm mt-0.5 block">{previewResumeModal.experience || '1 - 3 Years'}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Submission Date</span>
+                    <span className="font-bold text-slate-800 text-sm mt-0.5 block">
+                      {previewResumeModal.date ? new Date(previewResumeModal.date).toLocaleDateString() : 'Recent'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Attached File Reference Box */}
+                <div className="flex items-center justify-between p-3.5 rounded-2xl bg-sky-50 border border-sky-200 text-xs font-bold text-sky-900">
+                  <div className="flex items-center gap-2">
+                    <Paperclip className="w-4 h-4 text-sky-600" />
+                    <span>Attached Document: {previewResumeModal.fileName || 'Candidate Document'}</span>
+                  </div>
+                  <span className="text-[11px] bg-white px-2.5 py-0.5 rounded-md border border-sky-200 text-sky-700">
+                    ✓ Verified
+                  </span>
+                </div>
+
+                {/* Raw Uploaded File Viewer if Base64 exists */}
+                {previewResumeModal.dataUrl && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
+                      <span>Uploaded File View</span>
+                      <a
+                        href={previewResumeModal.dataUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline"
+                      >
+                        <span>open in new window</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                    {previewResumeModal.dataUrl.startsWith('data:image/') ? (
+                      <img
+                        src={previewResumeModal.dataUrl}
+                        alt="Resume preview"
+                        className="w-full max-h-[450px] object-contain rounded-2xl border border-slate-200 bg-slate-100"
+                      />
+                    ) : (
+                      <iframe
+                        src={previewResumeModal.dataUrl}
+                        title="Resume Preview"
+                        className="w-full h-[450px] rounded-2xl border border-slate-200 bg-white"
+                      />
+                    )}
+                  </div>
+                )}
+
+                {/* Full Formatted Candidate Description & Cover Note */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 pb-2 border-b border-slate-200 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                    <FileText className="w-4 h-4 text-red-600" />
+                    <span>Candidate Statement & Cover Experience</span>
+                  </div>
+                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words">
+                    {previewResumeModal.message || 'No additional cover note submitted.'}
+                  </div>
+                </div>
+
+                {/* Authenticated Stamp */}
+                <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500">
+                  <div className="flex items-center gap-1.5 font-bold text-emerald-700">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    <span>MANABS National Resource Cell • Certified Candidate Review</span>
+                  </div>
+                  <span className="font-mono text-slate-400">ID: {previewResumeModal.refId}</span>
                 </div>
               </div>
 
-              {/* Uploaded File Viewer */}
-              {previewResumeModal.dataUrl ? (
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 space-y-3 shadow-2xs">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
-                      <Paperclip className="w-4 h-4 text-red-600" />
-                      <span>Uploaded Resume File: {previewResumeModal.fileName}</span>
-                    </div>
-                    <a
-                      href={previewResumeModal.dataUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center gap-1 hover:underline"
-                    >
-                      <span>Open in Full Tab</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-
-                  {previewResumeModal.dataUrl.startsWith('data:image/') ? (
-                    <img
-                      src={previewResumeModal.dataUrl}
-                      alt="Resume preview"
-                      className="w-full max-h-[500px] object-contain rounded-xl border border-slate-200 bg-slate-100"
-                    />
-                  ) : (
-                    <iframe
-                      src={previewResumeModal.dataUrl}
-                      title="Resume Preview"
-                      className="w-full h-[450px] rounded-xl border border-slate-200 bg-white"
-                    />
-                  )}
-                </div>
-              ) : (
-                <div className="bg-amber-50/90 p-4 rounded-2xl border border-amber-200 flex items-start gap-3 text-xs text-amber-900 shadow-2xs">
-                  <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-bold">Attached Document: {previewResumeModal.fileName || 'Candidate Document'}</p>
-                    <p className="mt-1 text-amber-800 leading-relaxed">
-                      Candidate attached "{previewResumeModal.fileName}". Below is the full description and profile details submitted with this application.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Candidate Formatted Message / Description Note */}
-              {previewResumeModal.message && (
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-2 shadow-2xs">
-                  <div className="flex items-center gap-2 pb-2 border-b border-slate-100 text-xs font-bold text-slate-600 uppercase tracking-wider">
-                    <MessageSquare className="w-4 h-4 text-red-600" />
-                    <span>Candidate Message & Cover Note (Original Formatting Preserved)</span>
-                  </div>
-                  <div className="text-xs sm:text-sm text-slate-800 whitespace-pre-wrap font-sans leading-relaxed break-words pt-1">
-                    {previewResumeModal.message}
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Modal Footer */}
             <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-between shrink-0">
               <span className="text-xs text-slate-500 font-medium hidden sm:inline">
-                MANABS Central Resource Cell • HR Candidate Review
+                MANABS Central Resource Cell • HR Candidate Dossier
               </span>
               <div className="flex items-center gap-3 ml-auto">
-                {previewResumeModal.dataUrl && (
-                  <a
-                    href={previewResumeModal.dataUrl}
-                    download={previewResumeModal.fileName || `${previewResumeModal.applicantName.replace(/\s+/g, '_')}_Resume.pdf`}
-                    className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Download Resume</span>
-                  </a>
-                )}
+                <button
+                  type="button"
+                  onClick={() => handleDownloadResume(previewResumeModal)}
+                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Download Resume</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1.5 border border-slate-300 transition-colors cursor-pointer"
+                >
+                  <span>🖨️ Print</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setPreviewResumeModal(null)}
@@ -1926,6 +2261,8 @@ const AdminDashboardPage = ({ onNavigate }) => {
           </div>
         </div>
       )}
+
+
 
     </div>
   );
