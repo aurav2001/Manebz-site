@@ -92,26 +92,68 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
   );
 
   return (
-    <div className="bg-white pt-24 sm:pt-28 pb-20">
+    <div className="bg-white pb-20">
       
-      {/* 1. HERO BANNER */}
-      <section className="bg-gradient-to-r from-[#0a192f] via-[#112240] to-[#0a192f] text-white py-14 px-4 sm:px-6 lg:px-8 shadow-md relative overflow-hidden">
+      {/* 1. HERO BANNER WITH LUXURY BREADCRUMB */}
+      <section className="relative bg-[#071324] text-white pt-36 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-md">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80" 
+            alt="Services Banner" 
+            className="w-full h-full object-cover opacity-25"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#071324] via-[#071324]/85 to-[#071324]/60" />
+        </div>
+
         {/* Glow elements */}
         <div className="absolute top-0 left-1/4 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-red-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="max-w-5xl mx-auto text-center space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-sky-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-            <Award className="w-3.5 h-3.5 text-red-400" />
-            <span>MANABS / MANEBZ 5-Pillar Service Spectrum</span>
+        <div className="max-w-5xl mx-auto relative z-10 space-y-6">
+          {/* Breadcrumb Row */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <button
+              onClick={() => onNavigate('home')}
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Home</span>
+            </button>
+
+            {activeTab !== 'all' && currentService ? (
+              <>
+                <button
+                  onClick={() => handleTabChange('all')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-sky-300 hover:text-white transition-colors cursor-pointer bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full border border-white/15 backdrop-blur-md"
+                >
+                  <span>All Services</span>
+                </button>
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-600/25 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+                  <Award className="w-3.5 h-3.5 text-red-400" />
+                  <span>{currentService.category}</span>
+                </div>
+              </>
+            ) : (
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+                <Award className="w-3.5 h-3.5 text-red-400" />
+                <span>MANABS 5-Pillar Service Spectrum</span>
+              </div>
+            )}
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight uppercase leading-tight">
-            Strategic Facilities & <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-red-400">Workforce Solutions</span>
+          <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight uppercase">
+            {activeTab !== 'all' && currentService ? currentService.title : (
+              <>
+                Strategic Facilities & <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-red-400">Workforce Solutions</span>
+              </>
+            )}
           </h1>
 
-          <p className="text-sm sm:text-base text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Operating across Delhi NCR, UP, Haryana, and Uttarakhand with 20+ years founder expertise, state-of-the-art machines, bio-friendly consumables, and 100% statutory compliance.
+          <p className="text-base sm:text-lg text-slate-300 max-w-3xl leading-relaxed font-medium">
+            {activeTab !== 'all' && currentService 
+              ? currentService.tagline 
+              : 'Operating across Delhi NCR, UP, Haryana, and Uttarakhand with 20+ years founder expertise, state-of-the-art machines, bio-friendly consumables, and 100% statutory compliance.'
+            }
           </p>
         </div>
       </section>
@@ -377,19 +419,40 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
         {currentService && (
           <div className="space-y-12">
             
-            {/* Top Navigation Back Button */}
-            <div className="flex items-center justify-between">
+            {/* Top Breadcrumb Navigation Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs">
+              <div className="flex items-center gap-2.5 flex-wrap text-xs font-bold uppercase tracking-wider">
+                <button
+                  onClick={() => onNavigate('home')}
+                  className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-950 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Home</span>
+                </button>
+                <span className="text-slate-300 font-black">/</span>
+                <button
+                  onClick={() => handleTabChange('all')}
+                  className="text-sky-600 hover:text-sky-800 transition-colors cursor-pointer"
+                >
+                  All Services
+                </button>
+                <span className="text-slate-300 font-black">/</span>
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 text-[11px]">
+                  {currentService.category}
+                </span>
+                <span className="text-slate-300 font-black">/</span>
+                <span className="text-red-600 font-extrabold truncate max-w-[200px] sm:max-w-none">
+                  {currentService.title}
+                </span>
+              </div>
+
               <button
                 onClick={() => handleTabChange('all')}
-                className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-sky-600 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200 shadow-2xs transition-colors cursor-pointer shrink-0"
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back to All 5 Services</span>
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Switch Service</span>
               </button>
-
-              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                Category: {currentService.category}
-              </span>
             </div>
 
             {/* Service Hero Header Card */}

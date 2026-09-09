@@ -10,6 +10,8 @@ import {
   Building2, 
   CheckCircle2, 
   ArrowRight,
+  ArrowLeft,
+  Award,
   Lock,
   Clock
 } from 'lucide-react';
@@ -17,18 +19,40 @@ import { statutoryCompliances } from '../data/companyData';
 
 const PayrollPage = ({ onNavigate }) => {
   return (
-    <div className="bg-white pt-28 pb-20">
+    <div className="bg-white pb-20">
       
-      {/* Top Banner */}
-      <section className="bg-gradient-to-r from-[#b91c1c] via-[#dc2626] to-[#b91c1c] text-white py-14 px-4 sm:px-6 lg:px-8 shadow-md">
-        <div className="max-w-5xl mx-auto text-center space-y-3">
-          <span className="text-[11px] font-extrabold uppercase tracking-widest bg-white/15 px-3 py-1 rounded-full text-white inline-block">
-            MANABS Payroll & Workforce Solutions
-          </span>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-wide uppercase">
+      {/* 1. HERO BANNER WITH LUXURY BREADCRUMB */}
+      <section className="relative bg-[#071324] text-white pt-36 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-md">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1920&q=80" 
+            alt="Payroll Solutions" 
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#071324] via-[#071324]/85 to-[#071324]/60" />
+        </div>
+
+        <div className="max-w-5xl mx-auto relative z-10 space-y-6">
+          <div className="flex items-center gap-3 flex-wrap">
+            <button
+              onClick={() => onNavigate && onNavigate('home')}
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Home</span>
+            </button>
+
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+              <Award className="w-3.5 h-3.5 text-red-400" />
+              <span>MANABS Payroll & Workforce Solutions</span>
+            </div>
+          </div>
+
+          <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight uppercase">
             Corporate Payroll & Statutory Management
           </h1>
-          <p className="text-sm sm:text-base text-red-100 max-w-2xl mx-auto leading-relaxed">
+
+          <p className="text-base sm:text-lg text-slate-300 max-w-3xl leading-relaxed font-medium">
             100% compliant salary processing, EPFO ECR, ESIC returns, biometric attendance sync, and instant digital payslips.
           </p>
         </div>
