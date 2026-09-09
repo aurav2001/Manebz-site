@@ -30,6 +30,23 @@ const Navbar = ({ currentPage, onNavigate }) => {
   const [quoteForm, setQuoteForm] = useState({ name: '', phone: '', service: 'HR STAFFING & PAYROLL MANAGEMENT', email: '' });
   const [quoteSubmitted, setQuoteSubmitted] = useState(false);
   const [servicesLauncherOpen, setServicesLauncherOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Detect scroll position to toggle between Top Navbar (at top) and Bottom Dock (when scrolled)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+        setServicesLauncherOpen(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // 5 exact services from user screenshot & requirements
   const menuServices = [
@@ -92,8 +109,12 @@ const Navbar = ({ currentPage, onNavigate }) => {
 
   return (
     <>
-      {/* 1. TOP HEADER: Clean White Bar with Exact Manebz Logo & Brand Colors */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex justify-center pointer-events-none">
+      {/* 1. TOP HEADER: Clean White Bar (Visible at top of page, smooth hides on scroll) */}
+      <div className={`fixed top-0 left-0 right-0 z-40 flex justify-center transition-all duration-300 ease-in-out ${
+        isScrolled
+          ? '-translate-y-28 opacity-0 pointer-events-none'
+          : 'translate-y-0 opacity-100 pointer-events-auto'
+      }`}>
         <header className="pointer-events-auto bg-white w-full lg:w-auto px-6 lg:px-12 py-3 rounded-b-2xl lg:rounded-b-3xl shadow-[0_4px_25px_rgba(0,0,0,0.06)] border-b lg:border-x border-gray-100 flex justify-between lg:justify-center items-center gap-6 lg:gap-10 transition-all duration-300 relative">
           
           {/* Logo Area */}
@@ -239,8 +260,12 @@ const Navbar = ({ currentPage, onNavigate }) => {
         </header>
       </div>
 
-      {/* 2. REFINED COMPACT IPAD / MACOS BOTTOM DOCK with Logo Colors */}
-      <div className="fixed bottom-4 sm:bottom-5 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
+      {/* 2. REFINED COMPACT IPAD / MACOS BOTTOM DOCK (Hidden at top of page, smooth appears on scroll) */}
+      <div className={`fixed bottom-4 sm:bottom-5 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center transition-all duration-300 ease-in-out ${
+        isScrolled
+          ? 'translate-y-0 opacity-100 pointer-events-auto'
+          : 'translate-y-28 opacity-0 pointer-events-none'
+      }`}>
         
         {/* Services Quick Pop-Up Launcher on dock */}
         {servicesLauncherOpen && (
