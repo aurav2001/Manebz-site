@@ -1,0 +1,6 @@
+# Robots.txt for MANABS / MANEBZ
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://manabs.com/sitemap.xml

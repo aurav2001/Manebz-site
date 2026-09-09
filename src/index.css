@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-blue: #0ea5e9;
+    --brand-red: #ef4444;
+    --brand-dark: #0a192f;
+  }
+
+  body {
+    background-color: #FFFFFF;
+    color: #1F2937;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* Manebz Logo-Matched Brand Utilities */
+.btn-brand-primary {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: #ffffff;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.btn-brand-primary:hover {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
+}
+
+.btn-brand-accent {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.btn-brand-accent:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35);
+}
+
+.btn-brand-combo {
+  background: linear-gradient(135deg, #0ea5e9 0%, #ef4444 100%);
+  color: #ffffff;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.btn-brand-combo:hover {
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.4);
+  transform: scale(1.02);
+}
+
+.manebz-card {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.manebz-card:hover {
+  transform: translateY(-4px);
+  border-color: #0ea5e9;
+  box-shadow: 0 15px 30px -10px rgba(14, 165, 233, 0.15);
+}
