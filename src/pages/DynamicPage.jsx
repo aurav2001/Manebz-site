@@ -13,6 +13,7 @@ import {
   ArrowLeft 
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
+import serviceBg from '../assets/servicebg.avif';
 
 const DynamicPage = ({ slug, onNavigate }) => {
   const { customPages } = useCompany();
@@ -36,33 +37,35 @@ const DynamicPage = ({ slug, onNavigate }) => {
     );
   }
 
+  const bgImage = page.heroImage && !page.heroImage.includes('unsplash.com') ? page.heroImage : serviceBg;
+
   return (
     <div className="bg-white">
       {/* 1. HERO BANNER */}
-      <section className="relative bg-[#071324] text-white pt-36 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {page.heroImage && (
-          <div className="absolute inset-0 z-0">
-            <img 
-              src={page.heroImage} 
-              alt={page.title} 
-              className="w-full h-full object-cover opacity-30"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#071324] via-[#071324]/80 to-transparent" />
-          </div>
-        )}
+      <section className="relative bg-[#071324] text-white pt-36 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-md">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={bgImage} 
+            alt={page.title} 
+            className="w-full h-full object-cover opacity-25"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#071324] via-[#071324]/85 to-[#071324]/60" />
+        </div>
 
         <div className="max-w-5xl mx-auto relative z-10 space-y-6">
-          <button
-            onClick={() => onNavigate('home')}
-            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Home</span>
-          </button>
+          <div className="flex items-center gap-3 flex-wrap">
+            <button
+              onClick={() => onNavigate('home')}
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Home</span>
+            </button>
 
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-            <Award className="w-3.5 h-3.5 text-red-400" />
-            <span>{page.badge || 'Official Company Document'}</span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+              <Award className="w-3.5 h-3.5 text-red-400" />
+              <span>{page.badge || 'Official Company Document'}</span>
+            </div>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">

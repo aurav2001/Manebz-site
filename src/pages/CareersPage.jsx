@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { jobOpenings as defaultJobOpenings, employeePerks } from '../data/companyData';
 import { useCompany } from '../context/CompanyContext';
+import serviceBg from '../assets/servicebg.avif';
 
 const perkIcons = {
   ShieldCheck: ShieldCheck,
@@ -177,7 +178,7 @@ const CareersPage = ({ onNavigate }) => {
       <section className="relative bg-[#071324] text-white pt-36 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-md">
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1920&q=80" 
+            src={serviceBg} 
             alt="Careers Banner" 
             className="w-full h-full object-cover opacity-20"
           />

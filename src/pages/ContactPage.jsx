@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Phone, Mail, MapPin, Send, CheckCircle2, Clock, ShieldCheck, Building2, Award, ArrowLeft } from 'lucide-react';
 import { statutoryCompliances, regionsServed } from '../data/companyData';
+import serviceBg from '../assets/servicebg.avif';
 
 const ContactPage = ({ onNavigate }) => {
   const [formData, setFormData] = useState({
@@ -28,7 +29,7 @@ const ContactPage = ({ onNavigate }) => {
       <section className="relative bg-[#071324] text-white pt-36 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-md">
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80" 
+            src={serviceBg} 
             alt="Contact MANABS" 
             className="w-full h-full object-cover opacity-20"
           />

@@ -22,6 +22,7 @@ import {
   regionsServed 
 } from '../data/companyData';
 import { useCompany } from '../context/CompanyContext';
+import serviceBg from '../assets/servicebg.avif';
 
 const AboutPage = ({ onNavigate }) => {
   const { 
@@ -38,7 +39,7 @@ const AboutPage = ({ onNavigate }) => {
       <section className="relative bg-[#071324] text-white pt-36 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-md">
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80" 
+            src={serviceBg} 
             alt="About MANABS" 
             className="w-full h-full object-cover opacity-20"
           />
