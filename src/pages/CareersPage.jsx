@@ -45,10 +45,6 @@ const perkIcons = {
 const CareersPage = ({ onNavigate }) => {
   const { 
     jobs, 
-    addJob, 
-    updateJob, 
-    deleteJob, 
-    resetJobs, 
     addJobApplication, 
     addTalentVaultApplication,
     employeePerks: dynamicPerks 
@@ -94,25 +90,6 @@ const CareersPage = ({ onNavigate }) => {
   });
   const [talentSubmitted, setTalentSubmitted] = useState(false);
   const [talentAppId, setTalentAppId] = useState('');
-
-  // 6. Admin Portal Modal State (Add / Edit / Delete Jobs)
-  const [adminModalOpen, setAdminModalOpen] = useState(false);
-  const [editingJob, setEditingJob] = useState(null);
-  const [adminJobForm, setAdminJobForm] = useState({
-    title: '',
-    department: 'Integrated Facilities',
-    location: 'Delhi NCR',
-    type: 'Full-Time',
-    experience: '2 - 5 Years',
-    salary: '₹3.5L - ₹5.5L / Annum',
-    description: '',
-    responsibilitiesText: '',
-    qualificationsText: '',
-    skillsText: '',
-    workingHours: 'General Shift (9:30 AM - 6:30 PM)',
-    openingsCount: 2,
-    isHot: false,
-  });
 
   const departments = ['All', 'Integrated Facilities', 'HR & Payroll', 'Engineering & Maintenance', 'Logistics & Supply Chain', 'Quality & Compliance', 'Sales & Client Relations'];
   const locations = ['All', 'Delhi NCR', 'Uttar Pradesh', 'Haryana', 'Uttarakhand'];
@@ -177,104 +154,6 @@ const CareersPage = ({ onNavigate }) => {
     setTalentSubmitted(true);
   };
 
-  // Admin: Open Create Modal
-  const handleOpenCreateJob = () => {
-    setEditingJob(null);
-    setAdminJobForm({
-      title: '',
-      department: 'Integrated Facilities',
-      location: 'Delhi NCR',
-      type: 'Full-Time',
-      experience: '2 - 5 Years',
-      salary: '₹3.5L - ₹5.5L / Annum',
-      description: '',
-      responsibilitiesText: 'Oversee daily operational standards.\nCoordinate with client supervisors.\nEnsure 100% compliance adherence.',
-      qualificationsText: 'Graduate / Diploma in relevant domain.\nStrong communication and site coordination skills.',
-      skillsText: 'Operations Management, SLA Tracking, Vendor Coordination',
-      workingHours: 'General Shift (9:30 AM - 6:30 PM)',
-      openingsCount: 2,
-      isHot: true,
-    });
-    setAdminModalOpen(true);
-  };
-
-  // Admin: Open Edit Modal
-  const handleOpenEditJob = (job) => {
-    setEditingJob(job);
-    setAdminJobForm({
-      title: job.title,
-      department: job.department,
-      location: job.location,
-      type: job.type || 'Full-Time',
-      experience: job.experience,
-      salary: job.salary,
-      description: job.description,
-      responsibilitiesText: Array.isArray(job.responsibilities) ? job.responsibilities.join('\n') : '',
-      qualificationsText: Array.isArray(job.qualifications) ? job.qualifications.join('\n') : '',
-      skillsText: Array.isArray(job.skills) ? job.skills.join(', ') : '',
-      workingHours: job.workingHours || 'General Shift',
-      openingsCount: job.openingsCount || 1,
-      isHot: !!job.isHot,
-    });
-    setAdminModalOpen(true);
-  };
-
-  // Admin: Save Job (Create or Update)
-  const handleSaveAdminJob = (e) => {
-    e.preventDefault();
-    if (!adminJobForm.title.trim()) return;
-
-    const responsibilities = adminJobForm.responsibilitiesText
-      .split('\n')
-      .map(r => r.trim())
-      .filter(r => r.length > 0);
-
-    const qualifications = adminJobForm.qualificationsText
-      .split('\n')
-      .map(q => q.trim())
-      .filter(q => q.length > 0);
-
-    const skills = adminJobForm.skillsText
-      .split(',')
-      .map(s => s.trim())
-      .filter(s => s.length > 0);
-
-    if (editingJob) {
-      // Update existing
-      updateJob(editingJob.id, {
-        ...adminJobForm,
-        responsibilities,
-        qualifications,
-        skills,
-      });
-    } else {
-      // Create new
-      const newJob = addJob({
-        ...adminJobForm,
-        responsibilities,
-        qualifications,
-        skills,
-      });
-      if (newJob) setSelectedJobId(newJob.id);
-    }
-
-    setAdminModalOpen(false);
-  };
-
-  // Admin: Delete Job
-  const handleDeleteJob = (jobId) => {
-    if (window.confirm('Are you sure you want to delete this job vacancy?')) {
-      deleteJob(jobId);
-    }
-  };
-
-  // Admin: Reset to default jobs
-  const handleResetDefaultJobs = () => {
-    if (window.confirm('Reset all jobs back to default MANABS positions?')) {
-      resetJobs();
-    }
-  };
-
   return (
     <div className="bg-white pt-24 sm:pt-28 pb-20">
       
@@ -332,9 +211,9 @@ const CareersPage = ({ onNavigate }) => {
               </h2>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2.5">
+            <div className="w-full sm:w-72">
               {/* Search Box */}
-              <div className="relative w-full sm:w-64">
+              <div className="relative w-full">
                 <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
@@ -344,24 +223,6 @@ const CareersPage = ({ onNavigate }) => {
                   className="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-red-500 text-xs bg-white"
                 />
               </div>
-
-              {/* Admin Portal Button */}
-              <button
-                onClick={handleOpenCreateJob}
-                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#0a192f] to-[#1e3a8a] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all shrink-0"
-              >
-                <Plus className="w-3.5 h-3.5 text-sky-400" />
-                <span>Add Vacancy (Admin)</span>
-              </button>
-
-              {/* Reset Default Button */}
-              <button
-                onClick={handleResetDefaultJobs}
-                title="Reset default job openings"
-                className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors shrink-0"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
             </div>
           </div>
 
@@ -418,37 +279,13 @@ const CareersPage = ({ onNavigate }) => {
                           {job.department}
                         </span>
 
-                        <div className="flex items-center gap-2">
+                        <div>
                           {job.isHot && (
-                            <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-red-100 text-red-700 flex items-center gap-1">
+                            <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               Urgent Hiring
                             </span>
                           )}
-
-                          {/* Admin Edit/Delete Shortcut Buttons */}
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenEditJob(job);
-                              }}
-                              className="p-1 rounded-md bg-gray-100 hover:bg-sky-100 text-sky-700 transition-colors"
-                              title="Edit this job"
-                            >
-                              <Edit3 className="w-3 h-3" />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteJob(job.id);
-                              }}
-                              className="p-1 rounded-md bg-gray-100 hover:bg-red-100 text-red-700 transition-colors"
-                              title="Delete this job"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          </div>
                         </div>
                       </div>
 
@@ -1127,197 +964,6 @@ const CareersPage = ({ onNavigate }) => {
         </div>
 
       </div>
-
-      {/* 5. ADMIN JOB MANAGEMENT MODAL (ADD / EDIT / CUSTOMIZE VACANCIES) */}
-      {adminModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in overflow-y-auto">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl relative border border-gray-200 text-gray-900 max-h-[90vh] overflow-y-auto my-6">
-            
-            {/* Close Button */}
-            <button
-              onClick={() => setAdminModalOpen(false)}
-              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-100"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="pb-4 border-b border-gray-100 mb-4">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-sky-600">
-                MANABS Admin Job Portal
-              </span>
-              <h3 className="text-xl font-bold text-gray-900 mt-0.5">
-                {editingJob ? `Edit Vacancy: ${editingJob.title}` : 'Add New Job Vacancy'}
-              </h3>
-              <p className="text-xs text-gray-500">
-                All changes update immediately on the Careers page and persist in local storage.
-              </p>
-            </div>
-
-            <form onSubmit={handleSaveAdminJob} className="space-y-4">
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                    Job Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Senior Facility Engineer / HR Executive"
-                    value={adminJobForm.title}
-                    onChange={(e) => setAdminJobForm({ ...adminJobForm, title: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-sky-500 text-xs font-semibold"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                    Department / Vertical *
-                  </label>
-                  <select
-                    value={adminJobForm.department}
-                    onChange={(e) => setAdminJobForm({ ...adminJobForm, department: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-sky-500 text-xs bg-white"
-                  >
-                    <option value="Integrated Facilities">Integrated Facilities</option>
-                    <option value="HR & Payroll">HR & Payroll</option>
-                    <option value="Engineering & Maintenance">Engineering & Maintenance</option>
-                    <option value="Logistics & Supply Chain">Logistics & Supply Chain</option>
-                    <option value="Quality & Compliance">Quality & Compliance</option>
-                    <option value="Sales & Client Relations">Sales & Client Relations</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                    Location *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Noida / Gurugram (Delhi NCR)"
-                    value={adminJobForm.location}
-                    onChange={(e) => setAdminJobForm({ ...adminJobForm, location: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-sky-500 text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                    Experience Required *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. 2 - 5 Years"
-                    value={adminJobForm.experience}
-                    onChange={(e) => setAdminJobForm({ ...adminJobForm, experience: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-sky-500 text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                    Salary CTC Range *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. ₹3.5L - ₹5.0L / Annum"
-                    value={adminJobForm.salary}
-                    onChange={(e) => setAdminJobForm({ ...adminJobForm, salary: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-sky-500 text-xs"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                  Job Description / Role Summary *
-                </label>
-                <textarea
-                  rows={2}
-                  required
-                  placeholder="Summarize the primary purpose of this vacancy..."
-                  value={adminJobForm.description}
-                  onChange={(e) => setAdminJobForm({ ...adminJobForm, description: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-sky-500 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                  Key Responsibilities (1 item per line)
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="Enter each responsibility on a new line..."
-                  value={adminJobForm.responsibilitiesText}
-                  onChange={(e) => setAdminJobForm({ ...adminJobForm, responsibilitiesText: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-sky-500 text-xs font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                  Eligibility & Qualifications (1 item per line)
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder="Enter required degrees/qualifications per line..."
-                  value={adminJobForm.qualificationsText}
-                  onChange={(e) => setAdminJobForm({ ...adminJobForm, qualificationsText: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-sky-500 text-xs font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                  Key Skills (Comma separated)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. BMS, MEP, Vendor Management, Audits"
-                  value={adminJobForm.skillsText}
-                  onChange={(e) => setAdminJobForm({ ...adminJobForm, skillsText: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-sky-500 text-xs"
-                />
-              </div>
-
-              <div className="flex items-center gap-4 pt-1">
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                  <input
-                    type="checkbox"
-                    checked={adminJobForm.isHot}
-                    onChange={(e) => setAdminJobForm({ ...adminJobForm, isHot: e.target.checked })}
-                    className="rounded text-red-600 focus:ring-red-400"
-                  />
-                  <span>Mark as Urgent Hiring (Hot Opening)</span>
-                </label>
-              </div>
-
-              <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
-                <button
-                  type="button"
-                  onClick={() => setAdminModalOpen(false)}
-                  className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs uppercase tracking-wider rounded-xl transition-colors"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  className="px-7 py-2.5 bg-gradient-to-r from-red-600 to-sky-600 hover:from-red-700 hover:to-sky-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md"
-                >
-                  {editingJob ? 'Update Vacancy' : 'Publish New Vacancy'}
-                </button>
-              </div>
-
-            </form>
-
-          </div>
-        </div>
-      )}
 
     </div>
   );
