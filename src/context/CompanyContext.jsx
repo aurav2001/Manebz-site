@@ -27,8 +27,48 @@ const STORAGE_KEYS = {
   TESTIMONIALS: 'manabs_dynamic_testimonials',
   INQUIRIES: 'manabs_quote_inquiries',
   APPLICATIONS: 'manabs_direct_applications',
-  TALENT_VAULT: 'manabs_future_talent_bank'
+  TALENT_VAULT: 'manabs_future_talent_bank',
+  PAGES: 'manabs_dynamic_custom_pages',
+  NAV_ITEMS: 'manabs_dynamic_nav_items'
 };
+
+const defaultCustomPages = [
+  {
+    id: 'page-1',
+    title: 'Statutory Compliance & Standards',
+    slug: 'statutory-compliance',
+    badge: 'Statutory Governance',
+    heroTagline: '100% Statutory Compliant Facility Management & Workforce Operations',
+    heroImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop',
+    content: 'MANABS operates on strict compliance pillars ensuring every deployed team member is covered by mandatory PF, ESI, Group Medical Insurance, and national labor laws. We provide automated challans, monthly compliance dockets, and verified biometric logs.',
+    sections: [
+      {
+        heading: '100% PF & ESI Statutory Governance',
+        text: 'Zero-liability guarantee for client enterprises. Verified challan proofs are submitted before the 15th of every operational month.'
+      },
+      {
+        heading: 'ISO & Bio-Friendly Facility Upkeep',
+        text: 'State-of-the-art machinery and eco-certified chemicals ensuring top tier hygiene without environmental degradation.'
+      },
+      {
+        heading: '24/7 Rapid Escalation Desk',
+        text: 'Dedicated site operational managers and 24x7 control center hotline for immediate emergency mobilization across Delhi NCR, UP, Haryana & Uttarakhand.'
+      }
+    ],
+    showInNavbar: true,
+    isPublished: true,
+    createdAt: '2026-09-08T10:00:00.000Z'
+  }
+];
+
+const defaultNavItems = [
+  { id: 'nav-1', label: 'HOME', path: 'home', type: 'internal', isVisible: true, isHot: false, order: 1 },
+  { id: 'nav-2', label: 'ABOUT', path: 'about', type: 'internal', isVisible: true, isHot: false, order: 2 },
+  { id: 'nav-3', label: 'SERVICES', path: 'services', type: 'services-dropdown', isVisible: true, isHot: false, order: 3 },
+  { id: 'nav-4', label: 'PAYROLL', path: 'payroll', type: 'internal', isVisible: true, isHot: true, order: 4 },
+  { id: 'nav-5', label: 'CAREERS', path: 'careers', type: 'internal', isVisible: true, isHot: false, order: 5 },
+  { id: 'nav-6', label: 'CONTACT', path: 'contact', type: 'internal', isVisible: true, isHot: false, order: 6 },
+];
 
 const getStored = (key, fallback) => {
   try {
@@ -55,6 +95,101 @@ export const CompanyProvider = ({ children }) => {
   const [regionsServed, setRegionsServed] = useState(() => getStored(STORAGE_KEYS.REGIONS, defaultRegions));
   const [employeePerks, setEmployeePerks] = useState(() => getStored(STORAGE_KEYS.PERKS, defaultPerks));
   const [testimonials, setTestimonials] = useState(() => getStored(STORAGE_KEYS.TESTIMONIALS, defaultTestimonials));
+  const [customPages, setCustomPages] = useState(() => getStored(STORAGE_KEYS.PAGES, defaultCustomPages));
+  const [navItems, setNavItems] = useState(() => getStored(STORAGE_KEYS.NAV_ITEMS, defaultNavItems));
+
+  // Sync to localStorage
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.PAGES, JSON.stringify(customPages));
+  }, [customPages]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.NAV_ITEMS, JSON.stringify(navItems));
+  }, [navItems]);
+
+  // Dynamic Custom Pages Actions
+  const addCustomPage = (page) => {
+    const newPage = {
+      id: `page-${Date.now()}`,
+      slug: (page.slug || page.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')),
+      createdAt: new Date().toISOString(),
+      isPublished: true,
+      ...page
+    };
+    setCustomPages(prev => [newPage, ...prev]);
+
+    // If marked to show in navbar, automatically add to navItems
+    if (page.showInNavbar) {
+      setNavItems(prev => {
+        const exists = prev.some(item => item.path === `p/${newPage.slug}` || item.label.toLowerCase() === page.title.toLowerCase());
+        if (exists) return prev;
+        return [
+          ...prev,
+          {
+            id: `nav-${Date.now()}`,
+            label: page.title.toUpperCase(),
+            path: `p/${newPage.slug}`,
+            type: 'page',
+            isVisible: true,
+            isHot: false,
+            order: prev.length + 1
+          }
+        ];
+      });
+    }
+
+    return newPage;
+  };
+
+  const updateCustomPage = (id, updated) => {
+    setCustomPages(prev => prev.map(p => p.id === id ? { ...p, ...updated } : p));
+  };
+
+  const deleteCustomPage = (id) => {
+    const target = customPages.find(p => p.id === id);
+    if (target) {
+      // Also remove from nav items if present
+      setNavItems(prev => prev.filter(item => item.path !== `p/${target.slug}`));
+    }
+    setCustomPages(prev => prev.filter(p => p.id !== id));
+  };
+
+  // Dynamic Navigation Actions
+  const addNavItem = (item) => {
+    const newItem = {
+      id: `nav-${Date.now()}`,
+      order: navItems.length + 1,
+      isVisible: true,
+      isHot: false,
+      ...item
+    };
+    setNavItems(prev => [...prev, newItem]);
+    return newItem;
+  };
+
+  const updateNavItem = (id, updated) => {
+    setNavItems(prev => prev.map(item => item.id === id ? { ...item, ...updated } : item));
+  };
+
+  const deleteNavItem = (id) => {
+    setNavItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const toggleNavItemVisibility = (id) => {
+    setNavItems(prev => prev.map(item => item.id === id ? { ...item, isVisible: !item.isVisible } : item));
+  };
+
+  const moveNavItem = (index, direction) => {
+    const newItems = [...navItems];
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= newItems.length) return;
+    const temp = newItems[index];
+    newItems[index] = newItems[targetIndex];
+    newItems[targetIndex] = temp;
+    // Update order values
+    const ordered = newItems.map((item, idx) => ({ ...item, order: idx + 1 }));
+    setNavItems(ordered);
+  };
 
   // 2. Inboxes / Leads States
   const [inquiries, setInquiries] = useState(() => {
@@ -381,6 +516,18 @@ export const CompanyProvider = ({ children }) => {
         addTalentVaultApplication,
         updateTalentVaultStatus,
         deleteTalentVaultApplication,
+
+        customPages,
+        addCustomPage,
+        updateCustomPage,
+        deleteCustomPage,
+
+        navItems,
+        addNavItem,
+        updateNavItem,
+        deleteNavItem,
+        toggleNavItemVisibility,
+        moveNavItem,
 
         resetAllToDefaults
       }}

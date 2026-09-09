@@ -12,6 +12,7 @@ const PayrollPage = lazy(() => import('./pages/PayrollPage'));
 const CareersPage = lazy(() => import('./pages/CareersPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
+const DynamicPage = lazy(() => import('./pages/DynamicPage'));
 
 // Optimized Skeleton Loader during lazy route transition
 const PageLoadingFallback = () => (
@@ -29,12 +30,17 @@ function AppContent() {
     const rawHash = window.location.hash.replace('#/', '').replace('#', '');
     const parts = rawHash.split('/');
     const mainPage = parts[0] || 'home';
-    const subRoute = parts[1] || null;
-    const validPages = ['home', 'about', 'services', 'payroll', 'careers', 'contact', 'admin'];
-    return {
-      page: validPages.includes(mainPage) ? mainPage : 'home',
-      subRoute: subRoute
-    };
+    const subRoute = parts.slice(1).join('/') || null;
+    const validStaticPages = ['home', 'about', 'services', 'payroll', 'careers', 'contact', 'admin'];
+    
+    if (validStaticPages.includes(mainPage)) {
+      return { page: mainPage, subRoute: subRoute };
+    }
+    if (mainPage === 'p' && subRoute) {
+      return { page: 'p', subRoute: subRoute };
+    }
+    // Check if it's directly a custom page slug
+    return { page: 'p', subRoute: mainPage };
   };
 
   const [routeInfo, setRouteInfo] = useState(getRouteInfoFromHash());
@@ -52,7 +58,11 @@ function AppContent() {
     let mainPage = pageId;
     let sub = subRoute;
 
-    if (pageId.includes('/')) {
+    if (pageId.startsWith('p/')) {
+      mainPage = 'p';
+      sub = pageId.replace('p/', '');
+      targetHash = pageId;
+    } else if (pageId.includes('/')) {
       const parts = pageId.split('/');
       mainPage = parts[0];
       sub = parts[1];
@@ -80,6 +90,8 @@ function AppContent() {
         return <ContactPage onNavigate={handleNavigate} />;
       case 'admin':
         return <AdminDashboardPage onNavigate={handleNavigate} />;
+      case 'p':
+        return <DynamicPage slug={routeInfo.subRoute} onNavigate={handleNavigate} />;
       case 'home':
       default:
         return <HomePage onNavigate={handleNavigate} />;

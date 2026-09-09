@@ -31,7 +31,7 @@ const iconMap = {
 };
 
 const Navbar = ({ currentPage, onNavigate }) => {
-  const { services, addInquiry } = useCompany();
+  const { services, addInquiry, navItems } = useCompany();
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
   const [hoveredTab, setHoveredTab] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -102,111 +102,82 @@ const Navbar = ({ currentPage, onNavigate }) => {
             />
           </button>
 
-          {/* Desktop Navigation Links */}
+          {/* Desktop Navigation Links (Dynamically Managed from Admin Dashboard) */}
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
-            
-            {/* HOME */}
-            <button
-              onClick={() => onNavigate('home')}
-              className={`text-xs uppercase tracking-wider font-bold transition-colors hover:text-sky-600 ${
-                currentPage === 'home' ? 'text-sky-600 border-b-2 border-sky-500 pb-0.5' : 'text-gray-700'
-              }`}
-            >
-              HOME
-            </button>
+            {navItems && navItems.filter(item => item.isVisible).map((item) => {
+              if (item.type === 'services-dropdown' || item.path === 'services') {
+                return (
+                  <div 
+                    key={item.id}
+                    className="relative py-2"
+                    onMouseEnter={() => setServicesDropdownOpen(true)}
+                    onMouseLeave={() => setServicesDropdownOpen(false)}
+                  >
+                    <button
+                      onClick={() => onNavigate('services')}
+                      className={`flex items-center gap-1.5 text-xs uppercase tracking-wider font-bold transition-colors hover:text-red-600 cursor-pointer ${
+                        servicesDropdownOpen || currentPage === 'services' ? 'text-red-600' : 'text-gray-700'
+                      }`}
+                    >
+                      <span>{item.label || 'SERVICES'}</span>
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${servicesDropdownOpen ? 'rotate-180 text-red-600' : 'text-gray-400'}`} />
+                    </button>
 
-            {/* ABOUT */}
-            <button
-              onClick={() => onNavigate('about')}
-              className={`text-xs uppercase tracking-wider font-bold transition-colors hover:text-sky-600 ${
-                currentPage === 'about' ? 'text-sky-600 border-b-2 border-sky-500 pb-0.5' : 'text-gray-700'
-              }`}
-            >
-              ABOUT
-            </button>
-
-            {/* SERVICES Dropdown (Matching Screenshot) */}
-            <div 
-              className="relative py-2"
-              onMouseEnter={() => setServicesDropdownOpen(true)}
-              onMouseLeave={() => setServicesDropdownOpen(false)}
-            >
-              <button
-                onClick={() => onNavigate('services')}
-                className={`flex items-center gap-1.5 text-xs uppercase tracking-wider font-bold transition-colors hover:text-red-600 ${
-                  servicesDropdownOpen || currentPage === 'services' ? 'text-red-600' : 'text-gray-700'
-                }`}
-              >
-                <span>SERVICES</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${servicesDropdownOpen ? 'rotate-180 text-red-600' : 'text-gray-400'}`} />
-              </button>
-
-              {/* Exact Dropdown Menu */}
-              {servicesDropdownOpen && (
-                <div className="absolute top-full -left-16 pt-2 w-96 animate-in fade-in slide-in-from-top-2 duration-150 z-50">
-                  <div className="bg-white rounded-2xl p-3 shadow-2xl border border-gray-100 divide-y divide-gray-50 max-h-[380px] overflow-y-auto">
-                    {services.map((srv, idx) => {
-                      const Icon = iconMap[srv.icon] || Building2;
-                      return (
-                        <div
-                          key={srv.id || idx}
-                          onClick={() => {
-                            setServicesDropdownOpen(false);
-                            onNavigate('services', srv.slug);
-                          }}
-                          className="py-2.5 px-3 rounded-xl hover:bg-sky-50/70 cursor-pointer flex items-start gap-3 transition-colors group"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center text-sky-600 group-hover:bg-red-500 group-hover:text-white transition-colors shrink-0 mt-0.5">
-                            <Icon className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <h5 className="text-[11px] font-bold text-red-600 group-hover:text-red-700 uppercase tracking-tight leading-snug">
-                              {srv.title}
-                            </h5>
-                            <p className="text-[10px] text-gray-500 line-clamp-1 mt-0.5">{srv.desc}</p>
-                          </div>
+                    {/* Exact Dropdown Menu */}
+                    {servicesDropdownOpen && (
+                      <div className="absolute top-full -left-16 pt-2 w-96 animate-in fade-in slide-in-from-top-2 duration-150 z-50">
+                        <div className="bg-white rounded-2xl p-3 shadow-2xl border border-gray-100 divide-y divide-gray-50 max-h-[380px] overflow-y-auto">
+                          {services.map((srv, idx) => {
+                            const Icon = iconMap[srv.icon] || Building2;
+                            return (
+                              <div
+                                key={srv.id || idx}
+                                onClick={() => {
+                                  setServicesDropdownOpen(false);
+                                  onNavigate('services', srv.slug);
+                                }}
+                                className="py-2.5 px-3 rounded-xl hover:bg-sky-50/70 cursor-pointer flex items-start gap-3 transition-colors group"
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center text-sky-600 group-hover:bg-red-500 group-hover:text-white transition-colors shrink-0 mt-0.5">
+                                  <Icon className="w-4 h-4" />
+                                </div>
+                                <div>
+                                  <h5 className="text-[11px] font-bold text-red-600 group-hover:text-red-700 uppercase tracking-tight leading-snug">
+                                    {srv.title}
+                                  </h5>
+                                  <p className="text-[10px] text-gray-500 line-clamp-1 mt-0.5">{srv.desc}</p>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
-                      );
-                    })}
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
-            </div>
+                );
+              }
 
-            {/* PAYROLL DIRECT TAB */}
-            <button
-              onClick={() => onNavigate('payroll')}
-              className={`flex items-center gap-1 text-xs uppercase tracking-wider font-bold transition-colors hover:text-red-600 ${
-                currentPage === 'payroll' ? 'text-red-600 border-b-2 border-red-600 pb-0.5' : 'text-gray-700'
-              }`}
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
-              </span>
-              <span>PAYROLL</span>
-            </button>
-
-            {/* CAREERS */}
-            <button
-              onClick={() => onNavigate('careers')}
-              className={`text-xs uppercase tracking-wider font-bold transition-colors hover:text-sky-600 ${
-                currentPage === 'careers' ? 'text-sky-600 border-b-2 border-sky-500 pb-0.5' : 'text-gray-700'
-              }`}
-            >
-              CAREERS
-            </button>
-
-            {/* CONTACT */}
-            <button
-              onClick={() => onNavigate('contact')}
-              className={`text-xs uppercase tracking-wider font-bold transition-colors hover:text-sky-600 ${
-                currentPage === 'contact' ? 'text-sky-600 border-b-2 border-sky-500 pb-0.5' : 'text-gray-700'
-              }`}
-            >
-              CONTACT
-            </button>
-
+              const isCurrent = currentPage === item.path || (item.path.startsWith('p/') && currentPage === 'p');
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => onNavigate(item.path)}
+                  className={`flex items-center gap-1 text-xs uppercase tracking-wider font-bold transition-colors hover:text-sky-600 cursor-pointer ${
+                    isCurrent 
+                      ? 'text-sky-600 border-b-2 border-sky-500 pb-0.5' 
+                      : 'text-gray-700'
+                  }`}
+                >
+                  {item.isHot && (
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+                    </span>
+                  )}
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
           </nav>
 
           {/* Right Action: Request Quote Button in Deep Coral Red */}
@@ -360,55 +331,39 @@ const Navbar = ({ currentPage, onNavigate }) => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-4 top-20 z-50 bg-white rounded-3xl p-5 shadow-2xl border border-gray-100 space-y-2.5 animate-in fade-in slide-in-from-top-4">
-          <button
-            onClick={() => { onNavigate('home'); setMobileMenuOpen(false); }}
-            className="w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-bold text-gray-900 hover:bg-gray-50"
-          >
-            HOME
-          </button>
-          <button
-            onClick={() => { onNavigate('about'); setMobileMenuOpen(false); }}
-            className="w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-bold text-gray-700 hover:bg-gray-50"
-          >
-            ABOUT
-          </button>
-          
-          <div className="py-2 border-y border-gray-100 max-h-48 overflow-y-auto">
-            <span className="block px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">SERVICES</span>
-            {services.map((srv, idx) => (
+        <div className="lg:hidden fixed inset-x-4 top-20 z-50 bg-white rounded-3xl p-5 shadow-2xl border border-gray-100 space-y-2 animate-in fade-in slide-in-from-top-4 max-h-[85vh] overflow-y-auto">
+          {navItems && navItems.filter(item => item.isVisible).map((item) => {
+            if (item.type === 'services-dropdown' || item.path === 'services') {
+              return (
+                <div key={item.id} className="py-2 border-y border-gray-100">
+                  <span className="block px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{item.label || 'SERVICES'}</span>
+                  {services.map((srv, idx) => (
+                    <button
+                      key={srv.id || idx}
+                      onClick={() => { onNavigate('services', srv.slug); setMobileMenuOpen(false); }}
+                      className="w-full text-left py-2 px-4 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 flex items-center justify-between"
+                    >
+                      <span>{srv.title}</span>
+                      <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                    </button>
+                  ))}
+                </div>
+              );
+            }
+
+            return (
               <button
-                key={srv.id || idx}
-                onClick={() => { onNavigate('services', srv.slug); setMobileMenuOpen(false); }}
-                className="w-full text-left py-2 px-4 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50"
+                key={item.id}
+                onClick={() => { onNavigate(item.path); setMobileMenuOpen(false); }}
+                className="w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-bold text-gray-800 hover:bg-gray-50 flex items-center justify-between"
               >
-                {srv.title}
+                <span>{item.label}</span>
+                {item.isHot && (
+                  <span className="text-[9px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-extrabold">HOT</span>
+                )}
               </button>
-            ))}
-          </div>
-
-          <button
-            onClick={() => { onNavigate('payroll'); setMobileMenuOpen(false); }}
-            className="w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-bold text-red-600 hover:bg-red-50 flex items-center justify-between"
-          >
-            <span>PAYROLL CALCULATOR & SUITE</span>
-            <span className="text-[9px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-extrabold">NEW</span>
-          </button>
-
-          <button
-            onClick={() => { onNavigate('careers'); setMobileMenuOpen(false); }}
-            className="w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-bold text-gray-700 hover:bg-gray-50"
-          >
-            CAREERS
-          </button>
-
-          <button
-            onClick={() => { onNavigate('contact'); setMobileMenuOpen(false); }}
-            className="w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-bold text-gray-700 hover:bg-gray-50"
-          >
-            CONTACT
-          </button>
-
+            );
+          })}
           <div className="pt-2">
             <button
               onClick={() => { setMobileMenuOpen(false); setQuoteModalOpen(true); }}
