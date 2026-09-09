@@ -116,20 +116,57 @@ const AdminDashboardPage = ({ onNavigate }) => {
     setTimeout(() => setToastMessage(''), 3500);
   };
 
+  const getBlobUrlFromDataUrl = (dataUrl) => {
+    if (!dataUrl) return null;
+    if (dataUrl.startsWith('blob:') || dataUrl.startsWith('http')) return dataUrl;
+    try {
+      const parts = dataUrl.split(',');
+      const mime = parts[0].match(/:(.*?);/)?.[1] || 'application/pdf';
+      const bstr = atob(parts[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      const blob = new Blob([u8arr], { type: mime });
+      return URL.createObjectURL(blob);
+    } catch (e) {
+      console.error('Error creating blob url:', e);
+      return dataUrl;
+    }
+  };
+
+  const handleOpenFileInNewTab = (dataUrl, fileName = 'document.pdf') => {
+    if (!dataUrl) return;
+    const blobUrl = getBlobUrlFromDataUrl(dataUrl);
+    if (blobUrl) {
+      const win = window.open(blobUrl, '_blank');
+      if (win) {
+        win.focus();
+      }
+    }
+  };
+
   const handleDownloadResume = (applicant) => {
     const candidateName = applicant.fullName || applicant.applicantName || 'Candidate';
     const roleTitle = applicant.jobTitle || applicant.role || applicant.targetDepartment || 'Applicant';
     const fileName = applicant.fileName || applicant.resumeFileName || `${candidateName.replace(/\s+/g, '_')}_Resume.pdf`;
 
-    if (applicant.dataUrl || applicant.resumeDataUrl) {
-      const dataUri = applicant.dataUrl || applicant.resumeDataUrl;
-      const a = document.createElement('a');
-      a.href = dataUri;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast(`Downloaded: ${fileName}`);
+    const dataUri = applicant.dataUrl || applicant.resumeDataUrl;
+    if (dataUri) {
+      try {
+        const blobUrl = getBlobUrlFromDataUrl(dataUri);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast(`Downloaded: ${fileName}`);
+        return;
+      } catch (err) {
+        console.error(err);
+      }
     } else {
       // Generate a formatted printable HTML resume dossier
       const docHtml = `<!DOCTYPE html>
@@ -1196,15 +1233,14 @@ const AdminDashboardPage = ({ onNavigate }) => {
                                     <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
                                       <span>Attached Image Document Preview</span>
                                       {app.resumeDataUrl && (
-                                        <a
-                                          href={app.resumeDataUrl}
-                                          target="_blank"
-                                          rel="noreferrer"
-                                          className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline"
+                                        <button
+                                          type="button"
+                                          onClick={() => handleOpenFileInNewTab(app.resumeDataUrl, app.resumeFileName)}
+                                          className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline cursor-pointer"
                                         >
                                           <span>open full image</span>
                                           <ExternalLink className="w-3 h-3" />
-                                        </a>
+                                        </button>
                                       )}
                                     </div>
                                     <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-center">
@@ -1229,20 +1265,19 @@ const AdminDashboardPage = ({ onNavigate }) => {
                                   <div className="space-y-2">
                                     <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
                                       <span>Uploaded PDF Preview</span>
-                                      <a
-                                        href={app.resumeDataUrl}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline"
+                                      <button
+                                        type="button"
+                                        onClick={() => handleOpenFileInNewTab(app.resumeDataUrl, app.resumeFileName)}
+                                        className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline cursor-pointer"
                                       >
-                                        <span>open in full tab</span>
+                                        <span>open in new tab (PDF Viewer)</span>
                                         <ExternalLink className="w-3 h-3" />
-                                      </a>
+                                      </button>
                                     </div>
                                     <iframe
-                                      src={app.resumeDataUrl}
+                                      src={getBlobUrlFromDataUrl(app.resumeDataUrl)}
                                       title="PDF Preview"
-                                      className="w-full h-[520px] rounded-2xl border-2 border-slate-200 bg-white shadow-inner"
+                                      className="w-full h-[550px] rounded-2xl border-2 border-slate-200 bg-white shadow-inner"
                                     />
                                   </div>
                                 )}
@@ -1526,15 +1561,14 @@ const AdminDashboardPage = ({ onNavigate }) => {
                                   <div className="space-y-2">
                                     <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
                                       <span>Uploaded Document Preview</span>
-                                      <a
-                                        href={t.resumeDataUrl}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline"
+                                      <button
+                                        type="button"
+                                        onClick={() => handleOpenFileInNewTab(t.resumeDataUrl, t.resumeFileName)}
+                                        className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline cursor-pointer"
                                       >
                                         <span>open in full tab</span>
                                         <ExternalLink className="w-3 h-3" />
-                                      </a>
+                                      </button>
                                     </div>
                                     {t.resumeDataUrl.startsWith('data:image/') ? (
                                       <img
@@ -1544,9 +1578,9 @@ const AdminDashboardPage = ({ onNavigate }) => {
                                       />
                                     ) : (
                                       <iframe
-                                        src={t.resumeDataUrl}
+                                        src={getBlobUrlFromDataUrl(t.resumeDataUrl)}
                                         title="Resume Preview"
-                                        className="w-full h-[420px] rounded-2xl border border-slate-200 bg-white"
+                                        className="w-full h-[500px] rounded-2xl border border-slate-200 bg-white"
                                       />
                                     )}
                                   </div>
@@ -2259,27 +2293,26 @@ const AdminDashboardPage = ({ onNavigate }) => {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
                       <span>Uploaded File View</span>
-                      <a
-                        href={previewResumeModal.dataUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline"
+                      <button
+                        type="button"
+                        onClick={() => handleOpenFileInNewTab(previewResumeModal.dataUrl, previewResumeModal.fileName)}
+                        className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline cursor-pointer"
                       >
-                        <span>open in new window</span>
+                        <span>open in new tab (Full PDF View)</span>
                         <ExternalLink className="w-3 h-3" />
-                      </a>
+                      </button>
                     </div>
                     {previewResumeModal.dataUrl.startsWith('data:image/') ? (
                       <img
                         src={previewResumeModal.dataUrl}
                         alt="Resume preview"
-                        className="w-full max-h-[450px] object-contain rounded-2xl border border-slate-200 bg-slate-100"
+                        className="w-full max-h-[500px] object-contain rounded-2xl border border-slate-200 bg-slate-100"
                       />
                     ) : (
                       <iframe
-                        src={previewResumeModal.dataUrl}
+                        src={getBlobUrlFromDataUrl(previewResumeModal.dataUrl)}
                         title="Resume Preview"
-                        className="w-full h-[450px] rounded-2xl border border-slate-200 bg-white"
+                        className="w-full h-[520px] rounded-2xl border border-slate-200 bg-white"
                       />
                     )}
                   </div>
