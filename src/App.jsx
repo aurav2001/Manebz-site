@@ -4,33 +4,15 @@ import Footer from './components/Footer';
 import SEOHead from './components/SEOHead';
 import { CompanyProvider } from './context/CompanyContext';
 
-// Resilient Lazy Import helper: Automatically refreshes the page when a new deployment invalidates old chunks
-const lazyRetry = (componentImport) =>
-  lazy(async () => {
-    try {
-      return await componentImport();
-    } catch (error) {
-      console.warn('Dynamic chunk import error detected, auto-refreshing cache...', error);
-      const isRefreshed = sessionStorage.getItem('chunk_retry_refreshed');
-      if (!isRefreshed) {
-        sessionStorage.setItem('chunk_retry_refreshed', 'true');
-        window.location.reload();
-        return new Promise(() => {});
-      }
-      sessionStorage.removeItem('chunk_retry_refreshed');
-      throw error;
-    }
-  });
-
-// Code-split dynamic page loading with resilient auto-retry
-const HomePage = lazyRetry(() => import('./pages/HomePage'));
-const AboutPage = lazyRetry(() => import('./pages/AboutPage'));
-const ServicesPage = lazyRetry(() => import('./pages/ServicesPage'));
-const PayrollPage = lazyRetry(() => import('./pages/PayrollPage'));
-const CareersPage = lazyRetry(() => import('./pages/CareersPage'));
-const ContactPage = lazyRetry(() => import('./pages/ContactPage'));
-const AdminDashboardPage = lazyRetry(() => import('./pages/AdminDashboardPage'));
-const DynamicPage = lazyRetry(() => import('./pages/DynamicPage'));
+// Standard direct page imports for instant zero-latency transitions and zero chunk errors
+import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
+import ServicesPage from './pages/ServicesPage';
+import PayrollPage from './pages/PayrollPage';
+import CareersPage from './pages/CareersPage';
+import ContactPage from './pages/ContactPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import DynamicPage from './pages/DynamicPage';
 
 // Error Boundary for seamless chunk recovery
 class ChunkErrorBoundary extends Component {
