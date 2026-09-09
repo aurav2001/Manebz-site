@@ -40,7 +40,8 @@ import {
   Zap,
   CheckSquare,
   Paperclip,
-  AlertCircle
+  AlertCircle,
+  Table
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
 
@@ -1102,9 +1103,24 @@ const AdminDashboardPage = ({ onNavigate }) => {
                                 {/* Resume Document Header */}
                                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b-2 border-slate-200">
                                   <div>
-                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-200 inline-block mb-2">
-                                      Candidate Curriculum Vitae / Resume Sheet
-                                    </span>
+                                    <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                                      <span className={`text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border inline-block ${
+                                        /\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')
+                                          ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                          : /\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '')
+                                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                          : 'bg-red-50 text-red-600 border-red-200'
+                                      }`}>
+                                        {/\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')
+                                          ? 'Image Resume / Document (JPEG/PNG)'
+                                          : /\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '')
+                                          ? 'Spreadsheet Resume File (Excel/CSV)'
+                                          : 'Official PDF Resume / Letter'}
+                                      </span>
+                                      <span className="text-xs font-mono font-bold text-slate-400">
+                                        ID: {app.refId}
+                                      </span>
+                                    </div>
                                     <h3 className="text-2xl sm:text-3xl font-black text-slate-950 uppercase tracking-tight">
                                       {app.fullName}
                                     </h3>
@@ -1120,7 +1136,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                                       className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
                                     >
                                       <Download className="w-3.5 h-3.5" />
-                                      <span>Download Resume</span>
+                                      <span>Download File</span>
                                     </button>
                                     <button
                                       type="button"
@@ -1155,8 +1171,10 @@ const AdminDashboardPage = ({ onNavigate }) => {
                                     <span className="font-bold text-slate-800 text-sm mt-0.5 block">{app.experience}</span>
                                   </div>
                                   <div>
-                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Reference Number</span>
-                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block font-mono">{app.refId}</span>
+                                    <span className="text-slate-400 block font-bold uppercase text-[10px]">Submission Date</span>
+                                    <span className="font-bold text-slate-800 text-sm mt-0.5 block">
+                                      {app.date ? new Date(app.date).toLocaleDateString() : 'Recent'}
+                                    </span>
                                   </div>
                                 </div>
 
@@ -1171,11 +1189,46 @@ const AdminDashboardPage = ({ onNavigate }) => {
                                   </span>
                                 </div>
 
-                                {/* Embedded File Viewer if Base64 exists */}
-                                {app.resumeDataUrl && (
+                                {/* FILE FORMAT SPECIFIC RENDERERS */}
+                                {/* 1. Image Viewer (JPEG / PNG / WEBP) */}
+                                {(app.resumeDataUrl?.startsWith('data:image/') || /\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')) && (
                                   <div className="space-y-2">
                                     <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
-                                      <span>Uploaded Document Preview</span>
+                                      <span>Attached Image Document Preview</span>
+                                      {app.resumeDataUrl && (
+                                        <a
+                                          href={app.resumeDataUrl}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline"
+                                        >
+                                          <span>open full image</span>
+                                          <ExternalLink className="w-3 h-3" />
+                                        </a>
+                                      )}
+                                    </div>
+                                    <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-center">
+                                      {app.resumeDataUrl ? (
+                                        <img
+                                          src={app.resumeDataUrl}
+                                          alt="Resume Attachment"
+                                          className="max-h-[550px] w-auto max-w-full object-contain rounded-xl shadow-lg"
+                                        />
+                                      ) : (
+                                        <div className="py-12 text-center text-slate-400 space-y-2">
+                                          <Eye className="w-8 h-8 mx-auto text-slate-500" />
+                                          <p className="text-sm font-bold">Image file: {app.resumeFileName}</p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* 2. PDF Viewer */}
+                                {app.resumeDataUrl && (app.resumeDataUrl.startsWith('data:application/pdf') || /\.pdf$/i.test(app.resumeFileName || '')) && (
+                                  <div className="space-y-2">
+                                    <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                      <span>Uploaded PDF Preview</span>
                                       <a
                                         href={app.resumeDataUrl}
                                         target="_blank"
@@ -1186,19 +1239,46 @@ const AdminDashboardPage = ({ onNavigate }) => {
                                         <ExternalLink className="w-3 h-3" />
                                       </a>
                                     </div>
-                                    {app.resumeDataUrl.startsWith('data:image/') ? (
-                                      <img
-                                        src={app.resumeDataUrl}
-                                        alt="Resume preview"
-                                        className="w-full max-h-[450px] object-contain rounded-2xl border border-slate-200 bg-slate-100"
-                                      />
-                                    ) : (
-                                      <iframe
-                                        src={app.resumeDataUrl}
-                                        title="Resume Preview"
-                                        className="w-full h-[420px] rounded-2xl border border-slate-200 bg-white"
-                                      />
-                                    )}
+                                    <iframe
+                                      src={app.resumeDataUrl}
+                                      title="PDF Preview"
+                                      className="w-full h-[520px] rounded-2xl border-2 border-slate-200 bg-white shadow-inner"
+                                    />
+                                  </div>
+                                )}
+
+                                {/* 3. Excel Spreadsheet Viewer */}
+                                {/\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '') && (
+                                  <div className="bg-white rounded-2xl border-2 border-emerald-300 shadow-md p-5 space-y-3">
+                                    <div className="flex items-center justify-between pb-3 border-b border-emerald-100">
+                                      <div className="flex items-center gap-2 text-emerald-800 font-extrabold text-sm">
+                                        <Table className="w-5 h-5 text-emerald-600" />
+                                        <span>Spreadsheet Data Grid: {app.resumeFileName}</span>
+                                      </div>
+                                      <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">
+                                        Excel / CSV
+                                      </span>
+                                    </div>
+                                    <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                                      <table className="w-full text-xs text-left border-collapse">
+                                        <thead className="bg-emerald-700 text-white font-bold uppercase tracking-wider">
+                                          <tr>
+                                            <th className="p-2.5 border border-emerald-600">Row</th>
+                                            <th className="p-2.5 border border-emerald-600">Attribute</th>
+                                            <th className="p-2.5 border border-emerald-600">Candidate Submission Data</th>
+                                            <th className="p-2.5 border border-emerald-600">Verification</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-200 font-medium text-slate-800">
+                                          <tr className="bg-slate-50"><td className="p-2.5 font-bold font-mono text-slate-400">1</td><td className="p-2.5 font-bold">Candidate Name</td><td className="p-2.5">{app.fullName}</td><td className="p-2.5 text-emerald-600 font-bold">✓ Valid</td></tr>
+                                          <tr><td className="p-2.5 font-bold font-mono text-slate-400">2</td><td className="p-2.5 font-bold">Applied Vacancy</td><td className="p-2.5">{app.jobTitle}</td><td className="p-2.5 text-sky-600 font-bold">Active</td></tr>
+                                          <tr className="bg-slate-50"><td className="p-2.5 font-bold font-mono text-slate-400">3</td><td className="p-2.5 font-bold">Contact Phone</td><td className="p-2.5">{app.phone}</td><td className="p-2.5 text-emerald-600 font-bold">Direct</td></tr>
+                                          <tr><td className="p-2.5 font-bold font-mono text-slate-400">4</td><td className="p-2.5 font-bold">Email Address</td><td className="p-2.5">{app.email || 'N/A'}</td><td className="p-2.5">Primary</td></tr>
+                                          <tr className="bg-slate-50"><td className="p-2.5 font-bold font-mono text-slate-400">5</td><td className="p-2.5 font-bold">Experience Range</td><td className="p-2.5">{app.experience}</td><td className="p-2.5 text-indigo-600 font-bold">Indexed</td></tr>
+                                          <tr><td className="p-2.5 font-bold font-mono text-slate-400">6</td><td className="p-2.5 font-bold">Attached Document</td><td className="p-2.5 font-mono">{app.resumeFileName}</td><td className="p-2.5 text-emerald-600 font-bold">Attached</td></tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
                                   </div>
                                 )}
 

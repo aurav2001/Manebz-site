@@ -228,25 +228,25 @@ const ApplicationModal = ({ job, isFutureOpening, onClose }) => {
               {/* Resume Upload Simulator */}
               <div>
                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                  Upload Resume / CV (PDF or DOCX)
+                  Upload Resume / Document (PDF, Word, Excel, JPG, PNG)
                 </label>
-                <div className="border-2 border-dashed border-gray-300 hover:border-red-500 rounded-2xl p-4 text-center cursor-pointer bg-gray-50 transition-colors">
+                <div className="border-2 border-dashed border-gray-300 hover:border-red-500 rounded-2xl p-4 text-center cursor-pointer bg-gray-50 hover:bg-red-50/20 transition-all">
                   <input
                     type="file"
                     id="modal-resume-file"
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.webp,.txt"
                     onChange={handleFileChange}
                     className="hidden"
                   />
                   <label htmlFor="modal-resume-file" className="cursor-pointer space-y-1 block">
                     <Upload className="w-6 h-6 text-red-600 mx-auto" />
                     <span className="text-xs font-semibold text-gray-800 block">
-                      {formData.resumeName || 'Click to Select Resume File (PDF, DOCX up to 10MB)'}
+                      {formData.resumeName || 'Click to Attach File (PDF, Excel, Word, JPEG/PNG up to 10MB)'}
                     </span>
                     {formData.resumeName ? (
                       <span className="text-[10px] text-emerald-600 font-bold block">✓ File Selected: {formData.resumeName}</span>
                     ) : (
-                      <span className="text-[10px] text-gray-400 block">PDF, DOCX formats supported</span>
+                      <span className="text-[10px] text-gray-400 block">PDF, Excel, Word, JPEG, PNG supported</span>
                     )}
                   </label>
                 </div>

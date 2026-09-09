@@ -690,13 +690,13 @@ const CareersPage = ({ onNavigate }) => {
                       {/* Resume Upload File Box */}
                       <div>
                         <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                          Attach Resume / CV (PDF / DOCX)
+                          Attach Resume / Document (PDF, Word, Excel, JPG, PNG)
                         </label>
                         <div className="border-2 border-dashed border-gray-300 hover:border-red-500 rounded-2xl p-4 text-center cursor-pointer bg-gray-50 hover:bg-red-50/20 transition-all">
                           <input
                             type="file"
                             id="direct-resume-upload"
-                            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.webp,.txt"
                             className="hidden"
                             onChange={(e) => {
                               if (e.target.files && e.target.files[0]) {
@@ -718,7 +718,7 @@ const CareersPage = ({ onNavigate }) => {
                           <label htmlFor="direct-resume-upload" className="cursor-pointer space-y-1 block">
                             <UploadCloud className="w-6 h-6 text-red-600 mx-auto" />
                             <span className="text-xs font-semibold text-gray-800 block">
-                              {applyForm.resumeFileName || 'Click to Select Resume File (PDF, DOCX up to 10MB)'}
+                              {applyForm.resumeFileName || 'Click to Attach File (PDF, Excel, Word, JPEG/PNG up to 10MB)'}
                             </span>
                             {applyForm.resumeFileName && (
                               <span className="text-[11px] text-emerald-600 font-bold block">
@@ -896,13 +896,13 @@ const CareersPage = ({ onNavigate }) => {
                       {/* Resume File Upload */}
                       <div>
                         <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                          Attach Resume / CV File
+                          Attach Resume / File (PDF, Word, Excel, JPG, PNG)
                         </label>
                         <div className="border-2 border-dashed border-gray-300 hover:border-red-500 rounded-2xl p-4 text-center cursor-pointer bg-gray-50 hover:bg-red-50/20 transition-all">
                           <input
                             type="file"
                             id="vault-resume-upload"
-                            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.webp,.txt"
                             className="hidden"
                             onChange={(e) => {
                               if (e.target.files && e.target.files[0]) {
@@ -924,7 +924,7 @@ const CareersPage = ({ onNavigate }) => {
                           <label htmlFor="vault-resume-upload" className="cursor-pointer space-y-1 block">
                             <UploadCloud className="w-6 h-6 text-red-600 mx-auto" />
                             <span className="text-xs font-semibold text-gray-800 block">
-                              {talentForm.resumeFileName || 'Click to Select Resume File (PDF, DOCX)'}
+                              {talentForm.resumeFileName || 'Click to Attach File (PDF, Excel, Word, JPEG/PNG)'}
                             </span>
                             {talentForm.resumeFileName && (
                               <span className="text-[11px] text-emerald-600 font-bold block">
