@@ -85,11 +85,14 @@ const AboutPage = ({ onNavigate }) => {
                 <span>Geographical Operational Base</span>
               </h4>
               <div className="flex flex-wrap gap-2">
-                {(dynamicRegions || regionsServed).map((region, i) => (
-                  <span key={i} className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-lg text-xs font-semibold border border-gray-200">
-                    {region}
-                  </span>
-                ))}
+                {(dynamicRegions || regionsServed).map((region, i) => {
+                  const label = typeof region === 'string' ? region : (region.state || region.name || '');
+                  return (
+                    <span key={i} className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-lg text-xs font-semibold border border-gray-200">
+                      {label}
+                    </span>
+                  );
+                })}
               </div>
             </div>
 
