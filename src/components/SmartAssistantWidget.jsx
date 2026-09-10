@@ -10,12 +10,17 @@ import {
   User, 
   CheckCircle2, 
   ArrowRight, 
-  ChevronRight,
+  ChevronRight, 
   ExternalLink,
-  ShieldCheck,
-  Building2,
-  Clock,
-  RefreshCw
+  ShieldCheck, 
+  Building2, 
+  Clock, 
+  RefreshCw,
+  Mic,
+  MicOff,
+  Star,
+  ThumbsUp,
+  Volume2
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
 
@@ -44,26 +49,91 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     {
       id: 'msg-1',
       sender: 'bot',
-      text: 'Hello! 👋 Welcome to **MANABS Facilities & Workforce Management**.\n\nI am your **MANABS Smart Assistant**. How can we support your facility or corporate staffing today?',
+      text: 'Hello! 👋 Welcome to **MANABS Facilities & Workforce Management**.\n\nI am your **MANABS Smart AI Assistant**. You can type or tap the **Mic 🎙️** to speak in Hindi or English!',
       time: 'Just now'
     }
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   
-  // Lead capture state inside chat
+  // Voice Recognition States (Feature 1)
+  const [isListening, setIsListening] = useState(false);
+  const [voiceLang, setVoiceLang] = useState('hi-IN'); // 'hi-IN' | 'en-IN'
+  const recognitionRef = useRef(null);
+
+  // Customer Star Rating States (Feature 6)
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
+  
+  // Lead capture & WhatsApp Auto-Forwarding (Feature 5)
   const [leadForm, setLeadForm] = useState({ name: '', phone: '', email: '', requirement: '' });
   const [showLeadPrompt, setShowLeadPrompt] = useState(false);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
 
   const chatEndRef = useRef(null);
 
+  // Initialize Speech Recognition
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = voiceLang;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map(result => result[0])
+          .map(result => result.transcript)
+          .join('');
+        setInputText(transcript);
+      };
+
+      recognition.onerror = (event) => {
+        console.warn('Speech recognition notice:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+  }, [voiceLang]);
+
   useEffect(() => {
     if (isOpen) {
       setHasUnread(false);
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [isOpen, messages, isTyping]);
+  }, [isOpen, messages, isTyping, showLeadPrompt, ratingSubmitted]);
+
+  // Voice toggle handler
+  const toggleVoiceInput = () => {
+    if (!recognitionRef.current) {
+      alert('Voice recognition is supported in Google Chrome, Edge, and modern mobile browsers.');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current.lang = voiceLang;
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (err) {
+        console.error('Speech recognition error:', err);
+      }
+    }
+  };
 
   const generateBotReply = (userQuery) => {
     const q = userQuery.toLowerCase();
@@ -82,7 +152,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
       };
     }
 
-    if (q.includes('staffing') || q.includes('payroll') || q.includes('salary') || q.includes('recruitment') || q.includes('manpower')) {
+    if (q.includes('staffing') || q.includes('payroll') || q.includes('salary') || q.includes('recruitment') || q.includes('manpower') || q.includes('staff')) {
       return {
         text: 'Our **Workforce & Payroll Division** manages:\n• 25,000+ deployed personnel across North India\n• 100% PF, ESI, Gratuity & Bonus automated challans\n• 2-week National Resource Cell induction training\n\nPlease share your required headcount or contact details for a proposal.',
         promptLead: true
@@ -118,6 +188,11 @@ const SmartAssistantWidget = ({ onNavigate }) => {
   };
 
   const handleSend = (textToSend = null) => {
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+
     const text = (textToSend || inputText).trim();
     if (!text) return;
 
@@ -153,11 +228,12 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     }, 800);
   };
 
+  // Feature 5: WhatsApp Lead Auto-Forwarding
   const handleLeadSubmit = (e) => {
     e.preventDefault();
     if (!leadForm.phone || !leadForm.name) return;
 
-    // Save lead to CompanyContext
+    // 1. Register lead in Admin Context
     addInquiry({
       name: leadForm.name,
       phone: leadForm.phone,
@@ -168,14 +244,17 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     setLeadSubmitted(true);
     setShowLeadPrompt(false);
 
-    // Send confirmation message in chat
+    // 2. Prepare formatted WhatsApp auto-forwarding text
+    const formattedLeadText = `*🔔 NEW CORPORATE INQUIRY (MANABS)*\n\n👤 *Client Name:* ${leadForm.name}\n📱 *Phone / WhatsApp:* ${leadForm.phone}\n🏢 *Requirement:* ${leadForm.requirement || 'Integrated Facility & Corporate Staffing'}\n⚡ *Status:* Immediate Callback Requested (15 Min)\n\n_Sent via MANABS Smart AI Assistant_`;
+
+    // 3. Add confirmation message with 1-click WhatsApp Forwarding Button
     setMessages(prev => [
       ...prev,
       {
         id: `bot-lead-${Date.now()}`,
         sender: 'bot',
-        text: `✅ Thank you **${leadForm.name}**! Your inquiry has been registered with our operations desk. Our senior facility manager will call you at **${leadForm.phone}** within 15 minutes.\n\nYou can also click below to initiate an instant WhatsApp chat.`,
-        action: 'whatsapp',
+        text: `✅ **Lead Registered Successfully!**\n\nThank you **${leadForm.name}**! Your callback request has been assigned to our senior operations director.\n\n👉 **Auto-Forward to WhatsApp:** Click below to instantly send this inquiry to our official WhatsApp (+91 98765 43210).`,
+        customWhatsAppText: formattedLeadText,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ]);
@@ -184,11 +263,30 @@ const SmartAssistantWidget = ({ onNavigate }) => {
   const openWhatsApp = (customMessage = null) => {
     const defaultMsg = customMessage || (
       leadForm.name 
-        ? `Hello MANABS, I am ${leadForm.name} (${leadForm.phone}). I need a facility / staffing proposal for: ${leadForm.requirement || 'Corporate Services'}`
+        ? `*NEW INQUIRY*\nName: ${leadForm.name}\nPhone: ${leadForm.phone}\nRequirement: ${leadForm.requirement || 'Corporate Services'}`
         : 'Hello MANABS Team, I would like to request an instant corporate facility and staffing proposal.'
     );
     const url = `https://wa.me/919876543210?text=${encodeURIComponent(defaultMsg)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  // Feature 6: Rating Submit
+  const handleRatingSelect = (score) => {
+    setRating(score);
+    setRatingSubmitted(true);
+    
+    // Add thank you bot message
+    setTimeout(() => {
+      setMessages(prev => [
+        ...prev,
+        {
+          id: `bot-rating-${Date.now()}`,
+          sender: 'bot',
+          text: `⭐ **Thank you for your ${score}★ Rating!**\n\nOur operations and customer service team greatly appreciate your feedback. Is there anything else we can help you with today?`,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ]);
+    }, 400);
   };
 
   return (
@@ -201,7 +299,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
           {hasUnread && (
             <div className="absolute -top-10 right-0 bg-slate-900 text-white text-xs font-bold py-1 px-3 rounded-full shadow-xl border border-slate-700 whitespace-nowrap animate-bounce flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>💬 MANABS Assistant & WhatsApp</span>
+              <span>💬 MANABS AI & WhatsApp</span>
             </div>
           )}
 
@@ -232,7 +330,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
 
       {/* 2. SMART CHATBOT & WHATSAPP MODAL WINDOW */}
       {isOpen && (
-        <div className="w-[360px] sm:w-[410px] h-[580px] max-h-[85vh] bg-white rounded-3xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
+        <div className="w-[360px] sm:w-[410px] h-[590px] max-h-[85vh] bg-white rounded-3xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
           
           {/* Header */}
           <div className="bg-gradient-to-r from-slate-950 via-[#0a192f] to-red-950 text-white p-4 sm:p-5 flex items-center justify-between shrink-0 shadow-md">
@@ -250,7 +348,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                   <h3 className="font-extrabold text-sm text-white tracking-tight">MANABS Assistant</h3>
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.2 rounded font-mono font-bold">24/7 ONLINE</span>
                 </div>
-                <p className="text-[11px] text-slate-300">Enterprise Facilities & WhatsApp Desk</p>
+                <p className="text-[11px] text-slate-300">AI Voice Desk & WhatsApp Hotline</p>
               </div>
             </div>
 
@@ -266,6 +364,8 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                     }
                   ]);
                   setShowLeadPrompt(false);
+                  setRatingSubmitted(false);
+                  setRating(0);
                 }}
                 title="Reset Chat"
                 className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
@@ -292,7 +392,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-red-600" />
-              <span>AI Assistant</span>
+              <span>AI Voice Assistant</span>
             </button>
             <button
               onClick={() => setActiveTab('whatsapp')}
@@ -307,7 +407,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
             </button>
           </div>
 
-          {/* TAB 1: AI CHATBOT INTERACTIVE VIEW */}
+          {/* TAB 1: AI CHATBOT + VOICE + RATING VIEW */}
           {activeTab === 'chat' && (
             <>
               {/* Messages Scroll Area */}
@@ -351,6 +451,20 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                           </div>
                         )}
 
+                        {/* Feature 5: WhatsApp Auto-Forward Button */}
+                        {m.customWhatsAppText && (
+                          <div className="mt-2.5 pt-2 border-t border-gray-100 space-y-1.5">
+                            <button
+                              onClick={() => openWhatsApp(m.customWhatsAppText)}
+                              className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-600/30 transition-all cursor-pointer animate-pulse"
+                            >
+                              <WhatsAppIcon className="w-4 h-4" />
+                              <span>Forward Details to WhatsApp</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+
                         {m.action === 'whatsapp' && (
                           <div className="mt-2.5 pt-2 border-t border-gray-100">
                             <button
@@ -358,7 +472,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                               className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 shadow-md transition-colors cursor-pointer"
                             >
                               <WhatsAppIcon className="w-3.5 h-3.5" />
-                              <span>Open WhatsApp Chat (+91 98765 43210)</span>
+                              <span>Open WhatsApp (+91 98765 43210)</span>
                             </button>
                           </div>
                         )}
@@ -411,14 +525,53 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                         onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })}
                         className="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 focus:border-red-500 focus:outline-none"
                       />
+                      <input
+                        type="text"
+                        placeholder="Specific Requirement (e.g. 20 Staff / IFM)"
+                        value={leadForm.requirement}
+                        onChange={(e) => setLeadForm({ ...leadForm, requirement: e.target.value })}
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 focus:border-red-500 focus:outline-none"
+                      />
                       <button
                         type="submit"
-                        className="w-full py-2 bg-gradient-to-r from-red-600 to-sky-600 text-white font-bold text-xs rounded-xl shadow hover:opacity-95 transition-opacity cursor-pointer flex items-center justify-center gap-1.5"
+                        className="w-full py-2.5 bg-gradient-to-r from-red-600 to-sky-600 text-white font-bold text-xs rounded-xl shadow-md hover:opacity-95 transition-opacity cursor-pointer flex items-center justify-center gap-1.5"
                       >
-                        <span>Submit for Instant Callback</span>
+                        <span>Submit & Forward to WhatsApp</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     </form>
+                  </div>
+                )}
+
+                {/* Feature 6: Interactive 5-Star Customer Feedback Card */}
+                {!ratingSubmitted && messages.length >= 3 && (
+                  <div className="bg-gradient-to-r from-slate-900 to-[#0a192f] text-white p-3 rounded-2xl shadow-md border border-slate-700 flex items-center justify-between gap-2 mt-2">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">
+                        Rate Your Experience
+                      </span>
+                      <span className="text-[11px] text-slate-300">How helpful is this assistant?</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onMouseEnter={() => setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          onClick={() => handleRatingSelect(star)}
+                          className="p-1 hover:scale-125 transition-transform cursor-pointer"
+                        >
+                          <Star 
+                            className={`w-4 h-4 ${
+                              (hoverRating || rating) >= star 
+                                ? 'fill-amber-400 text-amber-400' 
+                                : 'text-slate-500'
+                            }`} 
+                          />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -438,7 +591,24 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                 ))}
               </div>
 
-              {/* Message Input Bar */}
+              {/* Voice Listening Active Wave Banner */}
+              {isListening && (
+                <div className="px-3 py-1.5 bg-red-600 text-white text-xs font-bold flex items-center justify-between animate-pulse shrink-0">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
+                    <span>🎙️ Listening in {voiceLang === 'hi-IN' ? 'Hindi (हिन्दी)' : 'English'}... Speak now!</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setVoiceLang(voiceLang === 'hi-IN' ? 'en-IN' : 'hi-IN')}
+                    className="text-[10px] bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded-full font-mono cursor-pointer"
+                  >
+                    Switch to {voiceLang === 'hi-IN' ? 'EN' : 'HI'}
+                  </button>
+                </div>
+              )}
+
+              {/* Feature 1: Message Input Bar with Voice Mic */}
               <div className="p-3 bg-white border-t border-gray-200 shrink-0">
                 <form 
                   onSubmit={(e) => {
@@ -447,13 +617,30 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                   }}
                   className="flex items-center gap-2"
                 >
-                  <input
-                    type="text"
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    placeholder="Ask about staffing, facility, payroll..."
-                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-200 transition-all"
-                  />
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      placeholder={isListening ? "Listening... speak query" : "Type or click mic to speak..."}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-200 transition-all pr-9"
+                    />
+                    
+                    {/* Voice Mic Button */}
+                    <button
+                      type="button"
+                      onClick={toggleVoiceInput}
+                      title="Speak in Hindi / English"
+                      className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-all cursor-pointer ${
+                        isListening 
+                          ? 'bg-red-600 text-white animate-bounce' 
+                          : 'text-slate-400 hover:text-red-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                    </button>
+                  </div>
+
                   <button
                     type="submit"
                     disabled={!inputText.trim()}
