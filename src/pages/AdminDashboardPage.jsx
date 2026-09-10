@@ -2314,9 +2314,15 @@ const AdminDashboardPage = ({ onNavigate }) => {
                     </div>
                   </div>
 
-                  {/* Two column form */}
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                    <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                  {/* FULL-WIDTH BLOG STUDIO EDITOR */}
+                  <div className="space-y-6">
+                    {/* Card 1: Article Metadata */}
+                    <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-5">
+                      <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 pb-2 border-b border-gray-100 flex items-center justify-between">
+                        <span>1. Article Metadata & Headline</span>
+                        <span className="text-xs text-red-600 font-semibold uppercase tracking-wider">Required *</span>
+                      </h4>
+
                       <div>
                         <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Article Title *</label>
                         <input
@@ -2325,17 +2331,17 @@ const AdminDashboardPage = ({ onNavigate }) => {
                           value={blogForm.title}
                           onChange={(e) => setBlogForm({ ...blogForm, title: e.target.value })}
                           placeholder="e.g. Statutory Labour Law Compliance in India: 2026 Checklist"
-                          className="w-full px-4 py-3 rounded-xl border border-gray-300 font-bold text-sm focus:border-red-500 focus:outline-none"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 font-bold text-base focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100 transition-all"
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Category</label>
                           <select
                             value={blogForm.category}
                             onChange={(e) => setBlogForm({ ...blogForm, category: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-semibold bg-white focus:outline-none"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-semibold bg-white focus:border-red-500 focus:outline-none"
                           >
                             <option value="Statutory Compliance">Statutory Compliance</option>
                             <option value="Facility Management">Facility Management</option>
@@ -2350,46 +2356,76 @@ const AdminDashboardPage = ({ onNavigate }) => {
                             value={blogForm.readTime}
                             onChange={(e) => setBlogForm({ ...blogForm, readTime: e.target.value })}
                             placeholder="e.g. 6 min read"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm focus:border-red-500 focus:outline-none"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Author Byline</label>
+                          <input
+                            type="text"
+                            value={blogForm.author}
+                            onChange={(e) => setBlogForm({ ...blogForm, author: e.target.value })}
+                            placeholder="e.g. MANABS Statutory Advisory"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
                           />
                         </div>
                       </div>
 
                       <div>
                         <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Cover Image URL</label>
-                        <input
-                          type="url"
-                          value={blogForm.coverImage}
-                          onChange={(e) => setBlogForm({ ...blogForm, coverImage: e.target.value })}
-                          placeholder="https://images.unsplash.com/..."
-                          className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs font-mono focus:border-red-500 focus:outline-none"
-                        />
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                          <input
+                            type="url"
+                            value={blogForm.coverImage}
+                            onChange={(e) => setBlogForm({ ...blogForm, coverImage: e.target.value })}
+                            placeholder="https://images.unsplash.com/photo-..."
+                            className="flex-1 px-4 py-3 rounded-xl border border-gray-300 text-xs font-mono focus:border-red-500 focus:outline-none"
+                          />
+                          {blogForm.coverImage && (
+                            <div className="w-20 h-12 rounded-xl overflow-hidden border border-gray-200 shrink-0 bg-slate-100">
+                              <img src={blogForm.coverImage} alt="Thumbnail" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                        </div>
                       </div>
+                    </div>
+
+                    {/* Card 2: Summary & Excerpt */}
+                    <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                      <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 pb-2 border-b border-gray-100">
+                        2. Summary & SEO Snippet
+                      </h4>
 
                       <div>
                         <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Summary / Excerpt *</label>
                         <textarea
-                          rows={2}
+                          rows={3}
                           required
                           value={blogForm.excerpt}
                           onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })}
-                          placeholder="Short 2-line preview for cards & SEO search description..."
-                          className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm focus:border-red-500 focus:outline-none"
+                          placeholder="Short 2-3 sentence executive overview for cards, meta descriptions and search preview..."
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm leading-relaxed font-medium focus:border-red-500 focus:outline-none"
                         />
+                      </div>
+                    </div>
+
+                    {/* Card 3: Body & Content Sections */}
+                    <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-gray-100 gap-2">
+                        <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900">
+                          3. Article Body & Structured Sections
+                        </h4>
+                        <span className="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-mono font-semibold">
+                          Format: Heading | Detailed Paragraph per line
+                        </span>
                       </div>
 
                       <div>
-                        <div className="flex justify-between items-center mb-1.5">
-                          <label className="block text-xs font-bold text-gray-700 uppercase">
-                            Article Body Sections (Heading | Content per line)
-                          </label>
-                          <span className="text-[10px] text-gray-400 font-bold">Format: Heading | Paragraph</span>
-                        </div>
                         <textarea
-                          rows={8}
+                          rows={10}
                           value={blogForm.contentSectionsText}
                           onChange={(e) => setBlogForm({ ...blogForm, contentSectionsText: e.target.value })}
-                          placeholder="Heading 1 | Detailed paragraph text here...&#10;Heading 2 | Next section explanation here..."
+                          placeholder="Understanding EPF & ESI Guidelines | Managing payroll for contract workers requires dedicated compliance with the Employees' Provident Fund and ESI Act...&#10;Zero-Liability Audit Checkpoints | Implement quarterly third-party audits and verify challans before vendor invoice disbursement."
                           className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs font-mono leading-relaxed focus:border-red-500 focus:outline-none"
                         />
                       </div>
@@ -2400,34 +2436,9 @@ const AdminDashboardPage = ({ onNavigate }) => {
                           type="text"
                           value={blogForm.tagsText}
                           onChange={(e) => setBlogForm({ ...blogForm, tagsText: e.target.value })}
-                          placeholder="EPF, ESI, Minimum Wages, Staffing"
-                          className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs focus:border-red-500 focus:outline-none"
+                          placeholder="EPF, ESI, Minimum Wages, Staffing, Facility Management"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs font-medium focus:border-red-500 focus:outline-none"
                         />
-                      </div>
-                    </div>
-
-                    {/* Right Live Preview Card */}
-                    <div className="lg:col-span-5 sticky top-24 bg-white p-6 rounded-3xl border border-gray-200 shadow-xl space-y-4">
-                      <div className="text-xs font-bold uppercase tracking-wider text-slate-400 pb-2 border-b">
-                        Live Card Preview
-                      </div>
-                      <div className="rounded-2xl overflow-hidden border border-slate-200">
-                        <img
-                          src={blogForm.coverImage || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop'}
-                          alt="Preview"
-                          className="w-full h-40 object-cover"
-                        />
-                        <div className="p-4 space-y-2">
-                          <span className="px-2.5 py-0.5 rounded bg-red-100 text-red-700 text-[10px] font-bold uppercase">
-                            {blogForm.category}
-                          </span>
-                          <h4 className="text-sm font-black text-slate-900 leading-snug">
-                            {blogForm.title || 'Untitled Article Preview'}
-                          </h4>
-                          <p className="text-xs text-slate-500 line-clamp-2">
-                            {blogForm.excerpt || 'Article summary description will appear here...'}
-                          </p>
-                        </div>
                       </div>
                     </div>
                   </div>
