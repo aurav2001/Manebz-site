@@ -95,7 +95,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
     <div className="bg-white pb-20">
       
       {/* 1. HERO BANNER WITH LUXURY BREADCRUMB */}
-      <section className="relative bg-[#071324] text-white pt-36 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-md">
+      <section className="relative bg-[#071324] text-white pt-28 pb-14 sm:pt-36 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-md">
         <div className="absolute inset-0 z-0">
           <img 
             src={serviceBg} 
@@ -106,17 +106,17 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
         </div>
 
         {/* Glow elements */}
-        <div className="absolute top-0 left-1/4 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-red-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-1/4 w-72 sm:w-80 h-72 sm:h-80 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-72 sm:w-80 h-72 sm:h-80 bg-red-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="max-w-5xl mx-auto relative z-10 space-y-6">
+        <div className="max-w-5xl mx-auto relative z-10 space-y-4 sm:space-y-6">
           {/* Breadcrumb Row */}
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <button
               onClick={() => onNavigate('home')}
-              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Back to Home</span>
             </button>
 
@@ -124,24 +124,24 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
               <>
                 <button
                   onClick={() => handleTabChange('all')}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-sky-300 hover:text-white transition-colors cursor-pointer bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full border border-white/15 backdrop-blur-md"
+                  className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-sky-300 hover:text-white transition-colors cursor-pointer bg-white/10 hover:bg-white/20 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-white/15 backdrop-blur-md"
                 >
                   <span>All Services</span>
                 </button>
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-600/25 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-                  <Award className="w-3.5 h-3.5 text-red-400" />
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-red-600/25 border border-red-500/30 text-red-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+                  <Award className="w-3.5 h-3.5 text-red-400 shrink-0" />
                   <span>{currentService.category}</span>
                 </div>
               </>
             ) : (
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-                <Award className="w-3.5 h-3.5 text-red-400" />
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+                <Award className="w-3.5 h-3.5 text-red-400 shrink-0" />
                 <span>MANABS 5-Pillar Service Spectrum</span>
               </div>
             )}
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight uppercase">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight uppercase">
             {activeTab !== 'all' && currentService ? currentService.title : (
               <>
                 Strategic Facilities & <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-red-400">Workforce Solutions</span>
@@ -149,7 +149,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
             )}
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-300 max-w-3xl leading-relaxed font-medium">
+          <p className="text-xs sm:text-base text-slate-300 max-w-3xl leading-relaxed font-medium">
             {activeTab !== 'all' && currentService 
               ? currentService.tagline 
               : 'Operating across Delhi NCR, UP, Haryana, and Uttarakhand with 20+ years founder expertise, state-of-the-art machines, bio-friendly consumables, and 100% statutory compliance.'
@@ -160,13 +160,13 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
 
       {/* 2. INTERACTIVE SERVICE SELECTOR TABS BAR (Normal flow, scrolls up naturally) */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-1">
             
             {/* All Overview Button */}
             <button
               onClick={() => handleTabChange('all')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 ${
+              className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 active:scale-95 ${
                 activeTab === 'all'
                   ? 'bg-gradient-to-r from-[#0a192f] to-[#1e3a8a] text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -185,7 +185,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
                 <button
                   key={s.id}
                   onClick={() => handleTabChange(s.slug)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2 shrink-0 ${
+                  className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2 shrink-0 active:scale-95 ${
                     isActive
                       ? isRed 
                         ? 'bg-red-600 text-white shadow-md' 

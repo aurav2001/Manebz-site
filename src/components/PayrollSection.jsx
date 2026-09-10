@@ -128,55 +128,55 @@ const PayrollSection = ({ onNavigate }) => {
             </div>
 
             {/* Mode Switcher */}
-            <div className="flex flex-wrap gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200">
+            <div className="flex items-center gap-1.5 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden w-full md:w-auto">
               <button
                 onClick={() => setActiveCalcTab('standard')}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 active:scale-95 ${
                   activeCalcTab === 'standard'
                     ? 'bg-red-600 text-white shadow-md'
                     : 'text-slate-700 hover:text-slate-900'
                 }`}
               >
-                1. Standard CTC & Take-Home
+                1. CTC & In-Hand
               </button>
               <button
                 onClick={() => setActiveCalcTab('overtime')}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95 ${
                   activeCalcTab === 'overtime'
                     ? 'bg-red-600 text-white shadow-md'
                     : 'text-slate-700 hover:text-slate-900'
                 }`}
               >
                 <Clock className="w-3.5 h-3.5" />
-                <span>2. Overtime (OT 2x) & Shifts</span>
+                <span>2. Overtime (2x)</span>
               </button>
               <button
                 onClick={() => setActiveCalcTab('agency-invoice')}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95 ${
                   activeCalcTab === 'agency-invoice'
                     ? 'bg-red-600 text-white shadow-md'
                     : 'text-slate-700 hover:text-slate-900'
                 }`}
               >
                 <Building2 className="w-3.5 h-3.5" />
-                <span>3. B2B Client Invoice</span>
+                <span>3. Client Invoice</span>
               </button>
               <button
                 onClick={() => setActiveCalcTab('statutory-bonus')}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95 ${
                   activeCalcTab === 'statutory-bonus'
                     ? 'bg-red-600 text-white shadow-md'
                     : 'text-slate-700 hover:text-slate-900'
                 }`}
               >
                 <Percent className="w-3.5 h-3.5" />
-                <span>4. Annual Bonus & Gratuity</span>
+                <span>4. Annual Bonus</span>
               </button>
             </div>
           </div>
 
           {/* Role Presets */}
-          <div className="mb-8 flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+          <div className="mb-8 flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pb-2">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0 mr-1">
               Preset Roles:
             </span>
@@ -337,11 +337,11 @@ const PayrollSection = ({ onNavigate }) => {
               )}
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowSlipModal(true)}
-                  className="flex-1 py-3 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                  className="flex-1 py-3 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer active:scale-95"
                 >
                   <Receipt className="w-4 h-4" />
                   <span>Preview Payslip Format</span>
@@ -349,7 +349,7 @@ const PayrollSection = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => onNavigate('contact')}
-                  className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer"
+                  className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95"
                 >
                   <span>Request Proposal</span>
                   <ArrowRight className="w-4 h-4" />
@@ -359,7 +359,7 @@ const PayrollSection = ({ onNavigate }) => {
             </div>
 
             {/* Right: Dynamic Output Card (6 Cols) */}
-            <div className="lg:col-span-6 bg-gradient-to-br from-[#0a192f] to-[#112240] text-white p-6 sm:p-8 rounded-3xl shadow-xl space-y-6">
+            <div className="lg:col-span-6 bg-gradient-to-br from-[#0a192f] to-[#112240] text-white p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl space-y-5 sm:space-y-6">
               
               {/* Card Dynamic Headline */}
               <div className="flex justify-between items-start border-b border-white/10 pb-4">
@@ -530,8 +530,8 @@ const PayrollSection = ({ onNavigate }) => {
 
       {/* Payslip Modal Preview */}
       {showSlipModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl relative border border-gray-200 text-gray-900 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-md animate-in fade-in overflow-y-auto">
+          <div className="bg-white rounded-3xl p-5 sm:p-8 max-w-xl w-full shadow-2xl relative border border-gray-200 text-gray-900 max-h-[90vh] overflow-y-auto my-auto">
             <button
               onClick={() => setShowSlipModal(false)}
               className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-100 cursor-pointer"
@@ -541,11 +541,11 @@ const PayrollSection = ({ onNavigate }) => {
 
             <div className="text-center pb-4 border-b border-gray-200 space-y-1">
               <span className="text-xs font-bold uppercase tracking-widest text-red-600">MANABS Facilities & Workforce</span>
-              <h3 className="text-xl font-extrabold text-gray-900">CONFIDENTIAL SALARY PAYSLIP</h3>
-              <p className="text-[11px] text-gray-500">Pay Period: Current Month • Delhi NCR / Pan-India</p>
+              <h3 className="text-lg sm:text-xl font-extrabold text-gray-900">CONFIDENTIAL SALARY PAYSLIP</h3>
+              <p className="text-[10px] sm:text-[11px] text-gray-500">Pay Period: Current Month • Delhi NCR / Pan-India</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 py-4 text-xs border-b border-gray-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 py-4 text-xs border-b border-gray-100">
               <div>
                 <span className="text-gray-500 block">Designation:</span>
                 <strong className="text-gray-900">{selectedRole.roleName}</strong>
@@ -564,7 +564,7 @@ const PayrollSection = ({ onNavigate }) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 py-4 text-xs border-b border-gray-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 py-4 text-xs border-b border-gray-200">
               {/* Earnings */}
               <div className="space-y-2">
                 <span className="font-bold text-gray-900 uppercase tracking-wider block text-[11px]">Gross Earnings</span>

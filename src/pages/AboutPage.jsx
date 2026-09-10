@@ -36,7 +36,7 @@ const AboutPage = ({ onNavigate }) => {
     <div className="bg-white pb-24">
       
       {/* 1. HERO BANNER WITH LUXURY BREADCRUMB */}
-      <section className="relative bg-[#071324] text-white pt-36 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-md">
+      <section className="relative bg-[#071324] text-white pt-28 pb-14 sm:pt-36 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-md">
         <div className="absolute inset-0 z-0">
           <img 
             src={serviceBg} 
@@ -46,35 +46,35 @@ const AboutPage = ({ onNavigate }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-[#071324] via-[#071324]/85 to-[#071324]/60" />
         </div>
 
-        <div className="max-w-5xl mx-auto relative z-10 space-y-6">
-          <div className="flex items-center gap-3 flex-wrap">
+        <div className="max-w-5xl mx-auto relative z-10 space-y-4 sm:space-y-6">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <button
               onClick={() => onNavigate('home')}
-              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Back to Home</span>
             </button>
 
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-              <Award className="w-3.5 h-3.5 text-red-400" />
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+              <Award className="w-3.5 h-3.5 text-red-400 shrink-0" />
               <span>About MANABS / MANEBZ</span>
             </div>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight uppercase">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight uppercase">
             Know Us Better
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-300 max-w-3xl leading-relaxed font-medium">
+          <p className="text-xs sm:text-base text-slate-300 max-w-3xl leading-relaxed font-medium">
             Pioneers in Strategic Facilities Management, Corporate Workforce Sourcing & Statutory Compliance since 2014.
           </p>
         </div>
       </section>
 
       {/* Main Story: Founded 27th Feb 2014 & Geographical Footprint */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center">
           
           <div className="lg:col-span-7 space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 text-sky-800 text-xs font-bold uppercase tracking-wider">

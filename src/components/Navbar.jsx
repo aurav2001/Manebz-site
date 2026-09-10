@@ -212,7 +212,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
         
         {/* Services Quick Pop-Up Launcher on dock */}
         {servicesLauncherOpen && (
-          <div className="mb-2.5 w-[340px] sm:w-[380px] bg-white/95 backdrop-blur-2xl rounded-2xl p-3.5 shadow-2xl border border-gray-200 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="mb-2.5 w-[calc(100vw-32px)] sm:w-[380px] max-w-[380px] bg-white/95 backdrop-blur-2xl rounded-2xl p-3.5 shadow-2xl border border-gray-200 animate-in fade-in slide-in-from-bottom-2 duration-200">
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-100 px-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
                 MANABS Service Spectrum
@@ -258,7 +258,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
         )}
 
         {/* Sleek iPad Dock Container */}
-        <div className="relative bg-[#0a192f]/95 text-white backdrop-blur-2xl border border-sky-500/30 px-2.5 sm:px-3 py-1.5 rounded-full shadow-[0_12px_36px_rgba(14,165,233,0.25)] flex items-center gap-1.5 sm:gap-2 transition-all duration-300">
+        <div className="relative bg-[#0a192f]/95 text-white backdrop-blur-2xl border border-sky-500/30 px-2 sm:px-3 py-1.5 rounded-full shadow-[0_12px_36px_rgba(14,165,233,0.25)] flex items-center gap-1 sm:gap-2 transition-all duration-300">
           
           {dockTabs.map((tab) => {
             const Icon = tab.icon;
@@ -272,7 +272,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
               >
                 {/* Floating Tooltip */}
                 {hoveredTab === tab.id && (
-                  <div className="absolute -top-9 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-md bg-black/90 text-white text-[10px] font-semibold whitespace-nowrap shadow-lg border border-white/10 pointer-events-none animate-in fade-in zoom-in-95 duration-100">
+                  <div className="hidden sm:block absolute -top-9 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-md bg-black/90 text-white text-[10px] font-semibold whitespace-nowrap shadow-lg border border-white/10 pointer-events-none animate-in fade-in zoom-in-95 duration-100">
                     {tab.name}
                     <div className="absolute top-full left-1/2 -translate-x-1/2 border-[3px] border-transparent border-t-black/90" />
                   </div>
@@ -288,14 +288,14 @@ const Navbar = ({ currentPage, onNavigate }) => {
                       onNavigate(tab.id);
                     }
                   }}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 transform group-hover:scale-115 group-hover:-translate-y-1 ${
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 transform group-hover:scale-115 group-hover:-translate-y-1 ${
                     isActive 
                       ? 'bg-gradient-to-tr from-sky-400 to-sky-600 text-white shadow-md shadow-sky-500/30 font-bold' 
                       : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white'
                   }`}
                   aria-label={tab.name}
                 >
-                  <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                  <Icon className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
                 </button>
               </div>
             );
@@ -311,7 +311,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
             onMouseLeave={() => setHoveredTab(null)}
           >
             {hoveredTab === 'quote' && (
-              <div className="absolute -top-9 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-md bg-red-600 text-white text-[10px] font-bold whitespace-nowrap shadow-lg pointer-events-none animate-in fade-in zoom-in-95 duration-100">
+              <div className="hidden sm:block absolute -top-9 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-md bg-red-600 text-white text-[10px] font-bold whitespace-nowrap shadow-lg pointer-events-none animate-in fade-in zoom-in-95 duration-100">
                 Request Quote
                 <div className="absolute top-full left-1/2 -translate-x-1/2 border-[3px] border-transparent border-t-red-600" />
               </div>
@@ -319,10 +319,10 @@ const Navbar = ({ currentPage, onNavigate }) => {
 
             <button
               onClick={() => setQuoteModalOpen(true)}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white flex items-center justify-center transition-all duration-200 transform group-hover:scale-115 group-hover:-translate-y-1 shadow-md shadow-red-500/30"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white flex items-center justify-center transition-all duration-200 transform group-hover:scale-115 group-hover:-translate-y-1 shadow-md shadow-red-500/30"
               aria-label="Request Quote"
             >
-              <FileCheck2 className="w-4 h-4" />
+              <FileCheck2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           </div>
 
@@ -330,56 +330,62 @@ const Navbar = ({ currentPage, onNavigate }) => {
 
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer & Backdrop */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-4 top-20 z-50 bg-white rounded-3xl p-5 shadow-2xl border border-gray-100 space-y-2 animate-in fade-in slide-in-from-top-4 max-h-[85vh] overflow-y-auto">
-          {navItems && navItems.filter(item => item.isVisible).map((item) => {
-            if (item.type === 'services-dropdown' || item.path === 'services') {
-              return (
-                <div key={item.id} className="py-2 border-y border-gray-100">
-                  <span className="block px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{item.label || 'SERVICES'}</span>
-                  {services.map((srv, idx) => (
-                    <button
-                      key={srv.id || idx}
-                      onClick={() => { onNavigate('services', srv.slug); setMobileMenuOpen(false); }}
-                      className="w-full text-left py-2 px-4 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 flex items-center justify-between"
-                    >
-                      <span>{srv.title}</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-                    </button>
-                  ))}
-                </div>
-              );
-            }
+        <>
+          <div 
+            onClick={() => setMobileMenuOpen(false)}
+            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 animate-in fade-in"
+          />
+          <div className="lg:hidden fixed inset-x-3 sm:inset-x-4 top-18 sm:top-20 z-50 bg-white rounded-3xl p-5 shadow-2xl border border-gray-100 space-y-2 animate-in fade-in slide-in-from-top-4 max-h-[82vh] overflow-y-auto">
+            {navItems && navItems.filter(item => item.isVisible).map((item) => {
+              if (item.type === 'services-dropdown' || item.path === 'services') {
+                return (
+                  <div key={item.id} className="py-2 border-y border-gray-100">
+                    <span className="block px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{item.label || 'SERVICES'}</span>
+                    {services.map((srv, idx) => (
+                      <button
+                        key={srv.id || idx}
+                        onClick={() => { onNavigate('services', srv.slug); setMobileMenuOpen(false); }}
+                        className="w-full text-left py-2 px-4 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 flex items-center justify-between"
+                      >
+                        <span>{srv.title}</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                      </button>
+                    ))}
+                  </div>
+                );
+              }
 
-            return (
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => { onNavigate(item.path); setMobileMenuOpen(false); }}
+                  className="w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-bold text-gray-800 hover:bg-gray-50 flex items-center justify-between"
+                >
+                  <span>{item.label}</span>
+                  {item.isHot && (
+                    <span className="text-[9px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-extrabold">HOT</span>
+                  )}
+                </button>
+              );
+            })}
+            <div className="pt-2">
               <button
-                key={item.id}
-                onClick={() => { onNavigate(item.path); setMobileMenuOpen(false); }}
-                className="w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-bold text-gray-800 hover:bg-gray-50 flex items-center justify-between"
+                onClick={() => { setMobileMenuOpen(false); setQuoteModalOpen(true); }}
+                className="w-full flex items-center justify-center gap-2 bg-[#b91c1c] text-white py-3 rounded-xl font-bold text-xs shadow-md active:scale-95"
               >
-                <span>{item.label}</span>
-                {item.isHot && (
-                  <span className="text-[9px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-extrabold">HOT</span>
-                )}
+                <span>Request Quote</span>
               </button>
-            );
-          })}
-          <div className="pt-2">
-            <button
-              onClick={() => { setMobileMenuOpen(false); setQuoteModalOpen(true); }}
-              className="w-full flex items-center justify-center gap-2 bg-[#b91c1c] text-white py-3 rounded-xl font-bold text-xs shadow-md"
-            >
-              <span>Request Quote</span>
-            </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Request Quote Modal */}
       {quoteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative border border-gray-100 text-gray-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md animate-in fade-in overflow-y-auto">
+          <div className="bg-white rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl relative border border-gray-100 text-gray-900 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setQuoteModalOpen(false)}
               className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-100 transition-colors"

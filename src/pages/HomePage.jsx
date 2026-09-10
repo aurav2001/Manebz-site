@@ -119,7 +119,7 @@ const HomePage = ({ onNavigate }) => {
     <div className="bg-white">
       
       {/* 1. HERO BANNER WITH DYNAMIC 10-SEC AUTO-CHANGING BACKGROUND IMAGES */}
-      <section className="relative bg-[#071324] text-white pt-36 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[640px] flex items-center justify-center">
+      <section className="relative bg-[#071324] text-white pt-28 pb-16 sm:pt-36 sm:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[580px] sm:min-h-[640px] flex items-center justify-center">
         
         {/* Background Image Carousel (Smooth Cross-fade Every 10s) */}
         {heroSlides.map((slide, idx) => (
@@ -143,55 +143,55 @@ const HomePage = ({ onNavigate }) => {
         ))}
 
         {/* Ambient Glows */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-500/20 rounded-full blur-3xl pointer-events-none z-1" />
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-500/20 rounded-full blur-3xl pointer-events-none z-1" />
+        <div className="absolute top-1/4 left-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-sky-500/20 rounded-full blur-3xl pointer-events-none z-1" />
+        <div className="absolute top-1/4 right-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-red-500/20 rounded-full blur-3xl pointer-events-none z-1" />
 
         {/* Main Content Container */}
-        <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
+        <div className="max-w-5xl mx-auto text-center relative z-10 space-y-5 sm:space-y-6">
           
           {/* Top Tagline & Active Sector Badge */}
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-sky-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-xs">
-              <Award className="w-3.5 h-3.5 text-red-400" />
-              <span>Founded Feb 27, 2014 • Delhi NCR • UP • Haryana • Uttarakhand</span>
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/15 text-sky-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-xs">
+              <Award className="w-3.5 h-3.5 text-red-400 shrink-0" />
+              <span>Founded Feb 27, 2014 • Delhi NCR • North India</span>
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600/30 border border-red-500/40 text-red-300 text-xs font-bold backdrop-blur-md animate-pulse">
-              <CheckCircle2 className="w-3 h-3 text-red-400" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600/30 border border-red-500/40 text-red-300 text-[11px] sm:text-xs font-bold backdrop-blur-md animate-pulse">
+              <CheckCircle2 className="w-3 h-3 text-red-400 shrink-0" />
               <span>{heroSlides[activeSlide].badge}</span>
             </div>
           </div>
 
           {/* Heading */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+          <h1 className="text-2xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
             Strategic Facilities Management & <br className="hidden sm:inline" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-sky-200 to-red-500">
               Skilled Workforce Solutions
             </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-gray-200 max-w-3xl mx-auto leading-relaxed drop-shadow-sm font-medium">
-            {heroSlides[activeSlide].tagline} — Delivering state-of-the-art machines, bio-friendly consumables, trained personnel, and 100% statutory compliance (PF, ESI, PAN) 24 hours a day, 7 days a week.
+          <p className="text-xs sm:text-base text-gray-200 max-w-3xl mx-auto leading-relaxed drop-shadow-sm font-medium px-2 sm:px-0">
+            {heroSlides[activeSlide].tagline} — Delivering state-of-the-art machines, bio-friendly consumables, trained personnel, and 100% statutory compliance (PF, ESI, PAN) 24/7/365.
           </p>
 
           {/* Consultation Quote Request Form */}
-          <div className="max-w-lg mx-auto pt-2">
+          <div className="max-w-lg mx-auto pt-1 sm:pt-2 w-full px-2 sm:px-0">
             {!emailSubmitted ? (
-              <form onSubmit={handleEmailSubmit} className="flex flex-col sm:flex-row gap-3">
+              <form onSubmit={handleEmailSubmit} className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
                 <div className="relative flex-grow">
-                  <Mail className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
                     type="email"
                     required
                     placeholder="Enter corporate email for proposal"
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
-                    className="w-full h-14 pl-12 pr-4 bg-white/15 border border-white/30 rounded-full text-white placeholder-gray-300 focus:outline-none focus:border-sky-400 text-sm backdrop-blur-md shadow-inner"
+                    className="w-full h-12 sm:h-14 pl-11 sm:pl-12 pr-4 bg-white/15 border border-white/30 rounded-full text-white placeholder-gray-300 focus:outline-none focus:border-sky-400 text-xs sm:text-sm backdrop-blur-md shadow-inner"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="h-14 px-7 rounded-full bg-gradient-to-r from-red-600 to-sky-600 hover:from-red-700 hover:to-sky-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-red-500/30 flex items-center justify-center gap-2 shrink-0 active:scale-95 cursor-pointer"
+                  className="h-12 sm:h-14 px-6 sm:px-7 rounded-full bg-gradient-to-r from-red-600 to-sky-600 hover:from-red-700 hover:to-sky-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-red-500/30 flex items-center justify-center gap-2 shrink-0 active:scale-95 cursor-pointer"
                 >
                   <span>Request Quote</span>
                   <ArrowRight className="w-4 h-4" />
@@ -206,30 +206,30 @@ const HomePage = ({ onNavigate }) => {
           </div>
 
           {/* 10-Second Auto Slider Indicator & Sector Pills */}
-          <div className="pt-3 flex flex-col items-center gap-3">
-            <div className="flex items-center justify-center gap-2 flex-wrap">
+          <div className="pt-2 sm:pt-3 flex flex-col items-center gap-2.5 sm:gap-3">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap px-2">
               {heroSlides.map((slide, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => setActiveSlide(idx)}
-                  className={`px-3 py-1.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                     activeSlide === idx
                       ? 'bg-white text-slate-950 shadow-lg scale-105'
                       : 'bg-white/10 hover:bg-white/20 text-gray-300 border border-white/10'
                   }`}
                 >
-                  <span className={`w-2 h-2 rounded-full ${activeSlide === idx ? 'bg-red-600 animate-ping' : 'bg-gray-400'}`} />
+                  <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${activeSlide === idx ? 'bg-red-600 animate-ping' : 'bg-gray-400'}`} />
                   <span>{slide.badge}</span>
                 </button>
               ))}
             </div>
 
             {/* 10-Second Continuous Progress Indicator Bar */}
-            <div className="w-48 h-1 bg-white/20 rounded-full overflow-hidden">
+            <div className="w-36 sm:w-48 h-1 bg-white/20 rounded-full overflow-hidden">
               <div
                 key={activeSlide}
-                className="h-full bg-gradient-to-r from-red-500 via-sky-400 to-emerald-400 rounded-full animate-[progress_10s_linear]"
+                className="h-full bg-gradient-to-r from-red-500 via-sky-400 to-emerald-400 rounded-full"
                 style={{
                   animation: 'growWidth 10s linear forwards'
                 }}
@@ -238,22 +238,22 @@ const HomePage = ({ onNavigate }) => {
           </div>
 
           {/* Quick Stats Badges */}
-          <div className="pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto text-left">
-            <div className="bg-white/10 backdrop-blur-md border border-white/15 p-3.5 rounded-2xl">
-              <span className="text-xl font-extrabold text-sky-400">10+ Years</span>
-              <p className="text-[11px] text-gray-300">Excellence Since 2014</p>
+          <div className="pt-3 sm:pt-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 max-w-3xl mx-auto text-left px-1 sm:px-0">
+            <div className="bg-white/10 backdrop-blur-md border border-white/15 p-3 sm:p-3.5 rounded-2xl">
+              <span className="text-lg sm:text-xl font-extrabold text-sky-400">10+ Years</span>
+              <p className="text-[10px] sm:text-[11px] text-gray-300">Excellence Since 2014</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-md border border-white/15 p-3.5 rounded-2xl">
-              <span className="text-xl font-extrabold text-red-400">24/7/365</span>
-              <p className="text-[11px] text-gray-300">Round-the-Clock Ops</p>
+            <div className="bg-white/10 backdrop-blur-md border border-white/15 p-3 sm:p-3.5 rounded-2xl">
+              <span className="text-lg sm:text-xl font-extrabold text-red-400">24/7/365</span>
+              <p className="text-[10px] sm:text-[11px] text-gray-300">Round-the-Clock Ops</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-md border border-white/15 p-3.5 rounded-2xl">
-              <span className="text-xl font-extrabold text-sky-400">100%</span>
-              <p className="text-[11px] text-gray-300">Statutory Compliances</p>
+            <div className="bg-white/10 backdrop-blur-md border border-white/15 p-3 sm:p-3.5 rounded-2xl">
+              <span className="text-lg sm:text-xl font-extrabold text-sky-400">100%</span>
+              <p className="text-[10px] sm:text-[11px] text-gray-300">Statutory Compliances</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-md border border-white/15 p-3.5 rounded-2xl">
-              <span className="text-xl font-extrabold text-red-400">Pan-India</span>
-              <p className="text-[11px] text-gray-300">Operational Reach</p>
+            <div className="bg-white/10 backdrop-blur-md border border-white/15 p-3 sm:p-3.5 rounded-2xl">
+              <span className="text-lg sm:text-xl font-extrabold text-red-400">Pan-India</span>
+              <p className="text-[10px] sm:text-[11px] text-gray-300">Operational Reach</p>
             </div>
           </div>
 

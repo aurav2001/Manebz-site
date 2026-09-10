@@ -358,14 +358,18 @@ const SmartAssistantWidget = ({ onNavigate }) => {
   };
 
   return (
-    <div className="fixed bottom-6 right-5 sm:right-6 z-50 font-sans">
+    <div className={`fixed z-50 font-sans transition-all duration-300 ${
+      isOpen 
+        ? 'inset-x-3 bottom-20 top-20 sm:top-auto sm:bottom-6 sm:right-6 sm:inset-auto sm:w-[410px] sm:h-[590px] flex items-end justify-end' 
+        : 'bottom-20 right-4 sm:bottom-6 sm:right-6'
+    }`}>
       
       {/* 1. FLOATING ACTION LAUNCHER BUTTON */}
       {!isOpen && (
         <div className="relative group">
           {/* Tooltip badge */}
           {hasUnread && (
-            <div className="absolute -top-10 right-0 bg-slate-900 text-white text-xs font-bold py-1 px-3 rounded-full shadow-xl border border-slate-700 whitespace-nowrap animate-bounce flex items-center gap-1.5">
+            <div className="hidden sm:flex absolute -top-10 right-0 bg-slate-900 text-white text-xs font-bold py-1 px-3 rounded-full shadow-xl border border-slate-700 whitespace-nowrap animate-bounce items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>💬 MANABS AI & WhatsApp</span>
             </div>
@@ -373,7 +377,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
 
           <button
             onClick={() => setIsOpen(true)}
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white p-1 shadow-[0_10px_35px_rgba(0,0,0,0.25)] hover:shadow-[0_14px_40px_rgba(220,38,38,0.4)] border-2 border-red-600 flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer relative group overflow-visible"
+            className="w-13 h-13 sm:w-16 sm:h-16 rounded-full bg-white p-1 shadow-[0_10px_35px_rgba(0,0,0,0.25)] hover:shadow-[0_14px_40px_rgba(220,38,38,0.4)] border-2 border-red-600 flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer relative group overflow-visible"
             aria-label="Open MANABS Assistant & WhatsApp"
           >
             <img 
@@ -383,8 +387,8 @@ const SmartAssistantWidget = ({ onNavigate }) => {
             />
 
             {/* Floating WhatsApp pill icon */}
-            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow">
-              <WhatsAppIcon className="w-3 h-3 text-white" />
+            <div className="absolute -bottom-1 -right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow">
+              <WhatsAppIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
             </div>
 
             {/* Glowing online pulse */}
@@ -398,7 +402,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
 
       {/* 2. SMART CHATBOT & WHATSAPP MODAL WINDOW */}
       {isOpen && (
-        <div className="w-[360px] sm:w-[410px] h-[590px] max-h-[85vh] bg-white rounded-3xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
+        <div className="w-full sm:w-[410px] h-full sm:h-[590px] max-h-[85vh] bg-white rounded-3xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
           
           {/* Header */}
           <div className="bg-gradient-to-r from-slate-950 via-[#0a192f] to-red-950 text-white p-4 sm:p-5 flex items-center justify-between shrink-0 shadow-md">

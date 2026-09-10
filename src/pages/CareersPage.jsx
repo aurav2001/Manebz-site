@@ -175,68 +175,68 @@ const CareersPage = ({ onNavigate }) => {
     <div className="bg-white pb-20">
       
       {/* 1. HERO BANNER WITH LUXURY BREADCRUMB */}
-      <section className="relative bg-[#071324] text-white pt-36 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-md">
+      <section className="relative bg-[#071324] text-white pt-28 pb-14 sm:pt-36 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-md">
         <div className="absolute inset-0 z-0">
           <img 
             src={serviceBg} 
-            alt="Careers Banner" 
+            alt="Careers Background" 
             className="w-full h-full object-cover opacity-20"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#071324] via-[#071324]/85 to-[#071324]/60" />
         </div>
 
-        <div className="max-w-5xl mx-auto relative z-10 space-y-6">
-          <div className="flex items-center gap-3 flex-wrap">
+        <div className="max-w-5xl mx-auto relative z-10 space-y-4 sm:space-y-6">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <button
               onClick={() => onNavigate('home')}
-              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Back to Home</span>
             </button>
 
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-              <Award className="w-3.5 h-3.5 text-red-400" />
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+              <Award className="w-3.5 h-3.5 text-red-400 shrink-0" />
               <span>MANABS National Resource Cell • Careers</span>
             </div>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight uppercase">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight uppercase">
             Careers & Job Vacancies
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-300 max-w-3xl leading-relaxed font-medium">
+          <p className="text-xs sm:text-base text-slate-300 max-w-3xl leading-relaxed font-medium">
             "Recruit Quality Resources, Nurture and Retain". Browse active vacancies on the left, read full job specifications on the right, or submit your resume directly.
           </p>
         </div>
       </section>
 
       {/* 2. EMPLOYEE PERKS TICKER */}
-      <div className="bg-[#0a192f] text-white py-4 border-b border-sky-500/20">
+      <div className="bg-[#0a192f] text-white py-3 sm:py-4 border-b border-sky-500/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-xs">
-            <div className="flex items-center justify-center gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-center text-xs">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="font-semibold text-gray-200">100% PF & ESI Security</span>
+              <span className="font-semibold text-gray-200 text-[11px] sm:text-xs">100% PF & ESI Security</span>
             </div>
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
               <GraduationCap className="w-4 h-4 text-sky-400 shrink-0" />
-              <span className="font-semibold text-gray-200">2-Week Paid Induction</span>
+              <span className="font-semibold text-gray-200 text-[11px] sm:text-xs">2-Week Paid Induction</span>
             </div>
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
               <CreditCard className="w-4 h-4 text-red-400 shrink-0" />
-              <span className="font-semibold text-gray-200">On-Time Bank Salary</span>
+              <span className="font-semibold text-gray-200 text-[11px] sm:text-xs">On-Time Bank Salary</span>
             </div>
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
               <Award className="w-4 h-4 text-amber-400 shrink-0" />
-              <span className="font-semibold text-gray-200">Fast-Track Career Growth</span>
+              <span className="font-semibold text-gray-200 text-[11px] sm:text-xs">Fast-Track Career Growth</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* 3. MAIN SPLIT-SCREEN WORKSPACE (Left: Vacancies List | Right: Details & Direct Form) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         
         {/* Top Controls Bar: Search + Filter Chips + Admin Mode Button */}
         <div className="mb-8 space-y-4">
@@ -245,7 +245,7 @@ const CareersPage = ({ onNavigate }) => {
               <span className="text-xs font-extrabold uppercase tracking-widest text-red-600">
                 Active Job Openings ({filteredJobs.length} Available)
               </span>
-              <h2 className="text-2xl font-extrabold text-gray-900 mt-0.5">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900 mt-0.5">
                 Explore Vacancies & Apply Instantly
               </h2>
             </div>
@@ -266,7 +266,7 @@ const CareersPage = ({ onNavigate }) => {
           </div>
 
           {/* Department Filter Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+          <div className="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pb-1">
             <span className="text-xs font-bold text-gray-500 shrink-0 mr-1">Domain:</span>
             {departments.map((dept) => (
               <button
