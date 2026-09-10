@@ -330,100 +330,178 @@ const Navbar = ({ currentPage, onNavigate }) => {
 
       </div>
 
-      {/* Mobile Drawer & Backdrop */}
+      {/* Mobile Off-Canvas Right-Side Drawer */}
       {mobileMenuOpen && (
-        <>
-          {/* Backdrop Blur */}
+        <div className="lg:hidden fixed inset-0 z-[80]">
+          {/* Backdrop with smooth dark blur */}
           <div 
             onClick={() => setMobileMenuOpen(false)}
-            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-[60] animate-in fade-in duration-200"
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-300"
           />
           
-          {/* Slide-Down Clean Standard Mobile Menu */}
-          <div className="lg:hidden fixed inset-x-3 sm:inset-x-4 top-20 z-[70] bg-white rounded-3xl p-5 shadow-2xl border border-gray-100 space-y-3 animate-in fade-in slide-in-from-top-4 duration-200 max-h-[85vh] overflow-y-auto">
+          {/* Right Slide-Over Panel */}
+          <div className="fixed top-0 right-0 bottom-0 w-[86%] max-w-[360px] h-full bg-white shadow-[-12px_0_40px_rgba(0,0,0,0.25)] flex flex-col justify-between z-[90] animate-in slide-in-from-right duration-300 ease-out border-l border-slate-100">
             
-            {/* Top Navigation Items */}
-            <div className="space-y-1">
-              <button
-                onClick={() => { onNavigate('home'); setMobileMenuOpen(false); }}
-                className={`w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-extrabold transition-all flex items-center justify-between cursor-pointer ${
-                  currentPage === 'home' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-800 hover:bg-slate-50'
-                }`}
-              >
-                <span>HOME</span>
-              </button>
-
-              <button
-                onClick={() => { onNavigate('about'); setMobileMenuOpen(false); }}
-                className={`w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-extrabold transition-all flex items-center justify-between cursor-pointer ${
-                  currentPage === 'about' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-800 hover:bg-slate-50'
-                }`}
-              >
-                <span>ABOUT</span>
-              </button>
-
-              {/* Services Section */}
-              <div className="py-2 border-y border-gray-100 my-1">
-                <span className="block px-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
-                  SERVICES
-                </span>
-                <div className="space-y-1">
-                  {services.map((srv, idx) => (
-                    <button
-                      key={srv.id || idx}
-                      onClick={() => { onNavigate('services', srv.slug); setMobileMenuOpen(false); }}
-                      className="w-full text-left py-2.5 px-4 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50/70 flex items-center justify-between transition-colors group cursor-pointer"
-                    >
-                      <span className="line-clamp-1">{srv.title}</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all shrink-0" />
-                    </button>
-                  ))}
-                </div>
+            {/* 1. Header with Logo and Close X */}
+            <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 bg-slate-50/60">
+              <div className="flex items-center gap-2">
+                <img 
+                  src={logoImg} 
+                  alt="MANEBZ" 
+                  className="h-8 w-auto object-contain rounded"
+                />
               </div>
 
               <button
-                onClick={() => { onNavigate('payroll'); setMobileMenuOpen(false); }}
-                className={`w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-extrabold transition-all flex items-center justify-between cursor-pointer ${
-                  currentPage === 'payroll' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-800 hover:bg-slate-50'
-                }`}
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-9 h-9 rounded-xl bg-white border border-slate-200 hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-slate-700 flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                aria-label="Close menu"
               >
-                <span>PAYROLL</span>
-                <span className="text-[9px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-extrabold">100% PF/ESI</span>
-              </button>
-
-              <button
-                onClick={() => { onNavigate('careers'); setMobileMenuOpen(false); }}
-                className={`w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-extrabold transition-all flex items-center justify-between cursor-pointer ${
-                  currentPage === 'careers' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-800 hover:bg-slate-50'
-                }`}
-              >
-                <span>CAREERS</span>
-                <span className="text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-extrabold">HIRING</span>
-              </button>
-
-              <button
-                onClick={() => { onNavigate('contact'); setMobileMenuOpen(false); }}
-                className={`w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-extrabold transition-all flex items-center justify-between cursor-pointer ${
-                  currentPage === 'contact' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-800 hover:bg-slate-50'
-                }`}
-              >
-                <span>CONTACT US</span>
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Request Quote Button */}
-            <div className="pt-2">
+            {/* 2. Scrollable Navigation Body */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+              
+              {/* Main Links */}
+              <div className="space-y-1">
+                <button
+                  onClick={() => { onNavigate('home'); setMobileMenuOpen(false); }}
+                  className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-3 cursor-pointer ${
+                    currentPage === 'home' 
+                      ? 'bg-slate-900 text-white shadow-sm' 
+                      : 'text-slate-800 hover:bg-slate-100'
+                  }`}
+                >
+                  <Home className="w-4 h-4" />
+                  <span>HOME</span>
+                </button>
+
+                <button
+                  onClick={() => { onNavigate('about'); setMobileMenuOpen(false); }}
+                  className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-3 cursor-pointer ${
+                    currentPage === 'about' 
+                      ? 'bg-slate-900 text-white shadow-sm' 
+                      : 'text-slate-800 hover:bg-slate-100'
+                  }`}
+                >
+                  <Info className="w-4 h-4" />
+                  <span>ABOUT US</span>
+                </button>
+              </div>
+
+              {/* Services Section */}
+              <div className="pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between px-2 mb-2">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                    OUR SERVICES
+                  </span>
+                  <button
+                    onClick={() => { onNavigate('services'); setMobileMenuOpen(false); }}
+                    className="text-[10px] font-bold text-red-600 hover:underline cursor-pointer"
+                  >
+                    View All →
+                  </button>
+                </div>
+
+                <div className="space-y-1 pl-1">
+                  {services.map((srv, idx) => {
+                    const Icon = iconMap[srv.icon] || Building2;
+                    return (
+                      <button
+                        key={srv.id || idx}
+                        onClick={() => { onNavigate('services', srv.slug); setMobileMenuOpen(false); }}
+                        className="w-full text-left py-2 px-3 rounded-xl text-xs font-semibold text-slate-700 hover:text-red-600 hover:bg-red-50/60 flex items-center justify-between transition-colors group cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Icon className="w-3.5 h-3.5 text-slate-400 group-hover:text-red-600 shrink-0" />
+                          <span className="truncate">{srv.title}</span>
+                        </div>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Special Sections */}
+              <div className="pt-2 border-t border-slate-100 space-y-1">
+                <button
+                  onClick={() => { onNavigate('payroll'); setMobileMenuOpen(false); }}
+                  className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                    currentPage === 'payroll' 
+                      ? 'bg-slate-900 text-white shadow-sm' 
+                      : 'text-slate-800 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Briefcase className="w-4 h-4" />
+                    <span>PAYROLL</span>
+                  </div>
+                  <span className="text-[9px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-extrabold">100% PF/ESI</span>
+                </button>
+
+                <button
+                  onClick={() => { onNavigate('careers'); setMobileMenuOpen(false); }}
+                  className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                    currentPage === 'careers' 
+                      ? 'bg-slate-900 text-white shadow-sm' 
+                      : 'text-slate-800 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Users className="w-4 h-4" />
+                    <span>CAREERS</span>
+                  </div>
+                  <span className="text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-extrabold">HIRING</span>
+                </button>
+
+                <button
+                  onClick={() => { onNavigate('contact'); setMobileMenuOpen(false); }}
+                  className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-3 cursor-pointer ${
+                    currentPage === 'contact' 
+                      ? 'bg-slate-900 text-white shadow-sm' 
+                      : 'text-slate-800 hover:bg-slate-100'
+                  }`}
+                >
+                  <Phone className="w-4 h-4" />
+                  <span>CONTACT US</span>
+                </button>
+              </div>
+
+              {/* Direct Support Card */}
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 space-y-1.5 mt-2">
+                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+                  Central Helpdesk
+                </span>
+                <a
+                  href="tel:+911123456789"
+                  className="flex items-center gap-2 text-xs font-bold text-slate-800 hover:text-red-600 transition-colors"
+                >
+                  <Phone className="w-3.5 h-3.5 text-red-600" />
+                  <span>+91 11 2345 6789</span>
+                </a>
+              </div>
+
+            </div>
+
+            {/* 3. Bottom Sticky Action Area */}
+            <div className="p-4 border-t border-slate-100 bg-white">
               <button
                 onClick={() => { setMobileMenuOpen(false); setQuoteModalOpen(true); }}
-                className="w-full flex items-center justify-center gap-2 bg-[#b91c1c] hover:bg-[#991b1b] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 bg-[#b91c1c] hover:bg-[#991b1b] text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-red-500/20 active:scale-98 transition-all cursor-pointer"
               >
-                <span>REQUEST QUOTE</span>
+                <span>Request Instant Quote</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
+              <p className="text-[10px] text-center text-slate-400 mt-2 font-medium">
+                Pan-India Facility & Workforce Network
+              </p>
             </div>
 
           </div>
-        </>
+        </div>
       )}
 
       {/* Request Quote Modal */}
