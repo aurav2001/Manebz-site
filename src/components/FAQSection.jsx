@@ -6,7 +6,6 @@ import {
   Clock, 
   Building2, 
   Users, 
-  Sparkles, 
   Phone, 
   ArrowRight,
   CheckCircle2,

@@ -17,7 +17,7 @@ const iconValueMap = {
   Cpu: Cpu,
   HeartHandshake: HeartHandshake,
   Shield: Shield,
-  Sparkles: Award,
+  Award: Award,
 };
 
 const AboutSection = () => {

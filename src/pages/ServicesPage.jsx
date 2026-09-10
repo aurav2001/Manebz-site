@@ -10,7 +10,6 @@ import {
   Phone,
   Clock,
   Award,
-  Sparkles,
   Layers,
   Check,
   ChevronDown,

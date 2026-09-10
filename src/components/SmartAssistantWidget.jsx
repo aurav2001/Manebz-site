@@ -5,7 +5,7 @@ import {
   X, 
   Send, 
   Phone, 
-  Sparkles, 
+  Zap, 
   Bot, 
   User, 
   CheckCircle2, 
@@ -459,7 +459,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                   : 'text-slate-500 hover:text-slate-800'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-red-600" />
+              <Bot className="w-3.5 h-3.5 text-red-600" />
               <span>AI Voice Assistant</span>
             </button>
             <button
@@ -650,7 +650,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
               <div className="bg-slate-50/90 border-t border-slate-200/80 px-3 py-2 shrink-0">
                 <div className="flex items-center justify-between mb-1.5 px-0.5">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                    <Sparkles className="w-3 h-3 text-red-500" />
+                    <Zap className="w-3 h-3 text-red-500" />
                     Quick Suggestions
                   </span>
                   <span className="text-[10px] text-slate-400 font-medium">Scroll 👉</span>

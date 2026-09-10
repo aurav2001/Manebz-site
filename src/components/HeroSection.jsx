@@ -1,6 +1,5 @@
 import React from 'react';
 import { 
-  Sparkles, 
   ArrowUpRight, 
   ShieldCheck, 
   Cpu, 
@@ -47,7 +46,7 @@ const HeroSection = ({ onNavigate, onOpenInquiry }) => {
               <span className="text-xs font-semibold text-cyan-300 tracking-wide uppercase">
                 2026 Enterprise Ready • Autonomous Cloud & AI
               </span>
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <Zap className="w-3.5 h-3.5 text-cyan-400" />
             </div>
 
             {/* Main Headline */}

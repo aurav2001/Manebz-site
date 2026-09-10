@@ -32,7 +32,6 @@ import {
   MapPin,
   ShieldCheck,
   Check,
-  Sparkles,
   ExternalLink,
   ChevronRight,
   IndianRupee,

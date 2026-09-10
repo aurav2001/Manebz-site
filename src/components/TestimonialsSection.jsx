@@ -5,7 +5,6 @@ import {
   ChevronRight, 
   Quote, 
   ShieldCheck, 
-  Sparkles,
   Award,
   CheckCircle2
 } from 'lucide-react';

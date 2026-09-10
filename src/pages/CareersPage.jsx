@@ -20,7 +20,6 @@ import {
   Database,
   FileCheck2,
   PhoneCall,
-  Sparkles,
   Check,
   FileText,
   AlertCircle,

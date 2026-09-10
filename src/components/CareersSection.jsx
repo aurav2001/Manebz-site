@@ -3,7 +3,6 @@ import {
   Briefcase, 
   MapPin, 
   Clock, 
-  Sparkles, 
   ArrowRight, 
   CheckCircle2, 
   ShieldCheck,

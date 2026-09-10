@@ -9,7 +9,6 @@ import {
   ArrowRight, 
   Award, 
   CheckCircle2, 
-  Sparkles,
   ExternalLink,
   ChevronRight,
   Calculator,

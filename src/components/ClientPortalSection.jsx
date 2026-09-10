@@ -8,7 +8,6 @@ import {
   AlertCircle, 
   FileText, 
   Upload, 
-  Sparkles, 
   ShieldCheck, 
   ArrowRight,
   HelpCircle,

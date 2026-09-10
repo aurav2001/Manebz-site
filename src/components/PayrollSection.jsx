@@ -17,7 +17,6 @@ import {
   ChevronRight,
   FileCheck2,
   Clock,
-  Sparkles,
   Smartphone,
   TrendingUp,
   Percent,
@@ -102,7 +101,7 @@ const PayrollSection = ({ onNavigate }) => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 text-sky-700 text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-sky-600" />
+            <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
             <span>Automated Workforce Payroll Engine</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">

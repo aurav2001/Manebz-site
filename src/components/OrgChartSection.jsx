@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { 
   Users, 
   ChevronRight, 
-  Sparkles, 
   Shield, 
   Cpu, 
   Briefcase, 

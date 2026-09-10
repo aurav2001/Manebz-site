@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   Building2,
   ShieldCheck,
-  Sparkles,
   Users,
   Truck,
   ArrowRight,
@@ -42,7 +41,7 @@ const serviceOptions = [
     id: 'housekeeping',
     title: 'Mechanized Soft Services & Housekeeping',
     desc: 'Deep scrubbing, washroom hygiene, waste management & eco-certified chemicals',
-    icon: Sparkles,
+    icon: CheckCircle2,
     baseRatePerSqFt: 2.1,
     minCost: 38000,
     staffRatio: 6500

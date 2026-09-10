@@ -5,7 +5,6 @@ import {
   MapPin, 
   Send, 
   CheckCircle2, 
-  Sparkles, 
   Building2, 
   Clock, 
   ShieldCheck,

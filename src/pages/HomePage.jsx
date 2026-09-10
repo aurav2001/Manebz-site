@@ -14,8 +14,7 @@ import {
   Award, 
   MapPin, 
   Check, 
-  GraduationCap,
-  Sparkles
+  GraduationCap
 } from 'lucide-react';
 import { servicesData, companyStats, qualityAssurancePoints } from '../data/companyData';
 import { useCompany } from '../context/CompanyContext';
@@ -158,7 +157,7 @@ const HomePage = ({ onNavigate }) => {
             </div>
 
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600/30 border border-red-500/40 text-red-300 text-xs font-bold backdrop-blur-md animate-pulse">
-              <Sparkles className="w-3 h-3 text-red-400" />
+              <CheckCircle2 className="w-3 h-3 text-red-400" />
               <span>{heroSlides[activeSlide].badge}</span>
             </div>
           </div>

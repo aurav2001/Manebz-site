@@ -8,7 +8,7 @@ import {
   ChevronLeft,
   Share2,
   Tag,
-  Sparkles,
+  TrendingUp,
   Building2,
   ShieldCheck,
   Users,
@@ -270,7 +270,7 @@ export default function BlogPage({ onNavigate, selectedSlug }) {
             <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between space-y-6">
               <div className="space-y-3">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-600/30 border border-red-500/40 text-red-300 text-xs font-black uppercase">
-                  <Sparkles className="w-3 h-3" />
+                  <TrendingUp className="w-3 h-3" />
                   Featured Insight
                 </div>
                 <h2 className="text-xl sm:text-3xl font-black text-white group-hover:text-red-400 transition-colors leading-tight">

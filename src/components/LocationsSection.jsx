@@ -6,7 +6,6 @@ import {
   Phone, 
   Mail, 
   Users, 
-  Sparkles, 
   ArrowUpRight, 
   CheckCircle2, 
   Navigation,
