@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import logoImg from '../assets/logo.jpg';
 import { 
   MessageSquare, 
   X, 
@@ -43,7 +44,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     {
       id: 'msg-1',
       sender: 'bot',
-      text: 'Hello! 👋 Welcome to **MANABS Facilities & Workforce Management**.\n\nI am your **AI Smart Assistant**. How can we support your facility or corporate staffing today?',
+      text: 'Hello! 👋 Welcome to **MANABS Facilities & Workforce Management**.\n\nI am your **MANABS Smart Assistant**. How can we support your facility or corporate staffing today?',
       time: 'Just now'
     }
   ]);
@@ -200,26 +201,30 @@ const SmartAssistantWidget = ({ onNavigate }) => {
           {hasUnread && (
             <div className="absolute -top-10 right-0 bg-slate-900 text-white text-xs font-bold py-1 px-3 rounded-full shadow-xl border border-slate-700 whitespace-nowrap animate-bounce flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>💬 AI Assistant & WhatsApp</span>
+              <span>💬 MANABS Assistant & WhatsApp</span>
             </div>
           )}
 
           <button
             onClick={() => setIsOpen(true)}
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-red-600 text-white shadow-[0_10px_30px_rgba(16,185,129,0.35)] hover:shadow-[0_14px_40px_rgba(220,38,38,0.4)] flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer relative"
-            aria-label="Open AI Assistant & WhatsApp"
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white p-1 shadow-[0_10px_35px_rgba(0,0,0,0.25)] hover:shadow-[0_14px_40px_rgba(220,38,38,0.4)] border-2 border-red-600 flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer relative group overflow-visible"
+            aria-label="Open MANABS Assistant & WhatsApp"
           >
-            <div className="relative">
-              <MessageSquare className="w-6 h-6 sm:w-7 sm:h-7" />
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
-                <WhatsAppIcon className="w-2.5 h-2.5 text-white" />
-              </div>
+            <img 
+              src={logoImg} 
+              alt="MANABS" 
+              className="w-full h-full object-contain rounded-full" 
+            />
+
+            {/* Floating WhatsApp pill icon */}
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow">
+              <WhatsAppIcon className="w-3 h-3 text-white" />
             </div>
 
             {/* Glowing online pulse */}
-            <span className="absolute top-1 right-1 flex h-3 w-3">
+            <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-white"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white"></span>
             </span>
           </button>
         </div>
@@ -232,16 +237,18 @@ const SmartAssistantWidget = ({ onNavigate }) => {
           {/* Header */}
           <div className="bg-gradient-to-r from-slate-950 via-[#0a192f] to-red-950 text-white p-4 sm:p-5 flex items-center justify-between shrink-0 shadow-md">
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-inner">
-                  <Bot className="w-5 h-5" />
-                </div>
-                <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#0a192f]" />
+              <div className="relative bg-white p-1 rounded-2xl shadow-inner border border-white/20">
+                <img 
+                  src={logoImg} 
+                  alt="MANABS Logo" 
+                  className="w-9 h-9 object-contain rounded-xl"
+                />
+                <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#0a192f]" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-extrabold text-sm text-white tracking-tight">MANABS Smart AI</h3>
-                  <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.2 rounded font-mono font-bold">24/7 LIVE</span>
+                  <h3 className="font-extrabold text-sm text-white tracking-tight">MANABS Assistant</h3>
+                  <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.2 rounded font-mono font-bold">24/7 ONLINE</span>
                 </div>
                 <p className="text-[11px] text-slate-300">Enterprise Facilities & WhatsApp Desk</p>
               </div>
@@ -285,7 +292,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-red-600" />
-              <span>AI Chatbot</span>
+              <span>AI Assistant</span>
             </button>
             <button
               onClick={() => setActiveTab('whatsapp')}
@@ -314,8 +321,8 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                       className={`flex gap-2.5 ${isBot ? 'justify-start' : 'justify-end'}`}
                     >
                       {isBot && (
-                        <div className="w-7 h-7 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                          <Bot className="w-4 h-4 text-emerald-400" />
+                        <div className="w-7 h-7 rounded-lg bg-white p-0.5 border border-gray-200 shadow-sm shrink-0 mt-0.5">
+                          <img src={logoImg} alt="MANABS" className="w-full h-full object-contain rounded-md" />
                         </div>
                       )}
 
@@ -367,8 +374,8 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                 {/* Bot Typing Indicator */}
                 {isTyping && (
                   <div className="flex gap-2 items-center text-slate-400">
-                    <div className="w-7 h-7 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-sm">
-                      <Bot className="w-4 h-4 text-emerald-400" />
+                    <div className="w-7 h-7 rounded-lg bg-white p-0.5 border border-gray-200 shadow-sm shrink-0">
+                      <img src={logoImg} alt="MANABS" className="w-full h-full object-contain rounded-md" />
                     </div>
                     <div className="bg-white p-3 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" />
