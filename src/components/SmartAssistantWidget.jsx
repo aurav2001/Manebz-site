@@ -358,10 +358,10 @@ const SmartAssistantWidget = ({ onNavigate }) => {
   };
 
   return (
-    <div className={`fixed z-50 font-sans transition-all duration-300 ${
+    <div className={`fixed font-sans transition-all duration-300 ${
       isOpen 
-        ? 'inset-x-3 bottom-20 top-20 sm:top-auto sm:bottom-6 sm:right-6 sm:inset-auto sm:w-[410px] sm:h-[590px] flex items-end justify-end' 
-        : 'bottom-20 right-4 sm:bottom-6 sm:right-6'
+        ? 'z-50 inset-x-3 bottom-20 top-20 sm:top-auto sm:bottom-6 sm:right-6 sm:inset-auto sm:w-[410px] sm:h-[590px] flex items-end justify-end' 
+        : 'z-30 bottom-20 right-4 sm:bottom-6 sm:right-6'
     }`}>
       
       {/* 1. FLOATING ACTION LAUNCHER BUTTON */}
@@ -377,11 +377,15 @@ const SmartAssistantWidget = ({ onNavigate }) => {
 
           <button
             onClick={() => setIsOpen(true)}
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-[#0a192f] via-slate-900 to-red-600 p-0 shadow-[0_10px_35px_rgba(220,38,38,0.35)] hover:shadow-[0_15px_45px_rgba(220,38,38,0.55)] border-2 border-white/90 flex items-center justify-center text-white transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer relative group overflow-visible"
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white p-2.5 shadow-[0_10px_35px_rgba(0,0,0,0.18)] hover:shadow-[0_15px_45px_rgba(220,38,38,0.35)] border-2 border-red-600 flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer relative group overflow-visible"
             aria-label="Open MANABS AI Assistant & WhatsApp"
           >
-            {/* Modern Chat Icon */}
-            <MessageSquare className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow" />
+            {/* Original Company Logo */}
+            <img 
+              src={logoImg} 
+              alt="MANABS Logo" 
+              className="w-full h-full object-contain"
+            />
 
             {/* Floating WhatsApp pill badge */}
             <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-md">
