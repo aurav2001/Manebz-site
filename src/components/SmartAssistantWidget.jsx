@@ -35,11 +35,12 @@ const WhatsAppIcon = ({ className = "w-5 h-5" }) => (
 );
 
 const QUICK_PROMPTS = [
-  { label: '🏢 Housekeeping & IFM Rate', prompt: 'Housekeeping aur Facility Management service ke baare mein batao aur charges kya hain?' },
-  { label: '👥 Staffing & Manpower', prompt: 'Mujhe factory aur corporate office ke liye staff & workers chahiye.' },
-  { label: '⚖️ PF/ESI & Payroll', prompt: 'Aap 100% PF aur ESI statutory compliance payroll kaise provide karte hain?' },
-  { label: '🚚 Logistics & Warehouse', prompt: 'Warehousing and logistics operations mein kya services milti hain?' },
-  { label: '📍 Coverage & Locations', prompt: 'Aap kahan-kahan services provide karte hain (Delhi, Noida, UP, Haryana)?' }
+  { icon: '🏢', label: 'Housekeeping & IFM', prompt: 'Housekeeping aur Facility Management service ke baare mein batao aur charges kya hain?' },
+  { icon: '👥', label: 'Staffing & Manpower', prompt: 'Mujhe factory aur corporate office ke liye staff & workers chahiye.' },
+  { icon: '⚖️', label: 'PF & ESI Compliance', prompt: 'Aap 100% PF aur ESI statutory compliance payroll kaise provide karte hain?' },
+  { icon: '🚚', label: 'Logistics & Warehouse', prompt: 'Warehousing and logistics operations mein kya services milti hain?' },
+  { icon: '📍', label: 'Coverage Areas', prompt: 'Aap kahan-kahan services provide karte hain (Delhi, Noida, UP, Haryana)?' },
+  { icon: '💰', label: 'Rate Card / Quotation', prompt: 'Mujhe Manpower aur Facility Management ka estimated rate card aur quote chahiye.' }
 ];
 
 const SmartAssistantWidget = ({ onNavigate }) => {
@@ -646,16 +647,26 @@ const SmartAssistantWidget = ({ onNavigate }) => {
               </div>
 
               {/* Quick Suggestion Chips */}
-              <div className="p-2 bg-white border-t border-gray-100 flex gap-1.5 overflow-x-auto no-scrollbar shrink-0">
-                {QUICK_PROMPTS.map((qp, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSend(qp.prompt)}
-                    className="whitespace-nowrap px-2.5 py-1 rounded-full bg-slate-100 hover:bg-red-50 hover:text-red-600 border border-slate-200 text-[11px] font-semibold text-slate-700 transition-colors cursor-pointer shrink-0"
-                  >
-                    {qp.label}
-                  </button>
-                ))}
+              <div className="bg-slate-50/90 border-t border-slate-200/80 px-3 py-2 shrink-0">
+                <div className="flex items-center justify-between mb-1.5 px-0.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3 text-red-500" />
+                    Quick Suggestions
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-medium">Scroll 👉</span>
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                  {QUICK_PROMPTS.map((qp, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSend(qp.prompt)}
+                      className="group inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-full bg-white hover:bg-gradient-to-r hover:from-red-50 hover:to-orange-50 border border-slate-200 hover:border-red-400 text-xs font-medium text-slate-700 hover:text-red-700 shadow-xs hover:shadow transition-all duration-200 cursor-pointer active:scale-95 shrink-0"
+                    >
+                      <span className="text-xs group-hover:scale-110 transition-transform">{qp.icon}</span>
+                      <span>{qp.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Voice Listening Active Wave Banner */}
