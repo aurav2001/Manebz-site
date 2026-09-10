@@ -333,51 +333,164 @@ const Navbar = ({ currentPage, onNavigate }) => {
       {/* Mobile Drawer & Backdrop */}
       {mobileMenuOpen && (
         <>
+          {/* Backdrop Blur */}
           <div 
             onClick={() => setMobileMenuOpen(false)}
-            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 animate-in fade-in"
+            className="lg:hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] animate-in fade-in duration-200"
           />
-          <div className="lg:hidden fixed inset-x-3 sm:inset-x-4 top-18 sm:top-20 z-50 bg-white rounded-3xl p-5 shadow-2xl border border-gray-100 space-y-2 animate-in fade-in slide-in-from-top-4 max-h-[82vh] overflow-y-auto">
-            {navItems && navItems.filter(item => item.isVisible).map((item) => {
-              if (item.type === 'services-dropdown' || item.path === 'services') {
-                return (
-                  <div key={item.id} className="py-2 border-y border-gray-100">
-                    <span className="block px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{item.label || 'SERVICES'}</span>
-                    {services.map((srv, idx) => (
-                      <button
-                        key={srv.id || idx}
-                        onClick={() => { onNavigate('services', srv.slug); setMobileMenuOpen(false); }}
-                        className="w-full text-left py-2 px-4 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 flex items-center justify-between"
-                      >
-                        <span>{srv.title}</span>
-                        <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-                      </button>
-                    ))}
-                  </div>
-                );
-              }
+          
+          {/* Slide-Down Luxury Drawer */}
+          <div className="lg:hidden fixed inset-x-3 sm:inset-x-4 top-4 z-[70] bg-white rounded-3xl p-5 shadow-2xl border border-gray-200 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300 max-h-[92vh] overflow-y-auto">
+            
+            {/* Drawer Top Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <div className="flex items-center gap-2.5">
+                <img 
+                  src={logoImg} 
+                  alt="MANEBZ" 
+                  className="h-8 w-auto object-contain rounded-lg border border-gray-100 shadow-xs" 
+                />
+                <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 tracking-wider">
+                  Menu
+                </span>
+              </div>
 
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => { onNavigate(item.path); setMobileMenuOpen(false); }}
-                  className="w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-bold text-gray-800 hover:bg-gray-50 flex items-center justify-between"
-                >
-                  <span>{item.label}</span>
-                  {item.isHot && (
-                    <span className="text-[9px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-extrabold">HOT</span>
-                  )}
-                </button>
-              );
-            })}
-            <div className="pt-2">
               <button
-                onClick={() => { setMobileMenuOpen(false); setQuoteModalOpen(true); }}
-                className="w-full flex items-center justify-center gap-2 bg-[#b91c1c] text-white py-3 rounded-xl font-bold text-xs shadow-md active:scale-95"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-black transition-colors cursor-pointer"
+                aria-label="Close menu"
               >
-                <span>Request Quote</span>
+                <X className="w-5 h-5" />
               </button>
             </div>
+
+            {/* Quick Primary Navigation Links */}
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => { onNavigate('home'); setMobileMenuOpen(false); }}
+                className={`p-3 rounded-2xl text-left transition-all flex items-center gap-2.5 ${
+                  currentPage === 'home' 
+                    ? 'bg-slate-900 text-white font-bold shadow-sm' 
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold'
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${currentPage === 'home' ? 'bg-white/20 text-white' : 'bg-white text-slate-700 shadow-xs'}`}>
+                  <Home className="w-4 h-4" />
+                </div>
+                <span className="text-xs">Home</span>
+              </button>
+
+              <button
+                onClick={() => { onNavigate('about'); setMobileMenuOpen(false); }}
+                className={`p-3 rounded-2xl text-left transition-all flex items-center gap-2.5 ${
+                  currentPage === 'about' 
+                    ? 'bg-slate-900 text-white font-bold shadow-sm' 
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold'
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${currentPage === 'about' ? 'bg-white/20 text-white' : 'bg-white text-slate-700 shadow-xs'}`}>
+                  <Info className="w-4 h-4" />
+                </div>
+                <span className="text-xs">About Us</span>
+              </button>
+
+              <button
+                onClick={() => { onNavigate('payroll'); setMobileMenuOpen(false); }}
+                className={`p-3 rounded-2xl text-left transition-all flex items-center gap-2.5 relative ${
+                  currentPage === 'payroll' 
+                    ? 'bg-slate-900 text-white font-bold shadow-sm' 
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold'
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${currentPage === 'payroll' ? 'bg-white/20 text-white' : 'bg-white text-red-600 shadow-xs'}`}>
+                  <Briefcase className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-xs block">Payroll</span>
+                  <span className="text-[9px] font-extrabold text-red-600">100% PF/ESI</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => { onNavigate('careers'); setMobileMenuOpen(false); }}
+                className={`p-3 rounded-2xl text-left transition-all flex items-center gap-2.5 ${
+                  currentPage === 'careers' 
+                    ? 'bg-slate-900 text-white font-bold shadow-sm' 
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold'
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${currentPage === 'careers' ? 'bg-white/20 text-white' : 'bg-white text-sky-600 shadow-xs'}`}>
+                  <Users className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-xs block">Careers</span>
+                  <span className="text-[9px] font-bold text-emerald-600">Hiring</span>
+                </div>
+              </button>
+            </div>
+
+            {/* Services Vertical Accordion Section */}
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                  <Layers className="w-3.5 h-3.5 text-red-600" />
+                  Services & Solutions
+                </span>
+                <button
+                  onClick={() => { onNavigate('services'); setMobileMenuOpen(false); }}
+                  className="text-[10px] font-bold text-red-600 hover:underline cursor-pointer"
+                >
+                  View All →
+                </button>
+              </div>
+
+              <div className="space-y-1">
+                {services.map((srv, idx) => {
+                  const Icon = iconMap[srv.icon] || Building2;
+                  return (
+                    <button
+                      key={srv.id || idx}
+                      onClick={() => { onNavigate('services', srv.slug); setMobileMenuOpen(false); }}
+                      className="w-full text-left py-2 px-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-red-700 hover:bg-white transition-all flex items-center justify-between group border border-transparent hover:border-slate-200 cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2 line-clamp-1">
+                        <div className="w-6 h-6 rounded-lg bg-white group-hover:bg-red-50 text-slate-600 group-hover:text-red-600 flex items-center justify-center shadow-2xs shrink-0">
+                          <Icon className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="truncate">{srv.title}</span>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Quick Contact Info Strip */}
+            <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-slate-900 to-[#0a192f] text-white text-xs shadow-inner">
+              <div className="flex items-center gap-2">
+                <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="font-semibold text-[11px] text-slate-200">+91 11 2345 6789</span>
+              </div>
+              <button
+                onClick={() => { onNavigate('contact'); setMobileMenuOpen(false); }}
+                className="text-[10px] font-bold uppercase tracking-wider text-sky-300 hover:text-white cursor-pointer"
+              >
+                Contact Us →
+              </button>
+            </div>
+
+            {/* Request Quote Main CTA */}
+            <div className="pt-1">
+              <button
+                onClick={() => { setMobileMenuOpen(false); setQuoteModalOpen(true); }}
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 via-red-700 to-sky-600 hover:opacity-95 text-white py-3.5 rounded-2xl font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-red-500/25 active:scale-98 transition-all cursor-pointer"
+              >
+                <span>Request Instant Quote</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+
           </div>
         </>
       )}

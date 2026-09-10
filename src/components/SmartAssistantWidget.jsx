@@ -377,22 +377,19 @@ const SmartAssistantWidget = ({ onNavigate }) => {
 
           <button
             onClick={() => setIsOpen(true)}
-            className="w-13 h-13 sm:w-16 sm:h-16 rounded-full bg-white p-1 shadow-[0_10px_35px_rgba(0,0,0,0.25)] hover:shadow-[0_14px_40px_rgba(220,38,38,0.4)] border-2 border-red-600 flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer relative group overflow-visible"
-            aria-label="Open MANABS Assistant & WhatsApp"
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-[#0a192f] via-slate-900 to-red-600 p-0 shadow-[0_10px_35px_rgba(220,38,38,0.35)] hover:shadow-[0_15px_45px_rgba(220,38,38,0.55)] border-2 border-white/90 flex items-center justify-center text-white transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer relative group overflow-visible"
+            aria-label="Open MANABS AI Assistant & WhatsApp"
           >
-            <img 
-              src={logoImg} 
-              alt="MANABS" 
-              className="w-full h-full object-contain rounded-full" 
-            />
+            {/* Modern Chat Icon */}
+            <MessageSquare className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow" />
 
-            {/* Floating WhatsApp pill icon */}
-            <div className="absolute -bottom-1 -right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow">
-              <WhatsAppIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
+            {/* Floating WhatsApp pill badge */}
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-md">
+              <WhatsAppIcon className="w-3 h-3 text-white" />
             </div>
 
             {/* Glowing online pulse */}
-            <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
+            <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white"></span>
             </span>
@@ -407,13 +404,12 @@ const SmartAssistantWidget = ({ onNavigate }) => {
           {/* Header */}
           <div className="bg-gradient-to-r from-slate-950 via-[#0a192f] to-red-950 text-white p-4 sm:p-5 flex items-center justify-between shrink-0 shadow-md">
             <div className="flex items-center gap-3">
-              <div className="relative bg-white p-1 rounded-2xl shadow-inner border border-white/20">
+              <div className="relative bg-white px-2 py-1 rounded-xl shadow-inner border border-white/20 flex items-center justify-center">
                 <img 
                   src={logoImg} 
                   alt="MANABS Logo" 
-                  className="w-9 h-9 object-contain rounded-xl"
+                  className="h-6 w-auto object-contain rounded"
                 />
-                <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#0a192f]" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
