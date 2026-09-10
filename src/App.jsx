@@ -16,6 +16,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import DynamicPage from './pages/DynamicPage';
 import CalculatorPage from './pages/CalculatorPage';
 import BlogPage from './pages/BlogPage';
+import SmartAssistantWidget from './components/SmartAssistantWidget';
 
 // Error Boundary for seamless chunk recovery
 class ChunkErrorBoundary extends Component {
@@ -167,6 +168,9 @@ function AppContent() {
           </Suspense>
         </ChunkErrorBoundary>
       </main>
+
+      {/* Smart Assistant & Direct WhatsApp Lead Widget */}
+      {!isAdminPage && <SmartAssistantWidget onNavigate={handleNavigate} />}
 
       {/* Clean Optimized Footer */}
       {!isAdminPage && <Footer onNavigate={handleNavigate} />}
