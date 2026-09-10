@@ -259,6 +259,13 @@ const Footer = ({ onNavigate }) => {
             <span className="text-slate-400 hover:text-white transition-colors cursor-default">
               Privacy & Security
             </span>
+            <span className="text-slate-700">•</span>
+            <button 
+              onClick={() => onNavigate('admin')} 
+              className="text-slate-500 hover:text-red-400 transition-colors cursor-pointer font-bold"
+            >
+              🔒 Admin Portal
+            </button>
           </div>
         </div>
 

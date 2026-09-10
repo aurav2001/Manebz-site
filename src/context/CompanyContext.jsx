@@ -115,7 +115,15 @@ export const CompanyProvider = ({ children }) => {
   const [employeePerks, setEmployeePerks] = useState(() => getStored(STORAGE_KEYS.PERKS, defaultPerks));
   const [testimonials, setTestimonials] = useState(() => getStored(STORAGE_KEYS.TESTIMONIALS, defaultTestimonials));
   const [customPages, setCustomPages] = useState(() => getStored(STORAGE_KEYS.PAGES, defaultCustomPages));
-  const [navItems, setNavItems] = useState(() => getStored(STORAGE_KEYS.NAV_ITEMS, defaultNavItems));
+  const [navItems, setNavItems] = useState(() => {
+    const stored = getStored(STORAGE_KEYS.NAV_ITEMS, defaultNavItems);
+    const hasCalc = Array.isArray(stored) && stored.some(i => i.path === 'calculator');
+    const hasBlog = Array.isArray(stored) && stored.some(i => i.path === 'blog');
+    if (!hasCalc || !hasBlog) {
+      return defaultNavItems;
+    }
+    return stored;
+  });
   const [blogs, setBlogs] = useState(() => getStored(STORAGE_KEYS.BLOGS, initialBlogPosts));
   
   // 2. Email / Webhook Settings

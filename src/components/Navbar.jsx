@@ -18,7 +18,8 @@ import {
   ArrowRight,
   ChevronRight,
   FileCheck2,
-  Calculator
+  Calculator,
+  BookOpen
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
 
@@ -62,7 +63,9 @@ const Navbar = ({ currentPage, onNavigate }) => {
     { id: 'home', name: 'Home', icon: Home },
     { id: 'about', name: 'About', icon: Info },
     { id: 'services', name: 'Services', icon: Layers },
-    { id: 'payroll', name: 'Payroll', icon: Calculator },
+    { id: 'calculator', name: 'Calculator', icon: Calculator },
+    { id: 'payroll', name: 'Payroll', icon: Briefcase },
+    { id: 'blog', name: 'Blog', icon: BookOpen },
     { id: 'contact', name: 'Contact', icon: MessageSquare },
   ];
 
