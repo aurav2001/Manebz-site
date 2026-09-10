@@ -87,7 +87,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
           ? '-translate-y-28 opacity-0 pointer-events-none'
           : 'translate-y-0 opacity-100 pointer-events-auto'
       }`}>
-        <header className="pointer-events-auto bg-white w-full lg:w-auto px-6 lg:px-12 py-3 rounded-b-2xl lg:rounded-b-3xl shadow-[0_4px_25px_rgba(0,0,0,0.06)] border-b lg:border-x border-gray-100 flex justify-between lg:justify-center items-center gap-6 lg:gap-10 transition-all duration-300 relative">
+        <header className="pointer-events-auto bg-white w-[92%] sm:w-[94%] lg:w-auto px-5 sm:px-6 lg:px-12 py-3 rounded-b-2xl lg:rounded-b-3xl shadow-[0_4px_25px_rgba(0,0,0,0.06)] border-b border-x border-gray-100 flex justify-between lg:justify-center items-center gap-4 sm:gap-6 lg:gap-10 transition-all duration-300 relative">
           
           {/* Logo Area */}
           <button 
