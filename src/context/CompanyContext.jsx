@@ -70,11 +70,9 @@ const defaultNavItems = [
   { id: 'nav-1', label: 'HOME', path: 'home', type: 'internal', isVisible: true, isHot: false, order: 1 },
   { id: 'nav-2', label: 'ABOUT', path: 'about', type: 'internal', isVisible: true, isHot: false, order: 2 },
   { id: 'nav-3', label: 'SERVICES', path: 'services', type: 'services-dropdown', isVisible: true, isHot: false, order: 3 },
-  { id: 'nav-4', label: 'CALCULATOR', path: 'calculator', type: 'internal', isVisible: true, isHot: true, order: 4 },
-  { id: 'nav-5', label: 'PAYROLL', path: 'payroll', type: 'internal', isVisible: true, isHot: false, order: 5 },
-  { id: 'nav-6', label: 'BLOG & NEWS', path: 'blog', type: 'internal', isVisible: true, isHot: false, order: 6 },
-  { id: 'nav-7', label: 'CAREERS', path: 'careers', type: 'internal', isVisible: true, isHot: false, order: 7 },
-  { id: 'nav-8', label: 'CONTACT', path: 'contact', type: 'internal', isVisible: true, isHot: false, order: 8 },
+  { id: 'nav-4', label: 'PAYROLL', path: 'payroll', type: 'internal', isVisible: true, isHot: true, order: 4 },
+  { id: 'nav-5', label: 'CAREERS', path: 'careers', type: 'internal', isVisible: true, isHot: false, order: 5 },
+  { id: 'nav-6', label: 'CONTACT', path: 'contact', type: 'internal', isVisible: true, isHot: false, order: 6 },
 ];
 
 const defaultEmailSettings = {
@@ -115,15 +113,7 @@ export const CompanyProvider = ({ children }) => {
   const [employeePerks, setEmployeePerks] = useState(() => getStored(STORAGE_KEYS.PERKS, defaultPerks));
   const [testimonials, setTestimonials] = useState(() => getStored(STORAGE_KEYS.TESTIMONIALS, defaultTestimonials));
   const [customPages, setCustomPages] = useState(() => getStored(STORAGE_KEYS.PAGES, defaultCustomPages));
-  const [navItems, setNavItems] = useState(() => {
-    const stored = getStored(STORAGE_KEYS.NAV_ITEMS, defaultNavItems);
-    const hasCalc = Array.isArray(stored) && stored.some(i => i.path === 'calculator');
-    const hasBlog = Array.isArray(stored) && stored.some(i => i.path === 'blog');
-    if (!hasCalc || !hasBlog) {
-      return defaultNavItems;
-    }
-    return stored;
-  });
+  const [navItems, setNavItems] = useState(() => defaultNavItems);
   const [blogs, setBlogs] = useState(() => getStored(STORAGE_KEYS.BLOGS, initialBlogPosts));
   
   // 2. Email / Webhook Settings

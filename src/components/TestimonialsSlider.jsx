@@ -141,16 +141,16 @@ const TestimonialsSlider = ({ onNavigate }) => {
             <div className="mt-8 pt-6 border-t border-gray-200/80 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-red-500 text-white font-extrabold text-base flex items-center justify-center shadow-md">
-                  {currentItem.clientName.charAt(0)}
+                  {(currentItem?.clientName || 'C').charAt(0)}
                 </div>
                 <div>
                   <h4 className="text-sm font-extrabold text-gray-900 leading-snug">
-                    {currentItem.clientName}
+                    {currentItem?.clientName || 'Enterprise Partner'}
                   </h4>
-                  <p className="text-xs text-gray-500">{currentItem.designation}</p>
+                  <p className="text-xs text-gray-500">{currentItem?.designation}</p>
                   <p className="text-xs font-semibold text-gray-700 flex items-center gap-1 mt-0.5">
                     <Building2 className="w-3 h-3 text-red-500" />
-                    <span>{currentItem.company}</span>
+                    <span>{currentItem?.company}</span>
                   </p>
                 </div>
               </div>
@@ -158,7 +158,7 @@ const TestimonialsSlider = ({ onNavigate }) => {
               <div className="text-right hidden sm:block">
                 <span className="text-[10px] text-gray-400 font-semibold block flex items-center gap-1 justify-end">
                   <MapPin className="w-3 h-3 text-red-500" />
-                  {currentItem.location}
+                  {currentItem?.location}
                 </span>
                 <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md mt-1 inline-block">
                   ✓ Verified Client
@@ -176,25 +176,25 @@ const TestimonialsSlider = ({ onNavigate }) => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 opacity-80">
-                  {[...Array(nextItem.rating)].map((_, i) => (
+                  {[...Array(nextItem?.rating || 5)].map((_, i) => (
                     <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
                 <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-gray-200 text-gray-700">
-                  {nextItem.metric}
+                  {nextItem?.metric}
                 </span>
               </div>
 
               <div className="relative pt-2">
                 <Quote className="w-8 h-8 text-gray-300 absolute -top-3 -left-2 -z-10" />
                 <p className="text-sm text-gray-600 font-normal leading-relaxed line-clamp-4 italic">
-                  "{nextItem.quote}"
+                  "{nextItem?.quote}"
                 </p>
               </div>
 
               <div className="pt-2">
                 <span className="text-[10px] font-semibold text-gray-500 bg-white px-2 py-0.5 rounded-md border border-gray-200">
-                  {nextItem.serviceUsed}
+                  {nextItem?.serviceUsed}
                 </span>
               </div>
             </div>
@@ -202,13 +202,13 @@ const TestimonialsSlider = ({ onNavigate }) => {
             <div className="mt-8 pt-6 border-t border-gray-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-2xl bg-gray-200 text-gray-700 font-bold text-sm flex items-center justify-center">
-                  {nextItem.clientName.charAt(0)}
+                  {(nextItem?.clientName || 'C').charAt(0)}
                 </div>
                 <div>
                   <h5 className="text-sm font-bold text-gray-800 group-hover:text-sky-600 transition-colors">
-                    {nextItem.clientName}
+                    {nextItem?.clientName || 'Enterprise Partner'}
                   </h5>
-                  <p className="text-xs text-gray-500">{nextItem.company}</p>
+                  <p className="text-xs text-gray-500">{nextItem?.company}</p>
                 </div>
               </div>
 

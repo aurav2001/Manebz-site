@@ -153,7 +153,7 @@ const SEOHead = ({ currentPage }) => {
             {
               "@type": "ListItem",
               "position": 2,
-              "name": currentPage.charAt(0).toUpperCase() + currentPage.slice(1),
+              "name": (currentPage && typeof currentPage === 'string') ? (currentPage.charAt(0).toUpperCase() + currentPage.slice(1)) : 'Overview',
               "item": data.canonical
             }
           ]

@@ -63,9 +63,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
     { id: 'home', name: 'Home', icon: Home },
     { id: 'about', name: 'About', icon: Info },
     { id: 'services', name: 'Services', icon: Layers },
-    { id: 'calculator', name: 'Calculator', icon: Calculator },
     { id: 'payroll', name: 'Payroll', icon: Briefcase },
-    { id: 'blog', name: 'Blog', icon: BookOpen },
     { id: 'contact', name: 'Contact', icon: MessageSquare },
   ];
 
