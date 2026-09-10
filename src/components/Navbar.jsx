@@ -5,7 +5,6 @@ import {
   Info, 
   Layers, 
   MessageSquare, 
-  Phone, 
   Users, 
   Truck, 
   Building2, 
@@ -18,15 +17,9 @@ import {
   ArrowRight,
   ChevronRight,
   FileCheck2,
-  Calculator,
-  Globe,
-  Bell,
-  BookOpen,
-  Sparkles
+  Calculator
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
-import { useLanguage } from '../context/LanguageContext';
-import CostCalculatorModal from './CostCalculatorModal';
 
 const iconMap = {
   Users: Users,
@@ -37,22 +30,17 @@ const iconMap = {
 };
 
 const Navbar = ({ currentPage, onNavigate }) => {
-  const { services, addInquiry, navItems, notifications, markNotificationsRead } = useCompany();
-  const { language, toggleLanguage, t } = useLanguage();
+  const { services, addInquiry, navItems } = useCompany();
 
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
   const [hoveredTab, setHoveredTab] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
-  const [calculatorModalOpen, setCalculatorModalOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   const [quoteForm, setQuoteForm] = useState({ name: '', phone: '', service: 'HR STAFFING & PAYROLL MANAGEMENT', email: '' });
   const [quoteSubmitted, setQuoteSubmitted] = useState(false);
   const [servicesLauncherOpen, setServicesLauncherOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-
-  const unreadCount = notifications ? notifications.filter(n => !n.read).length : 0;
 
   // Detect scroll position to toggle between Top Navbar (at top) and Bottom Dock (when scrolled)
   useEffect(() => {
@@ -72,12 +60,11 @@ const Navbar = ({ currentPage, onNavigate }) => {
 
   // Bottom dock tabs
   const dockTabs = [
-    { id: 'home', name: t.nav.home, icon: Home },
-    { id: 'about', name: t.nav.about, icon: Info },
-    { id: 'services', name: t.nav.services, icon: Layers },
-    { id: 'calculator', name: t.nav.calculator, icon: Calculator },
-    { id: 'blog', name: t.nav.blog, icon: BookOpen },
-    { id: 'contact', name: t.nav.contact, icon: MessageSquare },
+    { id: 'home', name: 'Home', icon: Home },
+    { id: 'about', name: 'About', icon: Info },
+    { id: 'services', name: 'Services', icon: Layers },
+    { id: 'payroll', name: 'Payroll', icon: Calculator },
+    { id: 'contact', name: 'Contact', icon: MessageSquare },
   ];
 
   const handleQuoteSubmit = (e) => {
@@ -94,13 +81,13 @@ const Navbar = ({ currentPage, onNavigate }) => {
 
   return (
     <>
-      {/* 1. TOP HEADER: Clean White Bar */}
+      {/* 1. TOP HEADER: Clean Sleek White Bar */}
       <div className={`fixed top-0 left-0 right-0 z-40 flex justify-center transition-all duration-300 ease-in-out ${
         isScrolled
           ? '-translate-y-28 opacity-0 pointer-events-none'
           : 'translate-y-0 opacity-100 pointer-events-auto'
       }`}>
-        <header className="pointer-events-auto bg-white w-full lg:w-auto px-5 lg:px-10 py-3 rounded-b-2xl lg:rounded-b-3xl shadow-[0_4px_25px_rgba(0,0,0,0.06)] border-b lg:border-x border-gray-100 flex justify-between lg:justify-center items-center gap-4 lg:gap-8 transition-all duration-300 relative">
+        <header className="pointer-events-auto bg-white w-full lg:w-auto px-6 lg:px-12 py-3 rounded-b-2xl lg:rounded-b-3xl shadow-[0_4px_25px_rgba(0,0,0,0.06)] border-b lg:border-x border-gray-100 flex justify-between lg:justify-center items-center gap-6 lg:gap-10 transition-all duration-300 relative">
           
           {/* Logo Area */}
           <button 
@@ -117,7 +104,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
           </button>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
             {navItems && navItems.filter(item => item.isVisible).map((item) => {
               if (item.type === 'services-dropdown' || item.path === 'services') {
                 return (
@@ -133,11 +120,11 @@ const Navbar = ({ currentPage, onNavigate }) => {
                         servicesDropdownOpen || currentPage === 'services' ? 'text-red-600' : 'text-gray-700'
                       }`}
                     >
-                      <span>{language === 'hi' ? t.nav.services : (item.label || 'SERVICES')}</span>
+                      <span>{item.label || 'SERVICES'}</span>
                       <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${servicesDropdownOpen ? 'rotate-180 text-red-600' : 'text-gray-400'}`} />
                     </button>
 
-                    {/* Exact Dropdown Menu */}
+                    {/* Dropdown Menu */}
                     {servicesDropdownOpen && (
                       <div className="absolute top-full -left-16 pt-2 w-96 animate-in fade-in slide-in-from-top-2 duration-150 z-50">
                         <div className="bg-white rounded-2xl p-3 shadow-2xl border border-gray-100 divide-y divide-gray-50 max-h-[380px] overflow-y-auto">
@@ -184,7 +171,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
                   <span>{item.label}</span>
                   {item.isHot && (
                     <span className="text-[9px] bg-red-600 text-white font-extrabold px-1.5 py-0.2 rounded-full animate-pulse">
-                      {t.nav.hotBadge}
+                      HOT
                     </span>
                   )}
                 </button>
@@ -192,120 +179,29 @@ const Navbar = ({ currentPage, onNavigate }) => {
             })}
           </nav>
 
-          {/* Right Header Actions */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Language Switcher Pill Button */}
-            <button
-              onClick={toggleLanguage}
-              className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-extrabold flex items-center gap-1.5 transition-all cursor-pointer border border-slate-200"
-              title="Toggle Hindi / English Language"
-            >
-              <Globe className="w-3.5 h-3.5 text-red-600" />
-              <span className="text-[11px]">{language === 'en' ? 'हिन्दी' : 'English'}</span>
-            </button>
-
-            {/* Notification Bell with Badge */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setNotificationsOpen(!notificationsOpen);
-                  if (!notificationsOpen && unreadCount > 0) {
-                    markNotificationsRead();
-                  }
-                }}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 relative transition-all cursor-pointer border border-slate-200"
-                title="System Notifications"
-              >
-                <Bell className="w-4 h-4" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-600 text-white text-[9px] font-black flex items-center justify-center animate-bounce shadow-xs">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Notification Dropdown Drawer */}
-              {notificationsOpen && (
-                <div className="absolute top-full right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-                    <div className="flex items-center gap-2">
-                      <Bell className="w-4 h-4 text-red-600" />
-                      <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">
-                        {t.common.notifications}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => setNotificationsOpen(false)}
-                      className="text-gray-400 hover:text-gray-700 p-1"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  <div className="space-y-2.5 max-h-64 overflow-y-auto py-2 divide-y divide-gray-50">
-                    {notifications && notifications.length > 0 ? (
-                      notifications.slice(0, 5).map((n) => (
-                        <div key={n.id} className="pt-2 first:pt-0 space-y-0.5">
-                          <div className="text-xs font-bold text-slate-900 flex items-center justify-between">
-                            <span>{n.title}</span>
-                            <span className="text-[10px] text-slate-400 font-normal">
-                              {n.time ? new Date(n.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-slate-600 line-clamp-2">{n.message}</p>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-6 text-xs text-gray-400">
-                        {t.common.noNotifications}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="pt-2 border-t border-gray-100 text-center">
-                    <button
-                      onClick={() => { setNotificationsOpen(false); onNavigate('admin'); }}
-                      className="text-[11px] font-bold text-red-600 hover:underline cursor-pointer"
-                    >
-                      Open Admin Notification Center →
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Cost Calculator Quick Trigger */}
-            <button
-              onClick={() => setCalculatorModalOpen(true)}
-              className="hidden md:flex items-center gap-1.5 bg-slate-950 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl font-bold text-xs shadow-sm transition-all cursor-pointer"
-            >
-              <Calculator className="w-3.5 h-3.5 text-red-400" />
-              <span>{t.nav.calculator}</span>
-            </button>
-
-            {/* Request Quote Button */}
+          {/* Right Action: Clean Single Coral Red Button */}
+          <div className="hidden sm:flex items-center gap-4">
             <button
               onClick={() => setQuoteModalOpen(true)}
-              className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-md hover:shadow-lg transition-all cursor-pointer"
+              className="flex items-center gap-2 bg-[#b91c1c] hover:bg-[#991b1b] text-white px-5 py-2.5 rounded-lg font-bold text-xs shadow-md hover:shadow-lg transition-all active:scale-95 tracking-wide cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{t.nav.getQuote}</span>
-            </button>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-gray-800 hover:bg-gray-100 rounded-xl cursor-pointer"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <span>Request Quote</span>
             </button>
           </div>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-2 text-gray-800 hover:bg-gray-100 rounded-xl cursor-pointer"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
 
         </header>
       </div>
 
-      {/* 2. REFINED BOTTOM DOCK */}
+      {/* 2. REFINED COMPACT BOTTOM DOCK */}
       <div className={`fixed bottom-4 sm:bottom-5 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center transition-all duration-300 ease-in-out ${
         isScrolled
           ? 'translate-y-0 opacity-100 pointer-events-auto'
@@ -382,8 +278,6 @@ const Navbar = ({ currentPage, onNavigate }) => {
                   onClick={() => {
                     if (tab.id === 'services') {
                       setServicesLauncherOpen(!servicesLauncherOpen);
-                    } else if (tab.id === 'calculator') {
-                      setCalculatorModalOpen(true);
                     } else {
                       setServicesLauncherOpen(false);
                       onNavigate(tab.id);
@@ -391,7 +285,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
                   }}
                   className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 transform group-hover:scale-115 group-hover:-translate-y-1 cursor-pointer ${
                     isActive 
-                      ? 'bg-gradient-to-tr from-red-600 to-sky-600 text-white shadow-md shadow-red-500/30 font-bold' 
+                      ? 'bg-gradient-to-tr from-sky-400 to-sky-600 text-white shadow-md shadow-sky-500/30 font-bold' 
                       : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white'
                   }`}
                   aria-label={tab.name}
@@ -401,48 +295,22 @@ const Navbar = ({ currentPage, onNavigate }) => {
               </div>
             );
           })}
-
-          {/* Dock Language Toggle */}
-          <button
-            onClick={toggleLanguage}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white text-[10px] font-bold flex items-center justify-center transition-all cursor-pointer ml-1"
-            title="Language"
-          >
-            {language === 'en' ? 'HI' : 'EN'}
-          </button>
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="fixed inset-x-0 top-16 bg-white/95 backdrop-blur-xl border-b border-gray-200 p-5 shadow-2xl z-40 lg:hidden space-y-3 animate-in fade-in slide-in-from-top-4">
-          <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-            <button
-              onClick={toggleLanguage}
-              className="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold flex items-center gap-1.5"
-            >
-              <Globe className="w-3.5 h-3.5 text-red-600" />
-              <span>Language: {language === 'en' ? 'हिन्दी' : 'English'}</span>
-            </button>
-            <button
-              onClick={() => { setMobileMenuOpen(false); setCalculatorModalOpen(true); }}
-              className="px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold flex items-center gap-1.5"
-            >
-              <Calculator className="w-3.5 h-3.5 text-red-400" />
-              <span>Cost Calculator</span>
-            </button>
-          </div>
-
           <div className="space-y-1">
             {navItems && navItems.filter(item => item.isVisible).map((item) => (
               <button
                 key={item.id}
                 onClick={() => { onNavigate(item.path); setMobileMenuOpen(false); }}
-                className="w-full text-left py-2.5 px-3 rounded-xl text-xs uppercase font-bold text-gray-800 hover:bg-gray-50 flex items-center justify-between cursor-pointer"
+                className="w-full text-left py-2.5 px-4 rounded-xl text-xs uppercase font-bold text-gray-800 hover:bg-gray-50 flex items-center justify-between cursor-pointer"
               >
                 <span>{item.label}</span>
                 {item.isHot && (
-                  <span className="text-[9px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-extrabold">{t.nav.hotBadge}</span>
+                  <span className="text-[9px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-extrabold">HOT</span>
                 )}
               </button>
             ))}
@@ -451,10 +319,9 @@ const Navbar = ({ currentPage, onNavigate }) => {
           <div className="pt-2">
             <button
               onClick={() => { setMobileMenuOpen(false); setQuoteModalOpen(true); }}
-              className="w-full flex items-center justify-center gap-2 bg-red-600 text-white py-3 rounded-xl font-bold text-xs shadow-md cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 bg-[#b91c1c] text-white py-3 rounded-xl font-bold text-xs shadow-md cursor-pointer"
             >
-              <Sparkles className="w-4 h-4" />
-              <span>{t.nav.getQuote}</span>
+              <span>Request Quote</span>
             </button>
           </div>
         </div>
@@ -488,7 +355,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
                     placeholder="Enter your name / company"
                     value={quoteForm.name}
                     onChange={(e) => setQuoteForm({ ...quoteForm, name: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 text-sm transition-all"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200 text-sm transition-all"
                   />
                 </div>
                 <div>
@@ -499,7 +366,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
                     placeholder="+91 98765 43210"
                     value={quoteForm.phone}
                     onChange={(e) => setQuoteForm({ ...quoteForm, phone: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 text-sm transition-all"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200 text-sm transition-all"
                   />
                 </div>
                 <div>
@@ -507,7 +374,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
                   <select
                     value={quoteForm.service}
                     onChange={(e) => setQuoteForm({ ...quoteForm, service: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-red-500 text-xs bg-white"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-sky-500 text-xs bg-white"
                   >
                     <option value="HR STAFFING & PAYROLL MANAGEMENT">HR STAFFING & PAYROLL MANAGEMENT</option>
                     <option value="LOGISTICS & WAREHOUSE MANAGEMENT">LOGISTICS & WAREHOUSE MANAGEMENT</option>
@@ -518,7 +385,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white font-extrabold rounded-xl text-sm transition-all shadow-md active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3.5 bg-gradient-to-r from-red-600 to-sky-600 hover:from-red-700 hover:to-sky-700 text-white font-extrabold rounded-xl text-sm transition-all shadow-md active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>Submit Quote Request</span>
                   <ArrowRight className="w-4 h-4" />
@@ -538,12 +405,6 @@ const Navbar = ({ currentPage, onNavigate }) => {
           </div>
         </div>
       )}
-
-      {/* Cost Calculator Modal */}
-      <CostCalculatorModal
-        isOpen={calculatorModalOpen}
-        onClose={() => setCalculatorModalOpen(false)}
-      />
     </>
   );
 };
