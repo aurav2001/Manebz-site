@@ -20,7 +20,10 @@ import {
   MicOff,
   Star,
   ThumbsUp,
-  Volume2
+  MapPin,
+  Briefcase,
+  FileCheck2,
+  Calendar
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
 
@@ -32,11 +35,11 @@ const WhatsAppIcon = ({ className = "w-5 h-5" }) => (
 );
 
 const QUICK_PROMPTS = [
-  { label: '🏢 Facility Management Quote', prompt: 'I want a quotation for Integrated Facility Management for my corporate office.' },
-  { label: '👥 Staffing & Payroll Inquiries', prompt: 'Tell me about your 100% statutory compliant workforce staffing & payroll management.' },
-  { label: '🚚 Logistics & Warehousing', prompt: 'What warehousing and logistics operations support do you provide?' },
-  { label: '⚖️ PF/ESI Statutory Compliance', prompt: 'How does MANABS ensure zero-liability statutory compliance for PF and ESI?' },
-  { label: '💬 Talk on WhatsApp', prompt: 'I want to directly connect with your operations team on WhatsApp.' }
+  { label: '🏢 Housekeeping & IFM Rate', prompt: 'Housekeeping aur Facility Management service ke baare mein batao aur charges kya hain?' },
+  { label: '👥 Staffing & Manpower', prompt: 'Mujhe factory aur corporate office ke liye staff & workers chahiye.' },
+  { label: '⚖️ PF/ESI & Payroll', prompt: 'Aap 100% PF aur ESI statutory compliance payroll kaise provide karte hain?' },
+  { label: '🚚 Logistics & Warehouse', prompt: 'Warehousing and logistics operations mein kya services milti hain?' },
+  { label: '📍 Coverage & Locations', prompt: 'Aap kahan-kahan services provide karte hain (Delhi, Noida, UP, Haryana)?' }
 ];
 
 const SmartAssistantWidget = ({ onNavigate }) => {
@@ -49,24 +52,24 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     {
       id: 'msg-1',
       sender: 'bot',
-      text: 'Hello! 👋 Welcome to **MANABS Facilities & Workforce Management**.\n\nI am your **MANABS Smart AI Assistant**. You can type or tap the **Mic 🎙️** to speak in Hindi or English!',
+      text: 'Namaste! 👋 Welcome to **MANABS Facilities & Workforce Management**.\n\nMain aapka **AI Assistant** hoon. Aap Housekeeping, Manpower Staffing, Payroll, PF/ESI Compliances, ya Pricing ke baare mein kuch bhi puch sakte hain — **type karein ya Mic 🎙️ se bolein!**',
       time: 'Just now'
     }
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   
-  // Voice Recognition States (Feature 1)
+  // Voice Recognition States
   const [isListening, setIsListening] = useState(false);
   const [voiceLang, setVoiceLang] = useState('hi-IN'); // 'hi-IN' | 'en-IN'
   const recognitionRef = useRef(null);
 
-  // Customer Star Rating States (Feature 6)
+  // Customer Star Rating States
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
   
-  // Lead capture & WhatsApp Auto-Forwarding (Feature 5)
+  // Lead capture & WhatsApp Auto-Forwarding
   const [leadForm, setLeadForm] = useState({ name: '', phone: '', email: '', requirement: '' });
   const [showLeadPrompt, setShowLeadPrompt] = useState(false);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
@@ -116,80 +119,145 @@ const SmartAssistantWidget = ({ onNavigate }) => {
 
   // Voice toggle handler
   const toggleVoiceInput = () => {
-    if (!recognitionRef.current) {
-      alert('Voice recognition is supported in Google Chrome, Edge, and modern mobile browsers.');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Voice recognition is supported in Google Chrome, Edge, and Android/iOS browsers.');
       return;
     }
 
     if (isListening) {
-      recognitionRef.current.stop();
+      if (recognitionRef.current) recognitionRef.current.stop();
       setIsListening(false);
     } else {
       try {
-        recognitionRef.current.lang = voiceLang;
-        recognitionRef.current.start();
-        setIsListening(true);
+        if (recognitionRef.current) {
+          recognitionRef.current.lang = voiceLang;
+          recognitionRef.current.start();
+          setIsListening(true);
+        }
       } catch (err) {
         console.error('Speech recognition error:', err);
+        setIsListening(false);
       }
     }
   };
 
+  // HIGHLY INTELLIGENT CONVERSATIONAL KNOWLEDGE ENGINE
   const generateBotReply = (userQuery) => {
-    const q = userQuery.toLowerCase();
+    const q = userQuery.toLowerCase().trim();
 
-    if (q.includes('whatsapp') || q.includes('chat') || q.includes('number')) {
+    // 1. GREETINGS & CASUAL TALK
+    if (/^(hi|hello|hey|namaste|hlo|pranam|ram ram|kya haal|kaise ho|good morning|good evening|good afternoon)/i.test(q)) {
       return {
-        text: 'You can directly connect with our central operations desk on WhatsApp at **+91 91234 56789** for instant quotes and site surveys.',
-        action: 'whatsapp'
+        text: 'Hello! Kaise hain aap? 😊\n\nMANABS India ki premier **Integrated Facilities & Workforce Staffing** partner hai. Aaj hum aapki facility ya business requirements mein kaise madad kar sakte hain?',
+        promptLead: false
       };
     }
 
-    if (q.includes('facility') || q.includes('housekeeping') || q.includes('cleaning') || q.includes('mep') || q.includes('maintenance')) {
+    if (q.includes('thank') || q.includes('shukriya') || q.includes('dhanyawad') || q.includes('ok thanks') || q.includes('great')) {
       return {
-        text: 'MANABS provides enterprise **Integrated Facility Management (IFM)** including:\n• Mechanized Soft Services & Ride-On Auto Scrubbers\n• 24/7 MEP, HVAC & Electrical Uptime Governance\n• ISO 9001 & EMS Eco-friendly audit checklists\n\nWould you like a customized facility audit quotation?',
+        text: 'Aapka swagat hai! 🌟 Agar aapko koi bhi formal quotation ya proposal chahiye, to aap directly WhatsApp ya callback ke zariye humse contact kar sakte hain.',
+        promptLead: false
+      };
+    }
+
+    // 2. HOUSEKEEPING, SOFT SERVICES, CLEANING, SANITIZATION
+    if (q.includes('housekeeping') || q.includes('cleaning') || q.includes('safai') || q.includes('cleaner') || q.includes('sanitization') || q.includes('deep clean') || q.includes('scrubber') || q.includes('sweeper')) {
+      return {
+        text: '🧹 **MANABS Mechanized Housekeeping & Soft Services:**\n\n• **Mechanized Machinery:** Ride-On Auto Scrubbers, High-Pressure Jet Washers, Single-Disc Polishers.\n• **Eco & Hospital Grade Chemicals:** Diversey / Taski certified non-toxic chemicals.\n• **Trained & Verified Staff:** 100% Police & Aadhar verified housekeeping boys, pantry staff, and on-site supervisors.\n• **Checklists & Audits:** Daily digital location audit checklists with zero time-lag replenishment.\n\n👉 *Kya aapko office, hospital, mall ya factory ke liye proposal chahiye? Apna number share karein instant quote ke liye.*',
+        promptLead: true,
+        showCalcLink: true
+      };
+    }
+
+    // 3. STAFFING, MANPOWER, SOURCING, WORKERS
+    if (q.includes('staff') || q.includes('worker') || q.includes('manpower') || q.includes('hiring') || q.includes('helper') || q.includes('bande') || q.includes('log chahiye') || q.includes('peon') || q.includes('pantry') || q.includes('electrician') || q.includes('plumber') || q.includes('technician')) {
+      return {
+        text: '👥 **Corporate Manpower & Staffing Solutions:**\n\n• **Deployments:** 25,000+ deployed workforce across North India.\n• **Categories:** Skilled Technicians, Unskilled Helpers, Warehouse Crew, Pantry Boys, Front Desk & Supervisors.\n• **Training:** 2-week rigorous induction in our dedicated in-house National Resource Cell.\n• **Zero Time-Lag:** 24 se 48 hours ke andar mobilization guarantee.\n\n👉 *Aapko kitne headcount (staff) ki requirement hai? Niche details enter karein taaki director aapse contact karein.*',
         promptLead: true
       };
     }
 
-    if (q.includes('staffing') || q.includes('payroll') || q.includes('salary') || q.includes('recruitment') || q.includes('manpower') || q.includes('staff')) {
+    // 4. PAYROLL, SALARY, PF, ESI, STATUTORY COMPLIANCE
+    if (q.includes('payroll') || q.includes('salary') || q.includes('pf') || q.includes('esi') || q.includes('compliance') || q.includes('epf') || q.includes('gratuity') || q.includes('bonus') || q.includes('challan') || q.includes('labour law') || q.includes('audit')) {
       return {
-        text: 'Our **Workforce & Payroll Division** manages:\n• 25,000+ deployed personnel across North India\n• 100% PF, ESI, Gratuity & Bonus automated challans\n• 2-week National Resource Cell induction training\n\nPlease share your required headcount or contact details for a proposal.',
+        text: '⚖️ **100% Statutory Compliance & Payroll Guarantee:**\n\n• **Zero Client Liability:** Monthly PF & ESI verified government challans are submitted before the 15th of every month.\n• **Automated Payroll Suite:** Biometric attendance integration, TDS calculations, Form 16, Bonus, and Gratuity provisioning.\n• **Audit Ready:** 100% Labour Commissioner audit compliance dockets.\n\n👉 *Hum transparent payroll outsourcing provide karte hain. Detailed breakups ke liye humare Calculator ya Direct WhatsApp ka use karein.*',
+        promptLead: true,
+        showCalcLink: true
+      };
+    }
+
+    // 5. PRICING, COST, CHARGES, RATE, QUOTE, ESTIMATE
+    if (q.includes('price') || q.includes('cost') || q.includes('rate') || q.includes('charge') || q.includes('kitna') || q.includes('quote') || q.includes('estimate') || q.includes('budget') || q.includes('per sq ft') || q.includes('per staff')) {
+      return {
+        text: '💰 **Transparent & Zero-Hidden Surcharge Pricing:**\n\n• Pricing aapke facility square footage, headcount, equipment requirements aur shift timings (8-hr / 16-hr / 24x7) par depend karti hai.\n• Hum clients ko direct **18% - 24% operational savings** deliver karte hain vs in-house management.\n• Aap website par **Interactive Cost Calculator** se real-time monthly budget calculate kar sakte hain!\n\n👉 *Free site inspection aur customized quote ke liye niche form bharein.*',
+        promptLead: true,
+        showCalcLink: true
+      };
+    }
+
+    // 6. LOCATIONS & GEOGRAPHIC COVERAGE
+    if (q.includes('delhi') || q.includes('noida') || q.includes('gurgaon') || q.includes('gurugram') || q.includes('faridabad') || q.includes('ghaziabad') || q.includes('up') || q.includes('uttar pradesh') || q.includes('haryana') || q.includes('uttarakhand') || q.includes('location') || q.includes('kahan') || q.includes('area') || q.includes('coverage') || q.includes('city') || q.includes('pan india')) {
+      return {
+        text: '📍 **MANABS Operational Coverage:**\n\n• **Delhi NCR:** Delhi, Noida, Greater Noida, Gurgaon, Faridabad, Ghaziabad.\n• **Uttar Pradesh:** Lucknow, Kanpur, Agra, Meerut, Varanasi.\n• **Haryana:** Manesar, Sonipat, Panipat, Rewari, Rohtak.\n• **Uttarakhand:** Dehradun, Haridwar, Pantnagar, Rudrapur.\n• **Pan-India:** Multi-location enterprise contracts.\n\n👉 *Aapki site kahan par hai? Hum 24-48 hours mein inspection aur deployment start kar sakte hain.*',
         promptLead: true
       };
     }
 
-    if (q.includes('compliance') || q.includes('pf') || q.includes('esi') || q.includes('audit') || q.includes('legal')) {
+    // 7. LOGISTICS, WAREHOUSE, DRIVERS, SUPPLY CHAIN
+    if (q.includes('warehouse') || q.includes('logistics') || q.includes('godown') || q.includes('forklift') || q.includes('driver') || q.includes('loading') || q.includes('unloading') || q.includes('dispatch') || q.includes('inventory') || q.includes('supply chain')) {
       return {
-        text: 'We provide a **100% Zero-Liability Statutory Guarantee**:\n• Monthly verified PF & ESI challans submitted before 15th\n• Biometric AI attendance dockets\n• Labour inspector audit clearances across Delhi NCR, UP, Haryana & UK.',
+        text: '🚚 **Logistics & Warehousing Operations:**\n\n• **Trained Crew:** Certified Forklift Drivers, Pickers, Packers, Material Handlers, and Inventory Controllers.\n• **JIT (Just-In-Time) Replenishment:** Zero bottleneck loading/unloading squads.\n• **Safety & Insurance:** 100% PPE compliant and insured operations.\n\n👉 *Apna warehouse location aur required staff share karein.*',
         promptLead: true
       };
     }
 
-    if (q.includes('logistics') || q.includes('warehouse') || q.includes('driver') || q.includes('supply chain')) {
+    // 8. MEP, HVAC, ELECTRICAL, MAINTENANCE, ENGINEERING
+    if (q.includes('mep') || q.includes('hvac') || q.includes('electrician') || q.includes('ac repair') || q.includes('dg set') || q.includes('generator') || q.includes('plumbing') || q.includes('engineering') || q.includes('maintenance')) {
       return {
-        text: 'Our **Logistics & Warehousing Squad** offers JIT (Just-In-Time) inventory operators, forklift certified drivers, and 24/7 loading crews with zero time-lag mobilization.',
+        text: '⚡ **Engineering & MEP Governance (24/7/365 Uptime):**\n\n• **HVAC & Chiller Plants:** Preventive and breakdown maintenance.\n• **Electrical & DG Sets:** HT/LT panels, UPS, and backup power management.\n• **Plumbing & Water Management:** STP/WTP treatment plants and daily audits.\n• **Certified Technicians:** Govt-licensed ITI electrical and mechanical engineers.',
         promptLead: true
       };
     }
 
-    if (q.includes('price') || q.includes('cost') || q.includes('rate') || q.includes('quote') || q.includes('budget') || q.includes('calculator')) {
+    // 9. COMPANY HERITAGE, EXPERIENCE, CLIENTS
+    if (q.includes('company') || q.includes('experience') || q.includes('heritage') || q.includes('owner') || q.includes('director') || q.includes('kab start') || q.includes('clients') || q.includes('manabs') || q.includes('manebz')) {
       return {
-        text: 'Our pricing is fully transparent with zero hidden surcharges! You can also use our **Interactive Cost Calculator** to estimate monthly staffing and facility budgets in real time.',
-        showCalcLink: true,
+        text: '🏢 **About MANABS / MANEBZ:**\n\n• **Established:** 27th February 2014 (10+ Years Corporate Pioneer Heritage).\n• **Clients:** 500+ Top Indian Corporate Clients & MNCs.\n• **Retention:** 99.4% Client Retention Rate.\n• **Quality Standards:** ISO 9001 & EMS Eco-friendly operational framework.\n\n👉 *Would you like to speak directly with our Senior Management on WhatsApp?*',
+        action: 'whatsapp',
         promptLead: true
       };
     }
 
+    // 10. JOB SEEKERS / RECRUITMENT / APPLY FOR JOB
+    if (q.includes('job') || q.includes('naukri') || q.includes('vacancy') || q.includes('resume') || q.includes('cv') || q.includes('apply') || q.includes('interview') || q.includes('salary date') || q.includes('fresher')) {
+      return {
+        text: '💼 **Career & Job Opportunities at MANABS:**\n\n• Hum active hirings kar rahe hain for: Facility Managers, Supervisors, Housekeeping Staff, Forklift Drivers, HR Executives, and MEP Technicians.\n• **Benefits:** Guaranteed on-time salary, PF, ESI medical insurance, uniform, and bonus.\n• Aap website ke **Careers Portal** par direct apply kar sakte hain!\n\n👉 *Apna Name aur Mobile number share karein, humari HR recruitment team aapse contact karegi.*',
+        promptLead: true
+      };
+    }
+
+    // 11. CONTACT / PHONE / MEETING / DIRECT WHATSAPP
+    if (q.includes('whatsapp') || q.includes('contact') || q.includes('phone') || q.includes('number') || q.includes('call') || q.includes('meeting') || q.includes('office') || q.includes('address')) {
+      return {
+        text: '📞 **Connect with MANABS Central Command:**\n\n• **Direct WhatsApp:** +91 91234 56789\n• **Central Helpline:** +91 11 2345 6789\n• **Email Desk:** contact@manabs.com\n\n👉 *Aap niche diye gaye button par click karke direct WhatsApp chat start kar sakte hain.*',
+        action: 'whatsapp',
+        promptLead: true
+      };
+    }
+
+    // DEFAULT SMART FALLBACK
     return {
-      text: 'Thank you for reaching out! We manage Integrated Facilities, Payroll, and Corporate Workforce across Delhi NCR & Pan-India. Please leave your contact details or chat on WhatsApp to get an immediate proposal.',
+      text: `Aapne **"${userQuery}"** ke baare mein pucha hai.\n\nMANABS provide karti hai:\n1. Integrated Facility Management & Mechanized Housekeeping\n2. Corporate Staffing & 100% Compliant Payroll\n3. Logistics, Warehousing & MEP Maintenance\n\n👉 *Aapki specific requirement ke according formal quotation aur proposal ke liye apna Name & Phone number share karein ya WhatsApp par connect karein.*`,
       promptLead: true
     };
   };
 
   const handleSend = (textToSend = null) => {
     if (isListening && recognitionRef.current) {
-      recognitionRef.current.stop();
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {}
       setIsListening(false);
     }
 
@@ -225,7 +293,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
       if (botResponse.promptLead && !leadSubmitted) {
         setShowLeadPrompt(true);
       }
-    }, 800);
+    }, 700);
   };
 
   // Feature 5: WhatsApp Lead Auto-Forwarding
@@ -253,7 +321,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
       {
         id: `bot-lead-${Date.now()}`,
         sender: 'bot',
-        text: `✅ **Lead Registered Successfully!**\n\nThank you **${leadForm.name}**! Your callback request has been assigned to our senior operations director.\n\n👉 **Auto-Forward to WhatsApp:** Click below to instantly send this inquiry to our official WhatsApp (+91 91234 56789).`,
+        text: `✅ **Lead Registered Successfully!**\n\nThank you **${leadForm.name}**! Aapka inquiry ticket register ho chuka hai. Humare Senior Operations Manager **${leadForm.phone}** par agle 15 minutes mein call karenge.\n\n👉 **Direct WhatsApp Forwarding:** Niche click karke ye inquiry direct WhatsApp par send kar sakte hain.`,
         customWhatsAppText: formattedLeadText,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
@@ -275,14 +343,13 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     setRating(score);
     setRatingSubmitted(true);
     
-    // Add thank you bot message
     setTimeout(() => {
       setMessages(prev => [
         ...prev,
         {
           id: `bot-rating-${Date.now()}`,
           sender: 'bot',
-          text: `⭐ **Thank you for your ${score}★ Rating!**\n\nOur operations and customer service team greatly appreciate your feedback. Is there anything else we can help you with today?`,
+          text: `⭐ **Thank you for your ${score}★ Rating!**\n\nAapka feedback humare liye bahut valuable hai. Agar koi aur sawal ho to aap bejhijhak puch sakte hain!`,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
       ]);
@@ -345,10 +412,10 @@ const SmartAssistantWidget = ({ onNavigate }) => {
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-extrabold text-sm text-white tracking-tight">MANABS Assistant</h3>
+                  <h3 className="font-extrabold text-sm text-white tracking-tight">MANABS Smart AI</h3>
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.2 rounded font-mono font-bold">24/7 ONLINE</span>
                 </div>
-                <p className="text-[11px] text-slate-300">AI Voice Desk & WhatsApp Hotline</p>
+                <p className="text-[11px] text-slate-300">Voice Assistant & WhatsApp Hotline</p>
               </div>
             </div>
 
@@ -359,7 +426,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                     {
                       id: `msg-reset-${Date.now()}`,
                       sender: 'bot',
-                      text: 'Hello! 👋 Welcome to **MANABS Facilities & Workforce Management**.\n\nHow can we assist with your facility or staffing requirements today?',
+                      text: 'Hello! 👋 Welcome to **MANABS Facilities & Workforce Management**.\n\nAap Housekeeping, Manpower Staffing, Payroll, PF/ESI Compliances, ya Pricing ke baare mein kuch bhi puch sakte hain!',
                       time: 'Just now'
                     }
                   ]);
@@ -596,7 +663,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                 <div className="px-3 py-1.5 bg-red-600 text-white text-xs font-bold flex items-center justify-between animate-pulse shrink-0">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
-                    <span>🎙️ Listening in {voiceLang === 'hi-IN' ? 'Hindi (हिन्दी)' : 'English'}... Speak now!</span>
+                    <span>🎙️ Listening ({voiceLang === 'hi-IN' ? 'Hindi' : 'English'})... Speak now!</span>
                   </div>
                   <button
                     type="button"
@@ -608,32 +675,32 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                 </div>
               )}
 
-              {/* Feature 1: Message Input Bar with Voice Mic */}
-              <div className="p-3 bg-white border-t border-gray-200 shrink-0">
+              {/* Clean Voice & Text Input Bar (No Overlapping Elements) */}
+              <div className="p-2.5 bg-white border-t border-gray-200 shrink-0">
                 <form 
                   onSubmit={(e) => {
                     e.preventDefault();
                     handleSend();
                   }}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1.5"
                 >
-                  <div className="relative flex-1">
+                  <div className="relative flex-1 flex items-center">
                     <input
                       type="text"
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
-                      placeholder={isListening ? "Listening... speak query" : "Type or click mic to speak..."}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-200 transition-all pr-9"
+                      placeholder={isListening ? "Listening... speak now" : "Type question or click mic..."}
+                      className="w-full pl-3 pr-9 py-2.5 rounded-xl border border-gray-300 text-xs focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-200 transition-all"
                     />
                     
-                    {/* Voice Mic Button */}
+                    {/* Clean Inline Voice Mic Button */}
                     <button
                       type="button"
                       onClick={toggleVoiceInput}
                       title="Speak in Hindi / English"
-                      className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-all cursor-pointer ${
+                      className={`absolute right-1.5 p-1.5 rounded-lg transition-all cursor-pointer ${
                         isListening 
-                          ? 'bg-red-600 text-white animate-bounce' 
+                          ? 'bg-red-600 text-white animate-pulse' 
                           : 'text-slate-400 hover:text-red-600 hover:bg-slate-100'
                       }`}
                     >
@@ -644,9 +711,9 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                   <button
                     type="submit"
                     disabled={!inputText.trim()}
-                    className="w-10 h-10 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-40 text-white flex items-center justify-center transition-all cursor-pointer shadow-md shrink-0"
+                    className="w-9 h-9 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-40 text-white flex items-center justify-center transition-all cursor-pointer shadow-md shrink-0"
                   >
-                    <Send className="w-4 h-4" />
+                    <Send className="w-3.5 h-3.5" />
                   </button>
                 </form>
               </div>
