@@ -49,7 +49,14 @@ import {
   ArrowDown,
   PlusCircle,
   Link,
-  Layers as LayersIcon
+  Layers as LayersIcon,
+  BookOpen,
+  Bell,
+  Columns,
+  Kanban,
+  Send,
+  FileSpreadsheet,
+  CheckCircle
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
 
@@ -62,10 +69,13 @@ const AdminDashboardPage = ({ onNavigate }) => {
     statutoryCompliances, updateCompliance, addCompliance, deleteCompliance,
     testimonials, addTestimonial, updateTestimonial, deleteTestimonial,
     inquiries, updateInquiryStatus, deleteInquiry,
-    jobApplications, updateJobApplicationStatus, deleteJobApplication,
+    jobApplications, updateJobApplicationStatus, updateApplicationStage, deleteJobApplication,
     talentVaultApplications, updateTalentVaultStatus, deleteTalentVaultApplication,
     customPages, addCustomPage, updateCustomPage, deleteCustomPage,
     navItems, addNavItem, updateNavItem, deleteNavItem, toggleNavItemVisibility, moveNavItem,
+    blogs, addBlogPost, updateBlogPost, deleteBlogPost,
+    notifications, addNotification, markNotificationsRead, clearNotifications,
+    emailSettings, updateEmailSettings,
     resetAllToDefaults
   } = useCompany();
 
@@ -109,10 +119,43 @@ const AdminDashboardPage = ({ onNavigate }) => {
   };
 
   // Active Sidebar Section
-  const [activeSection, setActiveSection] = useState('overview'); // overview, services, jobs, inquiries, applications, talent-vault, company-info, testimonials, settings
+  const [activeSection, setActiveSection] = useState('overview'); // overview, services, jobs, inquiries, applications, talent-vault, blogs, notifications, company-info, testimonials, settings
 
   // Search & Filter in Sub-sections
   const [subSearch, setSubSearch] = useState('');
+
+  // Applications View Mode: 'list' or 'kanban'
+  const [applicationsViewMode, setApplicationsViewMode] = useState('kanban');
+  const [selectedJobFilter, setSelectedJobFilter] = useState('all');
+
+  // Blog CMS Studio State
+  const [isEditingBlog, setIsEditingBlog] = useState(false);
+  const [editingBlogItem, setEditingBlogItem] = useState(null);
+  const [blogForm, setBlogForm] = useState({
+    title: '',
+    slug: '',
+    category: 'Statutory Compliance',
+    excerpt: '',
+    author: 'MANABS Editorial Board',
+    authorRole: 'Compliance & Strategy Lead',
+    coverImage: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&auto=format&fit=crop',
+    readTime: '5 min read',
+    tagsText: 'Compliance, Labour Law, Facility',
+    contentSectionsText: 'Why Compliance Matters|Principal employers are held jointly liable for defaults by their contractors.\nAudit Checklist|Ensure 100% verified ECR challans for PF and ESI every month.',
+    featured: false
+  });
+
+  // Email / Webhook Config State
+  const [emailConfig, setEmailConfig] = useState(() => emailSettings || {
+    adminEmail: 'operations@manabs.com',
+    enableInstantAlerts: true,
+    enableBrowserPush: true,
+    enableSoundChime: true,
+    webhookUrl: '',
+    emailJsServiceId: '',
+    emailJsTemplateId: '',
+    emailJsPublicKey: ''
+  });
 
   // Modals State
   const [modalType, setModalType] = useState(null); // 'service', 'job', 'stat', 'milestone', 'compliance', 'testimonial'
@@ -124,6 +167,76 @@ const AdminDashboardPage = ({ onNavigate }) => {
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(''), 3500);
+  };
+
+  // CSV Export Helper
+  const downloadCSV = (data, filename, columns) => {
+    if (!data || data.length === 0) {
+      showToast('No data available to export.');
+      return;
+    }
+    const header = columns.map(c => `"${c.label}"`).join(',');
+    const rows = data.map(item =>
+      columns.map(c => {
+        const val = typeof c.accessor === 'function' ? c.accessor(item) : item[c.accessor];
+        return `"${(val ?? '').toString().replace(/"/g, '""')}"`;
+      }).join(',')
+    );
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [header, ...rows].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `${filename}_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast(`Exported ${data.length} records to ${filename}.csv`);
+  };
+
+  const handleExportInquiriesCSV = () => {
+    downloadCSV(inquiries, 'MANABS_Quotation_Leads', [
+      { label: 'Inquiry ID', accessor: 'id' },
+      { label: 'Date', accessor: inq => inq.date ? new Date(inq.date).toLocaleString() : '' },
+      { label: 'Client / Company Name', accessor: 'name' },
+      { label: 'Phone', accessor: 'phone' },
+      { label: 'Email', accessor: 'email' },
+      { label: 'Service Vertical', accessor: 'service' },
+      { label: 'Location', accessor: 'location' },
+      { label: 'Status', accessor: 'status' },
+      { label: 'Estimated Budget', accessor: 'budgetEstimate' },
+      { label: 'Scope Details', accessor: inq => inq.scope || inq.message || '' }
+    ]);
+  };
+
+  const handleExportApplicationsCSV = () => {
+    downloadCSV(jobApplications, 'MANABS_Candidate_Pipeline', [
+      { label: 'Application ID', accessor: 'refId' },
+      { label: 'Applied Date', accessor: app => app.date ? new Date(app.date).toLocaleString() : '' },
+      { label: 'Candidate Full Name', accessor: 'fullName' },
+      { label: 'Job Title', accessor: 'jobTitle' },
+      { label: 'Pipeline Stage', accessor: app => app.stage || app.status || 'Applied' },
+      { label: 'Phone', accessor: 'phone' },
+      { label: 'Email', accessor: 'email' },
+      { label: 'Experience Level', accessor: 'experience' },
+      { label: 'Location', accessor: 'currentLocation' },
+      { label: 'Resume File', accessor: 'resumeFileName' },
+      { label: 'Cover Note', accessor: 'message' }
+    ]);
+  };
+
+  const handleExportTalentVaultCSV = () => {
+    downloadCSV(talentVaultApplications, 'MANABS_Talent_Pool_Bank', [
+      { label: 'Vault ID', accessor: 'id' },
+      { label: 'Registration Date', accessor: t => t.date ? new Date(t.date).toLocaleString() : '' },
+      { label: 'Candidate Full Name', accessor: 'fullName' },
+      { label: 'Target Domain', accessor: 'targetDepartment' },
+      { label: 'Phone', accessor: 'phone' },
+      { label: 'Email', accessor: 'email' },
+      { label: 'Experience Level', accessor: 'experience' },
+      { label: 'Notice Period', accessor: 'noticePeriod' },
+      { label: 'Key Skills', accessor: 'keySkills' },
+      { label: 'Status', accessor: 'status' }
+    ]);
   };
 
   const getBlobUrlFromDataUrl = (dataUrl) => {
@@ -722,12 +835,14 @@ const AdminDashboardPage = ({ onNavigate }) => {
           {[
             { id: 'overview', label: 'Dashboard', icon: LayoutDashboard, badge: null },
             { id: 'inquiries', label: 'Requests', icon: MessageSquare, badge: inquiries.length, badgeColor: 'bg-red-100 text-red-700' },
+            { id: 'applications', label: 'Candidate Pipeline', icon: Kanban, badge: jobApplications.length, badgeColor: 'bg-sky-100 text-sky-700' },
             { id: 'services', label: 'Client Accounts', icon: Users, badge: services.length },
             { id: 'jobs', label: 'Careers', icon: Briefcase, badge: jobs.length },
-            { id: 'applications', label: 'Job Applications', icon: FileText, badge: jobApplications.length, badgeColor: 'bg-sky-100 text-sky-700' },
             { id: 'talent-vault', label: 'Talent Bank', icon: Database, badge: talentVaultApplications.length, badgeColor: 'bg-purple-100 text-purple-700' },
+            { id: 'blogs', label: 'Blog & News CMS', icon: BookOpen, badge: blogs?.length || 0, badgeColor: 'bg-rose-100 text-rose-700' },
             { id: 'navigation', label: 'Navigation', icon: Menu, badge: navItems?.length || 0, badgeColor: 'bg-emerald-100 text-emerald-700' },
             { id: 'pages', label: 'Pages', icon: Globe, badge: customPages?.length || 0, badgeColor: 'bg-amber-100 text-amber-700' },
+            { id: 'notifications', label: 'Alerts & Webhooks', icon: Bell, badge: notifications?.filter(n => !n.read).length || null, badgeColor: 'bg-red-600 text-white animate-pulse' },
             { id: 'company-info', label: 'Content & Heritage', icon: Edit3, badge: null },
             { id: 'testimonials', label: 'Testimonials', icon: Star, badge: testimonials.length },
             { id: 'settings', label: 'System Settings', icon: Settings, badge: null },
@@ -1615,21 +1730,30 @@ const AdminDashboardPage = ({ onNavigate }) => {
           {/* SECTION 4: RFQ QUOTE LEADS INBOX */}
           {activeSection === 'inquiries' && (
             <div className="space-y-6">
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between">
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-xl sm:text-2xl font-black text-gray-950">Client Quotation Inquiries ({inquiries.length})</h3>
-                  <p className="text-sm text-gray-600 mt-1 font-medium">Live proposal requests submitted from website quote buttons & modals.</p>
+                  <p className="text-sm text-gray-600 mt-1 font-medium">Live proposal requests submitted from website quote buttons & cost calculator.</p>
                 </div>
+                <button
+                  type="button"
+                  onClick={handleExportInquiriesCSV}
+                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all shrink-0"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  <span>Export Leads (CSV)</span>
+                </button>
               </div>
 
               <div className="space-y-4">
                 {inquiries.length > 0 ? (
                   inquiries.map((inq) => (
-                    <div key={inq.id} className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                    <div key={inq.id} className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4 hover:border-sky-300 transition-colors">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
                         <div>
                           <span className="text-xs font-mono font-bold text-gray-400 block">{inq.id} • {new Date(inq.date).toLocaleDateString()}</span>
                           <h4 className="text-lg font-black text-gray-950 mt-0.5">{inq.name}</h4>
+                          {inq.company && <span className="text-xs font-bold text-slate-500">{inq.company}</span>}
                         </div>
 
                         {/* Status Switcher */}
@@ -1653,7 +1777,14 @@ const AdminDashboardPage = ({ onNavigate }) => {
                       </div>
 
                       <div className="text-xs sm:text-sm text-gray-800 bg-slate-50 p-4 rounded-2xl border border-gray-200">
-                        <span className="font-black text-sky-800 block mb-1">Service Requested: {inq.service}</span>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="font-black text-sky-800">Service Requested: {inq.service}</span>
+                          {inq.budgetEstimate && (
+                            <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-0.5 rounded-lg border border-red-200">
+                              Budget: {inq.budgetEstimate}
+                            </span>
+                          )}
+                        </div>
                         <p className="leading-relaxed">{inq.scope || inq.requirements || inq.message || 'Standard quote proposal requested.'}</p>
                       </div>
 
@@ -1665,7 +1796,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                               showToast('Inquiry deleted.');
                             }
                           }}
-                          className="text-xs sm:text-sm text-red-600 hover:text-red-700 hover:underline flex items-center gap-1.5 font-bold"
+                          className="text-xs sm:text-sm text-red-600 hover:text-red-700 hover:underline flex items-center gap-1.5 font-bold cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                           <span>Remove Lead</span>
@@ -1682,358 +1813,253 @@ const AdminDashboardPage = ({ onNavigate }) => {
             </div>
           )}
 
-          {/* SECTION 5: JOB APPLICATIONS INBOX */}
+          {/* SECTION 5: JOB APPLICATIONS INBOX WITH KANBAN & EXCEL EXPORT */}
           {activeSection === 'applications' && (
             <div className="space-y-6">
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between">
+              {/* Header Bar */}
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-black text-gray-950">Direct Job Applications ({jobApplications.length})</h3>
-                  <p className="text-sm text-gray-600 mt-1 font-medium">Candidates who applied directly to specific job openings.</p>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl sm:text-2xl font-black text-gray-950">Candidate Recruitment Pipeline</h3>
+                    <span className="text-xs font-black bg-sky-100 text-sky-800 px-3 py-1 rounded-full">
+                      {jobApplications.length} Applicants
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-1 font-medium">
+                    Manage applicant stages across hiring workflows from Applied to Hired.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-end">
+                  {/* View Mode Toggle */}
+                  <div className="bg-slate-100 p-1 rounded-xl flex items-center border border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => setApplicationsViewMode('kanban')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                        applicationsViewMode === 'kanban'
+                          ? 'bg-white text-slate-950 shadow-xs'
+                          : 'text-slate-500 hover:text-slate-900'
+                      }`}
+                    >
+                      <Kanban className="w-3.5 h-3.5 text-sky-600" />
+                      <span>Kanban Board</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setApplicationsViewMode('list')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                        applicationsViewMode === 'list'
+                          ? 'bg-white text-slate-950 shadow-xs'
+                          : 'text-slate-500 hover:text-slate-900'
+                      }`}
+                    >
+                      <Table className="w-3.5 h-3.5 text-red-600" />
+                      <span>List View</span>
+                    </button>
+                  </div>
+
+                  {/* CSV Export */}
+                  <button
+                    type="button"
+                    onClick={handleExportApplicationsCSV}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all"
+                  >
+                    <FileSpreadsheet className="w-4 h-4" />
+                    <span>Export CSV</span>
+                  </button>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                {jobApplications.length > 0 ? (
-                  jobApplications.map((app) => (
-                    <div key={app.refId} className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
-                        <div>
-                          <span className="text-xs font-mono font-bold text-gray-400 block">{app.refId} • {new Date(app.date).toLocaleDateString()}</span>
-                          <h4 className="text-lg font-black text-gray-950 mt-0.5">{app.fullName}</h4>
-                          <span className="text-xs sm:text-sm font-bold text-red-600">Applied for: {app.jobTitle}</span>
+              {/* KANBAN PIPELINE VIEW */}
+              {applicationsViewMode === 'kanban' ? (
+                <div className="overflow-x-auto pb-4">
+                  <div className="flex gap-4 min-w-[1100px] items-start">
+                    {[
+                      { id: 'Applied', label: 'Applied', color: 'bg-slate-100 text-slate-800 border-slate-300', dot: 'bg-slate-500' },
+                      { id: 'Under Review', label: 'Under Review', color: 'bg-amber-50 text-amber-800 border-amber-300', dot: 'bg-amber-500' },
+                      { id: 'Shortlisted', label: 'Shortlisted', color: 'bg-sky-50 text-sky-800 border-sky-300', dot: 'bg-sky-500' },
+                      { id: 'Interview Scheduled', label: 'Interview Scheduled', color: 'bg-purple-50 text-purple-800 border-purple-300', dot: 'bg-purple-500' },
+                      { id: 'Hired', label: 'Hired / Selected', color: 'bg-emerald-50 text-emerald-800 border-emerald-300', dot: 'bg-emerald-500' },
+                      { id: 'Rejected', label: 'Archived / Rejected', color: 'bg-red-50 text-red-800 border-red-300', dot: 'bg-red-500' }
+                    ].map((stageCol) => {
+                      const stageApps = jobApplications.filter(a => (a.stage || a.status || 'Applied').toLowerCase() === stageCol.id.toLowerCase() || ((stageCol.id === 'Applied' || stageCol.id === 'Submitted') && (a.status === 'Submitted' || a.stage === 'Applied')));
+                      return (
+                        <div key={stageCol.id} className="flex-1 bg-slate-100/90 rounded-2xl p-3.5 border border-slate-200 min-w-[210px] space-y-3">
+                          {/* Column Header */}
+                          <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                            <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800">
+                              <span className={`w-2 h-2 rounded-full ${stageCol.dot}`} />
+                              <span>{stageCol.label}</span>
+                            </div>
+                            <span className="text-xs font-black bg-white px-2 py-0.5 rounded-full text-slate-700 shadow-2xs">
+                              {stageApps.length}
+                            </span>
+                          </div>
+
+                          {/* Candidate Cards in this Stage */}
+                          <div className="space-y-3 min-h-[140px]">
+                            {stageApps.length > 0 ? (
+                              stageApps.map((app) => (
+                                <div
+                                  key={app.refId}
+                                  className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:border-sky-400 transition-all space-y-2.5"
+                                >
+                                  <div>
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-[10px] font-mono text-slate-400">{app.refId}</span>
+                                      <span className="text-[10px] font-semibold text-slate-500">
+                                        {app.date ? new Date(app.date).toLocaleDateString() : 'Recent'}
+                                      </span>
+                                    </div>
+                                    <h5 className="text-sm font-extrabold text-slate-900 mt-0.5">{app.fullName}</h5>
+                                    <p className="text-[11px] font-bold text-red-600 line-clamp-1">{app.jobTitle}</p>
+                                  </div>
+
+                                  <div className="text-[11px] text-slate-600 space-y-0.5">
+                                    <div>📞 <span className="font-semibold">{app.phone}</span></div>
+                                    {app.experience && <div>⏳ {app.experience}</div>}
+                                    {app.currentLocation && <div>📍 {app.currentLocation}</div>}
+                                  </div>
+
+                                  {/* Quick Stage Mover Selector */}
+                                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1.5">
+                                    <select
+                                      value={app.stage || app.status || 'Applied'}
+                                      onChange={(e) => updateJobApplicationStatus(app.refId, e.target.value)}
+                                      className="text-[10px] font-bold bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none text-slate-700 w-full cursor-pointer"
+                                    >
+                                      <option value="Applied">Applied</option>
+                                      <option value="Under Review">Under Review</option>
+                                      <option value="Shortlisted">Shortlisted</option>
+                                      <option value="Interview Scheduled">Interview Scheduled</option>
+                                      <option value="Hired">Hired</option>
+                                      <option value="Rejected">Rejected</option>
+                                    </select>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDownloadResume(app)}
+                                      className="p-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 shrink-0 cursor-pointer"
+                                      title="Download CV"
+                                    >
+                                      <Download className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-center py-8 text-[11px] text-slate-400 font-medium">
+                                No candidates in this stage
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                /* LIST VIEW OF APPLICATIONS */
+                <div className="space-y-4">
+                  {jobApplications.length > 0 ? (
+                    jobApplications.map((app) => (
+                      <div key={app.refId} className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
+                          <div>
+                            <span className="text-xs font-mono font-bold text-gray-400 block">{app.refId} • {new Date(app.date).toLocaleDateString()}</span>
+                            <h4 className="text-lg font-black text-gray-950 mt-0.5">{app.fullName}</h4>
+                            <span className="text-xs sm:text-sm font-bold text-red-600">Applied for: {app.jobTitle}</span>
+                          </div>
+
+                          <select
+                            value={app.stage || app.status || 'Applied'}
+                            onChange={(e) => updateJobApplicationStatus(app.refId, e.target.value)}
+                            className="px-3.5 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm font-bold bg-white focus:outline-none shadow-xs"
+                          >
+                            <option value="Applied">🟢 Applied</option>
+                            <option value="Under Review">🟡 Under Review</option>
+                            <option value="Shortlisted">🔵 Shortlisted</option>
+                            <option value="Interview Scheduled">🟣 Interview Scheduled</option>
+                            <option value="Hired">⭐ Hired / Onboarded</option>
+                            <option value="Rejected">🔴 Rejected</option>
+                          </select>
                         </div>
 
-                        <select
-                          value={app.status}
-                          onChange={(e) => updateJobApplicationStatus(app.refId, e.target.value)}
-                          className="px-3.5 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm font-bold bg-white focus:outline-none shadow-xs"
-                        >
-                          <option value="Submitted">🟢 Submitted</option>
-                          <option value="Under Review">🟡 Under Review</option>
-                          <option value="Shortlisted">🔵 Shortlisted</option>
-                          <option value="Resource Cell Induction">🟣 Resource Cell Induction</option>
-                          <option value="Rejected">🔴 Rejected</option>
-                        </select>
-                      </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm text-gray-700 font-medium">
+                          <div><span className="font-bold text-gray-400">Phone:</span> <span className="text-emerald-700 font-bold ml-1">{app.phone}</span></div>
+                          <div><span className="font-bold text-gray-400">Email:</span> <span className="ml-1 font-semibold">{app.email || 'N/A'}</span></div>
+                          <div><span className="font-bold text-gray-400">Experience:</span> <span className="ml-1 font-semibold">{app.experience}</span></div>
+                        </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm text-gray-700 font-medium">
-                        <div><span className="font-bold text-gray-400">Phone:</span> <span className="text-emerald-700 font-bold ml-1">{app.phone}</span></div>
-                        <div><span className="font-bold text-gray-400">Email:</span> <span className="ml-1 font-semibold">{app.email || 'N/A'}</span></div>
-                        <div><span className="font-bold text-gray-400">Experience:</span> <span className="ml-1 font-semibold">{app.experience}</span></div>
-                      </div>
-
-                      {app.resumeFileName && (
-                        <div className="space-y-4">
-                          {/* Resume Card Bar */}
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-sky-50/90 border border-sky-200">
-                            <div className="flex items-center gap-3 text-xs sm:text-sm text-sky-950 font-bold min-w-0">
-                              <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center shrink-0 text-sky-700 shadow-xs">
-                                <FileText className="w-5 h-5" />
-                              </div>
-                              <div className="truncate">
-                                <span className="block truncate font-extrabold text-slate-900 text-sm">{app.resumeFileName}</span>
-                                <span className="text-xs text-sky-700 font-semibold flex items-center gap-1.5 mt-0.5">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                                  {app.resumeFileSize ? `Attached File • ${app.resumeFileSize}` : 'Attached Resume / CV Document'}
-                                </span>
-                              </div>
+                        {app.resumeFileName && (
+                          <div className="flex items-center justify-between p-3.5 rounded-2xl bg-sky-50 border border-sky-200">
+                            <div className="flex items-center gap-2 text-xs font-bold text-sky-900">
+                              <FileText className="w-4 h-4 text-sky-600" />
+                              <span>{app.resumeFileName}</span>
                             </div>
-
-                            <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                              <button
-                                type="button"
-                                onClick={() => setExpandedResumeId(expandedResumeId === app.refId ? null : app.refId)}
-                                className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                              >
-                                <Eye className="w-3.5 h-3.5" />
-                                <span>{expandedResumeId === app.refId ? 'Hide Resume' : 'View Resume'}</span>
-                              </button>
-
+                            <div className="flex items-center gap-2">
                               <button
                                 type="button"
                                 onClick={() => handleDownloadResume(app)}
-                                className="px-3.5 py-2 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                                className="px-3 py-1.5 bg-white hover:bg-sky-100 text-sky-800 rounded-lg text-xs font-bold border border-sky-300 flex items-center gap-1 cursor-pointer"
                               >
-                                <Download className="w-3.5 h-3.5 text-sky-700" />
+                                <Download className="w-3.5 h-3.5" />
                                 <span>Download</span>
                               </button>
-
-                              <button
-                                type="button"
-                                onClick={() => setPreviewResumeModal({
-                                  applicantName: app.fullName,
-                                  role: app.jobTitle,
-                                  refId: app.refId,
-                                  date: app.date,
-                                  phone: app.phone,
-                                  email: app.email,
-                                  experience: app.experience,
-                                  currentLocation: app.currentLocation,
-                                  fileName: app.resumeFileName,
-                                  dataUrl: app.resumeDataUrl,
-                                  fileType: app.resumeFileType,
-                                  message: app.message,
-                                  type: 'job-application'
-                                })}
-                                className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors cursor-pointer"
-                                title="Open in Popup Modal"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </button>
                             </div>
                           </div>
+                        )}
 
-                          {/* INLINE EXPANDED RESUME DOCUMENT SHEET */}
-                          {expandedResumeId === app.refId && (
-                            <div className="bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-98 duration-200">
-                              {/* Resume Document Header */}
-                              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b-2 border-slate-200">
-                                <div>
-                                  <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                                    <span className={`text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border inline-block ${/\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')
-                                      ? 'bg-purple-50 text-purple-700 border-purple-200'
-                                      : /\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '')
-                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                        : 'bg-red-50 text-red-600 border-red-200'
-                                      }`}>
-                                      {/\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')
-                                        ? 'Image Resume / Document (JPEG/PNG)'
-                                        : /\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '')
-                                          ? 'Spreadsheet Resume File (Excel/CSV)'
-                                          : 'Official PDF Resume / Letter'}
-                                    </span>
-                                    <span className="text-xs font-mono font-bold text-slate-400">
-                                      ID: {app.refId}
-                                    </span>
-                                  </div>
-                                  <h3 className="text-2xl sm:text-3xl font-black text-slate-950 uppercase tracking-tight">
-                                    {app.fullName}
-                                  </h3>
-                                  <p className="text-sm font-bold text-red-600 mt-0.5">
-                                    Applied Position: {app.jobTitle}
-                                  </p>
-                                </div>
-
-                                <div className="flex items-center gap-2 flex-wrap shrink-0">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDownloadResume(app)}
-                                    className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
-                                  >
-                                    <Download className="w-3.5 h-3.5" />
-                                    <span>Download File</span>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => window.print()}
-                                    className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1.5 border border-slate-300 transition-colors cursor-pointer"
-                                  >
-                                    <span>🖨️ Print</span>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setExpandedResumeId(null)}
-                                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors cursor-pointer"
-                                    title="Close Resume View"
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              </div>
-
-                              {/* Matrix Info */}
-                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium">
-                                <div>
-                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Contact Phone</span>
-                                  <span className="font-extrabold text-emerald-700 text-sm mt-0.5 block">{app.phone}</span>
-                                </div>
-                                <div>
-                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Email Address</span>
-                                  <span className="font-bold text-slate-800 text-sm mt-0.5 block truncate">{app.email || 'N/A'}</span>
-                                </div>
-                                <div>
-                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Experience Level</span>
-                                  <span className="font-bold text-slate-800 text-sm mt-0.5 block">{app.experience}</span>
-                                </div>
-                                <div>
-                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Submission Date</span>
-                                  <span className="font-bold text-slate-800 text-sm mt-0.5 block">
-                                    {app.date ? new Date(app.date).toLocaleDateString() : 'Recent'}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Attached Source File Box */}
-                              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200 text-xs font-bold text-sky-900">
-                                <div className="flex items-center gap-2">
-                                  <Paperclip className="w-4 h-4 text-sky-600" />
-                                  <span>Attached File: {app.resumeFileName}</span>
-                                </div>
-                                <span className="text-[11px] bg-white px-2.5 py-0.5 rounded-md border border-sky-200 text-sky-700">
-                                  ✓ Verified Record
-                                </span>
-                              </div>
-
-                              {/* FILE FORMAT SPECIFIC RENDERERS */}
-                              {/* 1. Image Viewer (JPEG / PNG / WEBP) */}
-                              {(app.resumeDataUrl?.startsWith('data:image/') || /\.(jpg|jpeg|png|webp)$/i.test(app.resumeFileName || '')) && (
-                                <div className="space-y-2">
-                                  <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
-                                    <span>Attached Image Document Preview</span>
-                                    {app.resumeDataUrl && (
-                                      <button
-                                        type="button"
-                                        onClick={() => handleOpenFileInNewTab(app.resumeDataUrl, app.resumeFileName)}
-                                        className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline cursor-pointer"
-                                      >
-                                        <span>open full image</span>
-                                        <ExternalLink className="w-3 h-3" />
-                                      </button>
-                                    )}
-                                  </div>
-                                  <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-center">
-                                    {app.resumeDataUrl ? (
-                                      <img
-                                        src={app.resumeDataUrl}
-                                        alt="Resume Attachment"
-                                        className="max-h-[550px] w-auto max-w-full object-contain rounded-xl shadow-lg"
-                                      />
-                                    ) : (
-                                      <div className="py-12 text-center text-slate-400 space-y-2">
-                                        <Eye className="w-8 h-8 mx-auto text-slate-500" />
-                                        <p className="text-sm font-bold">Image file: {app.resumeFileName}</p>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* 2. PDF Viewer */}
-                              {app.resumeDataUrl && (app.resumeDataUrl.startsWith('data:application/pdf') || /\.pdf$/i.test(app.resumeFileName || '')) && (
-                                <div className="space-y-2">
-                                  <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
-                                    <span>Uploaded PDF Preview</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleOpenFileInNewTab(app.resumeDataUrl, app.resumeFileName)}
-                                      className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline cursor-pointer"
-                                    >
-                                      <span>open in new tab (PDF Viewer)</span>
-                                      <ExternalLink className="w-3 h-3" />
-                                    </button>
-                                  </div>
-                                  <iframe
-                                    src={getBlobUrlFromDataUrl(app.resumeDataUrl)}
-                                    title="PDF Preview"
-                                    className="w-full h-[550px] rounded-2xl border-2 border-slate-200 bg-white shadow-inner"
-                                  />
-                                </div>
-                              )}
-
-                              {/* 3. Excel Spreadsheet Viewer */}
-                              {/\.(xls|xlsx|csv)$/i.test(app.resumeFileName || '') && (
-                                <div className="bg-white rounded-2xl border-2 border-emerald-300 shadow-md p-5 space-y-3">
-                                  <div className="flex items-center justify-between pb-3 border-b border-emerald-100">
-                                    <div className="flex items-center gap-2 text-emerald-800 font-extrabold text-sm">
-                                      <Table className="w-5 h-5 text-emerald-600" />
-                                      <span>Spreadsheet Data Grid: {app.resumeFileName}</span>
-                                    </div>
-                                    <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">
-                                      Excel / CSV
-                                    </span>
-                                  </div>
-                                  <div className="overflow-x-auto border border-slate-200 rounded-xl">
-                                    <table className="w-full text-xs text-left border-collapse">
-                                      <thead className="bg-emerald-700 text-white font-bold uppercase tracking-wider">
-                                        <tr>
-                                          <th className="p-2.5 border border-emerald-600">Row</th>
-                                          <th className="p-2.5 border border-emerald-600">Attribute</th>
-                                          <th className="p-2.5 border border-emerald-600">Candidate Submission Data</th>
-                                          <th className="p-2.5 border border-emerald-600">Verification</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody className="divide-y divide-slate-200 font-medium text-slate-800">
-                                        <tr className="bg-slate-50"><td className="p-2.5 font-bold font-mono text-slate-400">1</td><td className="p-2.5 font-bold">Candidate Name</td><td className="p-2.5">{app.fullName}</td><td className="p-2.5 text-emerald-600 font-bold">✓ Valid</td></tr>
-                                        <tr><td className="p-2.5 font-bold font-mono text-slate-400">2</td><td className="p-2.5 font-bold">Applied Vacancy</td><td className="p-2.5">{app.jobTitle}</td><td className="p-2.5 text-sky-600 font-bold">Active</td></tr>
-                                        <tr className="bg-slate-50"><td className="p-2.5 font-bold font-mono text-slate-400">3</td><td className="p-2.5 font-bold">Contact Phone</td><td className="p-2.5">{app.phone}</td><td className="p-2.5 text-emerald-600 font-bold">Direct</td></tr>
-                                        <tr><td className="p-2.5 font-bold font-mono text-slate-400">4</td><td className="p-2.5 font-bold">Email Address</td><td className="p-2.5">{app.email || 'N/A'}</td><td className="p-2.5">Primary</td></tr>
-                                        <tr className="bg-slate-50"><td className="p-2.5 font-bold font-mono text-slate-400">5</td><td className="p-2.5 font-bold">Experience Range</td><td className="p-2.5">{app.experience}</td><td className="p-2.5 text-indigo-600 font-bold">Indexed</td></tr>
-                                        <tr><td className="p-2.5 font-bold font-mono text-slate-400">6</td><td className="p-2.5 font-bold">Attached Document</td><td className="p-2.5 font-mono">{app.resumeFileName}</td><td className="p-2.5 text-emerald-600 font-bold">Attached</td></tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Cover Description in Exact Formatting */}
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2 pb-2 border-b border-slate-200 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
-                                  <FileText className="w-4 h-4 text-red-600" />
-                                  <span>Candidate Statement & Cover Experience</span>
-                                </div>
-                                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words">
-                                  {app.message || 'No additional note provided.'}
-                                </div>
-                              </div>
-
-                              {/* Authenticated Stamp */}
-                              <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500">
-                                <div className="flex items-center gap-1.5 font-bold text-emerald-700">
-                                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                                  <span>Authenticated Candidate Dossier • MANABS HR Resource Cell</span>
-                                </div>
-                                <span className="font-mono text-slate-400">LOG: {app.refId}</span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {app.message && !expandedResumeId && (
-                        <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-1.5">
-                          <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            <MessageSquare className="w-3.5 h-3.5 text-red-600" />
-                            <span>Candidate Message / Description:</span>
-                          </div>
-                          <div className="text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words pl-0.5">
+                        {app.message && (
+                          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs text-slate-800">
+                            <span className="font-bold text-slate-500 block mb-1">Candidate Statement:</span>
                             {app.message}
                           </div>
-                        </div>
-                      )}
+                        )}
 
-                      <div className="flex justify-end pt-1">
-                        <button
-                          onClick={() => {
-                            if (window.confirm('Delete this application?')) {
-                              deleteJobApplication(app.refId);
-                              showToast('Application removed.');
-                            }
-                          }}
-                          className="text-xs sm:text-sm text-red-600 hover:text-red-700 hover:underline flex items-center gap-1.5 font-bold"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          <span>Remove Application</span>
-                        </button>
+                        <div className="flex justify-end pt-1">
+                          <button
+                            onClick={() => {
+                              if (window.confirm('Delete this application?')) {
+                                deleteJobApplication(app.refId);
+                                showToast('Application removed.');
+                              }
+                            }}
+                            className="text-xs sm:text-sm text-red-600 hover:text-red-700 hover:underline flex items-center gap-1.5 font-bold cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span>Remove Application</span>
+                          </button>
+                        </div>
                       </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-16 bg-white rounded-3xl border border-gray-200">
+                      <p className="text-sm text-gray-500 font-medium">No candidate applications logged yet.</p>
                     </div>
-                  ))
-                ) : (
-                  <div className="text-center py-16 bg-white rounded-3xl border border-gray-200">
-                    <p className="text-sm text-gray-500 font-medium">No direct job applications logged yet.</p>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
           {/* SECTION 6: FUTURE TALENT BANK VAULT */}
           {activeSection === 'talent-vault' && (
             <div className="space-y-6">
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between">
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-xl sm:text-2xl font-black text-gray-950">National Resource Cell Future Talent Bank ({talentVaultApplications.length})</h3>
                   <p className="text-sm text-gray-600 mt-1 font-medium">Central resume registry for upcoming corporate facilities and logistics staff scout calls.</p>
                 </div>
+                <button
+                  type="button"
+                  onClick={handleExportTalentVaultCSV}
+                  className="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all shrink-0"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  <span>Export Talent Pool (CSV)</span>
+                </button>
               </div>
 
               <div className="space-y-4">
@@ -2066,207 +2092,10 @@ const AdminDashboardPage = ({ onNavigate }) => {
                         <div><span className="font-bold text-gray-400">Notice:</span> <span className="ml-1 font-semibold">{t.noticePeriod || 'Immediate'}</span></div>
                       </div>
 
-                      {t.resumeFileName && (
-                        <div className="space-y-4">
-                          {/* Resume Card Bar */}
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-sky-50/90 border border-sky-200">
-                            <div className="flex items-center gap-3 text-xs sm:text-sm text-sky-950 font-bold min-w-0">
-                              <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center shrink-0 text-sky-700 shadow-xs">
-                                <FileText className="w-5 h-5" />
-                              </div>
-                              <div className="truncate">
-                                <span className="block truncate font-extrabold text-slate-900 text-sm">{t.resumeFileName}</span>
-                                <span className="text-xs text-sky-700 font-semibold flex items-center gap-1.5 mt-0.5">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                                  {t.resumeFileSize ? `Attached File • ${t.resumeFileSize}` : 'Attached Resume / CV Document'}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                              <button
-                                type="button"
-                                onClick={() => setExpandedResumeId(expandedResumeId === t.id ? null : t.id)}
-                                className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                              >
-                                <Eye className="w-3.5 h-3.5" />
-                                <span>{expandedResumeId === t.id ? 'Hide Resume' : 'View Resume'}</span>
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => handleDownloadResume(t)}
-                                className="px-3.5 py-2 rounded-xl bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-                              >
-                                <Download className="w-3.5 h-3.5 text-sky-700" />
-                                <span>Download</span>
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => setPreviewResumeModal({
-                                  applicantName: t.fullName,
-                                  role: t.targetDepartment,
-                                  refId: t.id,
-                                  date: t.date,
-                                  phone: t.phone,
-                                  email: t.email,
-                                  experience: t.experience,
-                                  preferredLocation: t.preferredLocation,
-                                  noticePeriod: t.noticePeriod,
-                                  expectedSalary: t.expectedSalary,
-                                  fileName: t.resumeFileName,
-                                  dataUrl: t.resumeDataUrl,
-                                  fileType: t.resumeFileType,
-                                  message: t.keySkills,
-                                  type: 'talent-vault'
-                                })}
-                                className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors cursor-pointer"
-                                title="Open in Popup Modal"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* INLINE EXPANDED RESUME DOCUMENT SHEET FOR TALENT VAULT */}
-                          {expandedResumeId === t.id && (
-                            <div className="bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-98 duration-200">
-                              {/* Resume Document Header */}
-                              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b-2 border-slate-200">
-                                <div>
-                                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-sky-700 bg-sky-50 px-3 py-1 rounded-full border border-sky-200 inline-block mb-2">
-                                    National Resource Cell Talent Bank Profile
-                                  </span>
-                                  <h3 className="text-2xl sm:text-3xl font-black text-slate-950 uppercase tracking-tight">
-                                    {t.fullName}
-                                  </h3>
-                                  <p className="text-sm font-bold text-sky-700 mt-0.5">
-                                    Target Domain: {t.targetDepartment}
-                                  </p>
-                                </div>
-
-                                <div className="flex items-center gap-2 flex-wrap shrink-0">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDownloadResume(t)}
-                                    className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
-                                  >
-                                    <Download className="w-3.5 h-3.5" />
-                                    <span>Download Resume</span>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => window.print()}
-                                    className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1.5 border border-slate-300 transition-colors cursor-pointer"
-                                  >
-                                    <span>🖨️ Print</span>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setExpandedResumeId(null)}
-                                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors cursor-pointer"
-                                    title="Close Resume View"
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              </div>
-
-                              {/* Matrix Info */}
-                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium">
-                                <div>
-                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Phone Number</span>
-                                  <span className="font-extrabold text-emerald-700 text-sm mt-0.5 block">{t.phone}</span>
-                                </div>
-                                <div>
-                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Preferred Location</span>
-                                  <span className="font-bold text-slate-800 text-sm mt-0.5 block truncate">{t.preferredLocation}</span>
-                                </div>
-                                <div>
-                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Notice Period</span>
-                                  <span className="font-bold text-slate-800 text-sm mt-0.5 block">{t.noticePeriod || 'Immediate'}</span>
-                                </div>
-                                <div>
-                                  <span className="text-slate-400 block font-bold uppercase text-[10px]">Profile Vault ID</span>
-                                  <span className="font-bold text-slate-800 text-sm mt-0.5 block font-mono">{t.id}</span>
-                                </div>
-                              </div>
-
-                              {/* Attached Source File Box */}
-                              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200 text-xs font-bold text-sky-900">
-                                <div className="flex items-center gap-2">
-                                  <Paperclip className="w-4 h-4 text-sky-600" />
-                                  <span>Attached File: {t.resumeFileName}</span>
-                                </div>
-                                <span className="text-[11px] bg-white px-2.5 py-0.5 rounded-md border border-sky-200 text-sky-700">
-                                  ✓ Verified Record
-                                </span>
-                              </div>
-
-                              {/* Embedded File Viewer if Base64 exists */}
-                              {t.resumeDataUrl && (
-                                <div className="space-y-2">
-                                  <div className="flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
-                                    <span>Uploaded Document Preview</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleOpenFileInNewTab(t.resumeDataUrl, t.resumeFileName)}
-                                      className="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-bold lowercase hover:underline cursor-pointer"
-                                    >
-                                      <span>open in full tab</span>
-                                      <ExternalLink className="w-3 h-3" />
-                                    </button>
-                                  </div>
-                                  {t.resumeDataUrl.startsWith('data:image/') ? (
-                                    <img
-                                      src={t.resumeDataUrl}
-                                      alt="Resume preview"
-                                      className="w-full max-h-[450px] object-contain rounded-2xl border border-slate-200 bg-slate-100"
-                                    />
-                                  ) : (
-                                    <iframe
-                                      src={getBlobUrlFromDataUrl(t.resumeDataUrl)}
-                                      title="Resume Preview"
-                                      className="w-full h-[500px] rounded-2xl border border-slate-200 bg-white"
-                                    />
-                                  )}
-                                </div>
-                              )}
-
-                              {/* Key Skills in Exact Formatting */}
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2 pb-2 border-b border-slate-200 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
-                                  <Sparkles className="w-4 h-4 text-sky-600" />
-                                  <span>Candidate Key Skills & Experience Highlights</span>
-                                </div>
-                                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words">
-                                  {t.keySkills || 'Profile indexed for scout matching.'}
-                                </div>
-                              </div>
-
-                              {/* Authenticated Stamp */}
-                              <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500">
-                                <div className="flex items-center gap-1.5 font-bold text-emerald-700">
-                                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                                  <span>National Resource Cell Indexed • MANABS HR Operations</span>
-                                </div>
-                                <span className="font-mono text-slate-400">VAULT: {t.id}</span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {t.keySkills && !expandedResumeId && (
-                        <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-1.5">
-                          <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            <Sparkles className="w-3.5 h-3.5 text-sky-600" />
-                            <span>Candidate Key Skills & Description:</span>
-                          </div>
-                          <div className="text-xs sm:text-sm text-slate-900 whitespace-pre-wrap font-sans leading-relaxed break-words pl-0.5">
-                            {t.keySkills}
-                          </div>
+                      {t.keySkills && (
+                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs text-slate-800">
+                          <span className="font-bold text-slate-500 block mb-1">Key Skills & Experience:</span>
+                          {t.keySkills}
                         </div>
                       )}
 
@@ -2278,7 +2107,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                               showToast('Profile removed from vault.');
                             }
                           }}
-                          className="text-xs sm:text-sm text-red-600 hover:text-red-700 hover:underline flex items-center gap-1.5 font-bold"
+                          className="text-xs sm:text-sm text-red-600 hover:text-red-700 hover:underline flex items-center gap-1.5 font-bold cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                           <span>Remove Profile</span>
@@ -2291,6 +2120,485 @@ const AdminDashboardPage = ({ onNavigate }) => {
                     <p className="text-sm text-gray-500 font-medium">No talent pool profiles registered yet.</p>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* SECTION: BLOG & INSIGHTS CMS */}
+          {activeSection === 'blogs' && (
+            <div className="space-y-6">
+              {!isEditingBlog ? (
+                <>
+                  <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl sm:text-2xl font-black text-gray-950">Blog & Knowledge Hub CMS ({blogs?.length || 0} Articles)</h3>
+                      <p className="text-sm text-gray-600 mt-1 font-medium">Publish labour law advisories, mechanized facility management guides, and industry news.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingBlogItem(null);
+                        setBlogForm({
+                          title: '',
+                          slug: '',
+                          category: 'Statutory Compliance',
+                          excerpt: '',
+                          author: 'MANABS Editorial Board',
+                          authorRole: 'Compliance & Strategy Lead',
+                          coverImage: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&auto=format&fit=crop',
+                          readTime: '5 min read',
+                          tagsText: 'Compliance, Labour Law, Facility',
+                          contentSectionsText: 'Why Compliance Matters|Principal employers are held jointly liable for defaults by their contractors.\nAudit Checklist|Ensure 100% verified ECR challans for PF and ESI every month.',
+                          featured: false
+                        });
+                        setIsEditingBlog(true);
+                      }}
+                      className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all shrink-0"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Write New Article</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {blogs && blogs.map((post) => (
+                      <div
+                        key={post.id}
+                        className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between hover:border-red-400 hover:shadow-md transition-all"
+                      >
+                        <div>
+                          <div className="h-44 overflow-hidden relative">
+                            <img
+                              src={post.coverImage || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop'}
+                              alt={post.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <span className="absolute top-3 left-3 px-3 py-1 rounded-lg bg-black/70 text-red-300 text-[10px] font-bold uppercase tracking-wider border border-white/10">
+                              {post.category}
+                            </span>
+                            {post.featured && (
+                              <span className="absolute top-3 right-3 px-3 py-1 rounded-lg bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider">
+                                Featured
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="p-6 space-y-2.5">
+                            <div className="text-[11px] text-gray-400 flex items-center gap-2">
+                              <span>{post.publishedDate}</span>
+                              <span>•</span>
+                              <span>{post.readTime}</span>
+                            </div>
+                            <h4 className="text-base sm:text-lg font-black text-gray-950 line-clamp-2">
+                              {post.title}
+                            </h4>
+                            <p className="text-xs text-gray-500 line-clamp-2">
+                              {post.excerpt}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                          <button
+                            onClick={() => onNavigate('blog')}
+                            className="px-3.5 py-1.5 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-red-600" />
+                            <span>Preview</span>
+                          </button>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                setEditingBlogItem(post);
+                                setBlogForm({
+                                  title: post.title,
+                                  slug: post.slug,
+                                  category: post.category || 'Statutory Compliance',
+                                  excerpt: post.excerpt || '',
+                                  author: post.author || 'MANABS Editorial Board',
+                                  authorRole: post.authorRole || 'Compliance & Strategy Lead',
+                                  coverImage: post.coverImage || '',
+                                  readTime: post.readTime || '5 min read',
+                                  tagsText: post.tags ? post.tags.join(', ') : '',
+                                  contentSectionsText: Array.isArray(post.content)
+                                    ? post.content.map(c => `${c.heading}|${c.text}`).join('\n')
+                                    : (post.content || ''),
+                                  featured: !!post.featured
+                                });
+                                setIsEditingBlog(true);
+                              }}
+                              className="p-2 bg-white hover:bg-sky-50 text-sky-700 rounded-xl transition-colors border border-gray-200 cursor-pointer"
+                              title="Edit Post"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (window.confirm(`Delete article "${post.title}"?`)) {
+                                  deleteBlogPost(post.id);
+                                  showToast(`Article "${post.title}" deleted.`);
+                                }
+                              }}
+                              className="p-2 bg-white hover:bg-red-50 text-red-600 rounded-xl transition-colors border border-gray-200 cursor-pointer"
+                              title="Delete Post"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                /* BLOG EDITOR STUDIO */
+                <div className="space-y-6 animate-in fade-in duration-150">
+                  <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingBlog(false)}
+                        className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+                      >
+                        <ArrowRight className="w-5 h-5 rotate-180" />
+                      </button>
+                      <div>
+                        <h3 className="text-xl sm:text-2xl font-black text-gray-950">
+                          {editingBlogItem ? `Edit: ${editingBlogItem.title}` : 'Article Studio: Create New Guide'}
+                        </h3>
+                        <p className="text-xs text-gray-500 font-medium">Publish rich corporate thought leadership guides.</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingBlog(false)}
+                        className="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!blogForm.title.trim()) return;
+                          const tags = blogForm.tagsText.split(',').map(t => t.trim()).filter(Boolean);
+                          const content = blogForm.contentSectionsText.split('\n').filter(Boolean).map(line => {
+                            const [h, ...rest] = line.split('|');
+                            return { heading: h.trim(), text: rest.join('|').trim() };
+                          });
+
+                          if (editingBlogItem) {
+                            updateBlogPost(editingBlogItem.id, {
+                              ...blogForm,
+                              tags,
+                              content
+                            });
+                            showToast(`Article "${blogForm.title}" updated!`);
+                          } else {
+                            addBlogPost({
+                              ...blogForm,
+                              tags,
+                              content
+                            });
+                            showToast(`New article "${blogForm.title}" published!`);
+                          }
+                          setIsEditingBlog(false);
+                        }}
+                        className="px-7 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                      >
+                        <Save className="w-4 h-4" />
+                        <span>Publish Article</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Two column form */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Article Title *</label>
+                        <input
+                          type="text"
+                          required
+                          value={blogForm.title}
+                          onChange={(e) => setBlogForm({ ...blogForm, title: e.target.value })}
+                          placeholder="e.g. Statutory Labour Law Compliance in India: 2026 Checklist"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 font-bold text-sm focus:border-red-500 focus:outline-none"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Category</label>
+                          <select
+                            value={blogForm.category}
+                            onChange={(e) => setBlogForm({ ...blogForm, category: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-semibold bg-white focus:outline-none"
+                          >
+                            <option value="Statutory Compliance">Statutory Compliance</option>
+                            <option value="Facility Management">Facility Management</option>
+                            <option value="Staffing & Payroll">Staffing & Payroll</option>
+                            <option value="Tech & Automation">Tech & Automation</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Estimated Read Time</label>
+                          <input
+                            type="text"
+                            value={blogForm.readTime}
+                            onChange={(e) => setBlogForm({ ...blogForm, readTime: e.target.value })}
+                            placeholder="e.g. 6 min read"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Cover Image URL</label>
+                        <input
+                          type="url"
+                          value={blogForm.coverImage}
+                          onChange={(e) => setBlogForm({ ...blogForm, coverImage: e.target.value })}
+                          placeholder="https://images.unsplash.com/..."
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs font-mono focus:border-red-500 focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Summary / Excerpt *</label>
+                        <textarea
+                          rows={2}
+                          required
+                          value={blogForm.excerpt}
+                          onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })}
+                          placeholder="Short 2-line preview for cards & SEO search description..."
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm focus:border-red-500 focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center mb-1.5">
+                          <label className="block text-xs font-bold text-gray-700 uppercase">
+                            Article Body Sections (Heading | Content per line)
+                          </label>
+                          <span className="text-[10px] text-gray-400 font-bold">Format: Heading | Paragraph</span>
+                        </div>
+                        <textarea
+                          rows={8}
+                          value={blogForm.contentSectionsText}
+                          onChange={(e) => setBlogForm({ ...blogForm, contentSectionsText: e.target.value })}
+                          placeholder="Heading 1 | Detailed paragraph text here...&#10;Heading 2 | Next section explanation here..."
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs font-mono leading-relaxed focus:border-red-500 focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Keywords & Tags (Comma separated)</label>
+                        <input
+                          type="text"
+                          value={blogForm.tagsText}
+                          onChange={(e) => setBlogForm({ ...blogForm, tagsText: e.target.value })}
+                          placeholder="EPF, ESI, Minimum Wages, Staffing"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs focus:border-red-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Right Live Preview Card */}
+                    <div className="lg:col-span-5 sticky top-24 bg-white p-6 rounded-3xl border border-gray-200 shadow-xl space-y-4">
+                      <div className="text-xs font-bold uppercase tracking-wider text-slate-400 pb-2 border-b">
+                        Live Card Preview
+                      </div>
+                      <div className="rounded-2xl overflow-hidden border border-slate-200">
+                        <img
+                          src={blogForm.coverImage || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop'}
+                          alt="Preview"
+                          className="w-full h-40 object-cover"
+                        />
+                        <div className="p-4 space-y-2">
+                          <span className="px-2.5 py-0.5 rounded bg-red-100 text-red-700 text-[10px] font-bold uppercase">
+                            {blogForm.category}
+                          </span>
+                          <h4 className="text-sm font-black text-slate-900 leading-snug">
+                            {blogForm.title || 'Untitled Article Preview'}
+                          </h4>
+                          <p className="text-xs text-slate-500 line-clamp-2">
+                            {blogForm.excerpt || 'Article summary description will appear here...'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SECTION: ALERTS & NOTIFICATIONS SETTINGS */}
+          {activeSection === 'notifications' && (
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-black text-gray-950">Real-time Alerts & Webhooks</h3>
+                  <p className="text-sm text-gray-600 mt-1 font-medium">
+                    Configure automated notifications for quote requests, candidate applications, and audio chimes.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    addNotification({
+                      type: 'test',
+                      title: '🔔 Test Notification Alert',
+                      message: 'System sound chime & webhook test dispatched successfully!'
+                    });
+                    showToast('Dispatched test alert with audio chime!');
+                  }}
+                  className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all shrink-0"
+                >
+                  <Bell className="w-4 h-4" />
+                  <span>Send Test Alert Chime</span>
+                </button>
+              </div>
+
+              {/* Webhook & Notification Settings Form */}
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-6">
+                <h4 className="text-sm font-black uppercase tracking-wider text-slate-900 pb-3 border-b border-gray-100">
+                  Notification Dispatch Channels
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Admin Notification Email</label>
+                    <input
+                      type="email"
+                      value={emailConfig.adminEmail}
+                      onChange={(e) => setEmailConfig({ ...emailConfig, adminEmail: e.target.value })}
+                      placeholder="operations@manabs.com"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-semibold focus:border-red-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 uppercase mb-1.5">Custom Webhook Endpoint URL (Slack / Zapier / Make)</label>
+                    <input
+                      type="url"
+                      value={emailConfig.webhookUrl}
+                      onChange={(e) => setEmailConfig({ ...emailConfig, webhookUrl: e.target.value })}
+                      placeholder="https://hooks.slack.com/services/..."
+                      className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs font-mono focus:border-red-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-800">In-App Audio Chime</span>
+                    <input
+                      type="checkbox"
+                      checked={emailConfig.enableSoundChime}
+                      onChange={(e) => setEmailConfig({ ...emailConfig, enableSoundChime: e.target.checked })}
+                      className="w-4 h-4 accent-red-600 cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-800">Browser Push Alerts</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if ('Notification' in window) {
+                          Notification.requestPermission().then(permission => {
+                            showToast(`Browser permission status: ${permission}`);
+                          });
+                        }
+                      }}
+                      className="text-[11px] font-bold text-sky-600 underline cursor-pointer"
+                    >
+                      Request Permission
+                    </button>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-800">Live Status Banner</span>
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Active</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateEmailSettings(emailConfig);
+                      showToast('Notification settings saved successfully!');
+                    }}
+                    className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-sm cursor-pointer"
+                  >
+                    Save Settings
+                  </button>
+                </div>
+              </div>
+
+              {/* Notification Activity Feed */}
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                  <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                    Recent In-App Notifications Feed ({notifications.length})
+                  </h4>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { markNotificationsRead(); showToast('Marked all as read'); }}
+                      className="text-xs text-sky-600 font-bold hover:underline cursor-pointer"
+                    >
+                      Mark all as read
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { clearNotifications(); showToast('Cleared notification log'); }}
+                      className="text-xs text-red-600 font-bold hover:underline cursor-pointer"
+                    >
+                      Clear Log
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {notifications.length > 0 ? (
+                    notifications.map((notif) => (
+                      <div
+                        key={notif.id}
+                        className={`p-4 rounded-2xl border flex items-start justify-between gap-4 transition-all ${
+                          notif.read ? 'bg-slate-50 border-slate-200' : 'bg-red-50/60 border-red-200 ring-1 ring-red-300'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`p-2 rounded-xl mt-0.5 ${notif.read ? 'bg-slate-200 text-slate-600' : 'bg-red-600 text-white'}`}>
+                            <Bell className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-extrabold text-slate-900">{notif.title}</div>
+                            <p className="text-xs text-slate-600 mt-0.5">{notif.message}</p>
+                            <span className="text-[10px] text-slate-400 font-medium block mt-1">
+                              {notif.time ? new Date(notif.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {!notif.read && (
+                          <span className="w-2 h-2 rounded-full bg-red-600 mt-2 shrink-0 animate-ping" />
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-10 text-xs text-slate-400 font-medium">
+                      No notifications in the log.
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}

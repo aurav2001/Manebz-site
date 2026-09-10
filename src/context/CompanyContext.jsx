@@ -11,6 +11,8 @@ import {
   employeePerks as defaultPerks,
   testimonialsData as defaultTestimonials
 } from '../data/companyData';
+import { initialBlogPosts } from '../data/blogData';
+import { dispatchNotificationAlert } from '../services/notificationService';
 
 const CompanyContext = createContext();
 
@@ -29,7 +31,10 @@ const STORAGE_KEYS = {
   APPLICATIONS: 'manabs_direct_applications',
   TALENT_VAULT: 'manabs_future_talent_bank',
   PAGES: 'manabs_dynamic_custom_pages',
-  NAV_ITEMS: 'manabs_dynamic_nav_items'
+  NAV_ITEMS: 'manabs_dynamic_nav_items',
+  BLOGS: 'manabs_dynamic_blogs',
+  NOTIFICATIONS: 'manabs_notifications_log',
+  EMAIL_SETTINGS: 'manabs_email_settings'
 };
 
 const defaultCustomPages = [
@@ -65,17 +70,31 @@ const defaultNavItems = [
   { id: 'nav-1', label: 'HOME', path: 'home', type: 'internal', isVisible: true, isHot: false, order: 1 },
   { id: 'nav-2', label: 'ABOUT', path: 'about', type: 'internal', isVisible: true, isHot: false, order: 2 },
   { id: 'nav-3', label: 'SERVICES', path: 'services', type: 'services-dropdown', isVisible: true, isHot: false, order: 3 },
-  { id: 'nav-4', label: 'PAYROLL', path: 'payroll', type: 'internal', isVisible: true, isHot: true, order: 4 },
-  { id: 'nav-5', label: 'CAREERS', path: 'careers', type: 'internal', isVisible: true, isHot: false, order: 5 },
-  { id: 'nav-6', label: 'CONTACT', path: 'contact', type: 'internal', isVisible: true, isHot: false, order: 6 },
+  { id: 'nav-4', label: 'CALCULATOR', path: 'calculator', type: 'internal', isVisible: true, isHot: true, order: 4 },
+  { id: 'nav-5', label: 'PAYROLL', path: 'payroll', type: 'internal', isVisible: true, isHot: false, order: 5 },
+  { id: 'nav-6', label: 'BLOG & NEWS', path: 'blog', type: 'internal', isVisible: true, isHot: false, order: 6 },
+  { id: 'nav-7', label: 'CAREERS', path: 'careers', type: 'internal', isVisible: true, isHot: false, order: 7 },
+  { id: 'nav-8', label: 'CONTACT', path: 'contact', type: 'internal', isVisible: true, isHot: false, order: 8 },
 ];
+
+const defaultEmailSettings = {
+  adminEmail: 'operations@manabs.com',
+  enableInstantAlerts: true,
+  enableBrowserPush: true,
+  enableSoundChime: true,
+  webhookUrl: '',
+  emailJsServiceId: '',
+  emailJsTemplateId: '',
+  emailJsPublicKey: ''
+};
 
 const getStored = (key, fallback) => {
   try {
     const saved = localStorage.getItem(key);
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) return parsed.length > 0 ? parsed : fallback;
+      if (typeof parsed === 'object' && parsed !== null) return parsed;
     }
   } catch (e) {
     console.error(e);
@@ -97,15 +116,60 @@ export const CompanyProvider = ({ children }) => {
   const [testimonials, setTestimonials] = useState(() => getStored(STORAGE_KEYS.TESTIMONIALS, defaultTestimonials));
   const [customPages, setCustomPages] = useState(() => getStored(STORAGE_KEYS.PAGES, defaultCustomPages));
   const [navItems, setNavItems] = useState(() => getStored(STORAGE_KEYS.NAV_ITEMS, defaultNavItems));
+  const [blogs, setBlogs] = useState(() => getStored(STORAGE_KEYS.BLOGS, initialBlogPosts));
+  
+  // 2. Email / Webhook Settings
+  const [emailSettings, setEmailSettings] = useState(() => getStored(STORAGE_KEYS.EMAIL_SETTINGS, defaultEmailSettings));
 
-  // Sync to localStorage
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.PAGES, JSON.stringify(customPages));
-  }, [customPages]);
+  // 3. Notification Log
+  const [notifications, setNotifications] = useState(() => getStored(STORAGE_KEYS.NOTIFICATIONS, [
+    {
+      id: 'notif-init-1',
+      type: 'inquiry',
+      title: 'New Quote Inquiry',
+      message: 'Apex Business Park requested quote for Integrated Facility Management',
+      time: new Date(Date.now() - 3600000).toISOString(),
+      read: false
+    },
+    {
+      id: 'notif-init-2',
+      type: 'application',
+      title: 'New Candidate Applied',
+      message: 'Vikram Singh applied for Facility Operations Manager',
+      time: new Date(Date.now() - 7200000).toISOString(),
+      read: false
+    }
+  ]));
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.NAV_ITEMS, JSON.stringify(navItems));
-  }, [navItems]);
+  // Auto-persist settings & data
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.PAGES, JSON.stringify(customPages)); }, [customPages]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.NAV_ITEMS, JSON.stringify(navItems)); }, [navItems]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.BLOGS, JSON.stringify(blogs)); }, [blogs]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.EMAIL_SETTINGS, JSON.stringify(emailSettings)); }, [emailSettings]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications)); }, [notifications]);
+
+  // Notifications Helpers
+  const addNotification = (notif) => {
+    const newNotif = {
+      id: `notif-${Date.now()}`,
+      time: new Date().toISOString(),
+      read: false,
+      ...notif
+    };
+    setNotifications(prev => [newNotif, ...prev.slice(0, 49)]); // Keep last 50
+  };
+
+  const markNotificationsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
+  const clearNotifications = () => {
+    setNotifications([]);
+  };
+
+  const updateEmailSettings = (updated) => {
+    setEmailSettings(prev => ({ ...prev, ...updated }));
+  };
 
   // Dynamic Custom Pages Actions
   const addCustomPage = (page) => {
@@ -118,7 +182,6 @@ export const CompanyProvider = ({ children }) => {
     };
     setCustomPages(prev => [newPage, ...prev]);
 
-    // If marked to show in navbar, automatically add to navItems
     if (page.showInNavbar) {
       setNavItems(prev => {
         const exists = prev.some(item => item.path === `p/${newPage.slug}` || item.label.toLowerCase() === page.title.toLowerCase());
@@ -148,7 +211,6 @@ export const CompanyProvider = ({ children }) => {
   const deleteCustomPage = (id) => {
     const target = customPages.find(p => p.id === id);
     if (target) {
-      // Also remove from nav items if present
       setNavItems(prev => prev.filter(item => item.path !== `p/${target.slug}`));
     }
     setCustomPages(prev => prev.filter(p => p.id !== id));
@@ -186,12 +248,37 @@ export const CompanyProvider = ({ children }) => {
     const temp = newItems[index];
     newItems[index] = newItems[targetIndex];
     newItems[targetIndex] = temp;
-    // Update order values
     const ordered = newItems.map((item, idx) => ({ ...item, order: idx + 1 }));
     setNavItems(ordered);
   };
 
-  // 2. Inboxes / Leads States
+  // Dynamic Blog CMS Actions
+  const addBlogPost = (post) => {
+    const newPost = {
+      id: `post-${Date.now()}`,
+      slug: (post.slug || post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')),
+      publishedDate: new Date().toISOString().split('T')[0],
+      readTime: post.readTime || '5 min read',
+      author: post.author || 'MANABS Editorial Board',
+      authorRole: post.authorRole || 'Compliance & Strategy Lead',
+      authorAvatar: post.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop',
+      coverImage: post.coverImage || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop',
+      tags: post.tags || ['Enterprise', 'Compliance'],
+      ...post
+    };
+    setBlogs(prev => [newPost, ...prev]);
+    return newPost;
+  };
+
+  const updateBlogPost = (id, updated) => {
+    setBlogs(prev => prev.map(b => b.id === id ? { ...b, ...updated } : b));
+  };
+
+  const deleteBlogPost = (id) => {
+    setBlogs(prev => prev.filter(b => b.id !== id));
+  };
+
+  // Inquiries / Leads States
   const [inquiries, setInquiries] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.INQUIRIES);
@@ -205,7 +292,8 @@ export const CompanyProvider = ({ children }) => {
           location: 'Cyber City, Gurugram',
           date: '2026-09-08T10:30:00.000Z',
           status: 'New Lead',
-          scope: '450,000 sq.ft commercial tech park full IFM and 24/7 MEP upkeep.'
+          scope: '450,000 sq.ft commercial tech park full IFM and 24/7 MEP upkeep.',
+          budgetEstimate: '₹ 4,85,000 / month'
         },
         {
           id: 'INQ-102',
@@ -216,7 +304,8 @@ export const CompanyProvider = ({ children }) => {
           location: 'Noida Sector 62',
           date: '2026-09-07T14:15:00.000Z',
           status: 'Proposal Sent',
-          scope: 'JIT inventory floor handling and 25 certified forklift operators.'
+          scope: 'JIT inventory floor handling and 25 certified forklift operators.',
+          budgetEstimate: '₹ 3,40,000 / month'
         }
       ];
     } catch (e) {
@@ -240,7 +329,23 @@ export const CompanyProvider = ({ children }) => {
           resumeFileName: 'Vikram_Chauhan_IFM_Resume.pdf',
           message: '10+ years experience in multi-tenant commercial park MEP & soft services governance.',
           date: '2026-09-08T11:45:00.000Z',
-          status: 'Shortlisted'
+          status: 'Shortlisted',
+          stage: 'Shortlisted'
+        },
+        {
+          refId: 'MNB-APP-891025',
+          jobId: 'job-2',
+          jobTitle: 'Corporate Security Lead / CSO',
+          fullName: 'Capt. Rakesh Sharma',
+          phone: '+91 98100 22345',
+          email: 'rakesh.sharma@email.com',
+          experience: '10+ Years',
+          currentLocation: 'New Delhi',
+          resumeFileName: 'Capt_Rakesh_Security_Profile.pdf',
+          message: 'Ex-defense officer with comprehensive industrial asset protection credentials.',
+          date: '2026-09-09T09:15:00.000Z',
+          status: 'Interview Scheduled',
+          stage: 'Interview Scheduled'
         }
       ];
     } catch (e) {
@@ -287,7 +392,7 @@ export const CompanyProvider = ({ children }) => {
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify(jobApplications)); }, [jobApplications]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.TALENT_VAULT, JSON.stringify(talentVaultApplications)); }, [talentVaultApplications]);
 
-  // 3. Actions: Services Management
+  // Actions: Services Management
   const addService = (newService) => {
     const s = {
       id: `srv-${Date.now()}`,
@@ -306,7 +411,7 @@ export const CompanyProvider = ({ children }) => {
     setServices(prev => prev.filter(s => s.id !== id));
   };
 
-  // 4. Actions: Jobs Management
+  // Actions: Jobs Management
   const addJob = (newJob) => {
     const j = {
       id: `job-custom-${Date.now()}`,
@@ -324,7 +429,7 @@ export const CompanyProvider = ({ children }) => {
     setJobs(prev => prev.filter(j => j.id !== id));
   };
 
-  // 5. Actions: Stats, Milestones & Values
+  // Actions: Stats, Milestones & Values
   const updateStat = (id, updatedFields) => {
     setCompanyStats(prev => prev.map(st => st.id === id ? { ...st, ...updatedFields } : st));
   };
@@ -369,7 +474,7 @@ export const CompanyProvider = ({ children }) => {
     setStatutoryCompliances(prev => prev.filter((_, i) => i !== index));
   };
 
-  // 6. Actions: Testimonials
+  // Actions: Testimonials
   const addTestimonial = (testimonial) => {
     const t = { id: `t-${Date.now()}`, ...testimonial };
     setTestimonials(prev => [t, ...prev]);
@@ -384,7 +489,7 @@ export const CompanyProvider = ({ children }) => {
     setTestimonials(prev => prev.filter(t => t.id !== id));
   };
 
-  // 7. Actions: Inquiries & Inboxes
+  // Actions: Inquiries & Inboxes with Notification Dispatching
   const addInquiry = (inquiry) => {
     const inq = {
       id: `INQ-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -393,6 +498,16 @@ export const CompanyProvider = ({ children }) => {
       ...inquiry
     };
     setInquiries(prev => [inq, ...prev]);
+
+    // Dispatch notification
+    dispatchNotificationAlert('inquiry', inq, emailSettings);
+    addNotification({
+      type: 'inquiry',
+      title: 'New Quotation Request',
+      message: `${inq.name || 'Client'} requested a quote for ${inq.service || 'Facility Management'}`,
+      data: inq
+    });
+
     return inq;
   };
 
@@ -404,19 +519,35 @@ export const CompanyProvider = ({ children }) => {
     setInquiries(prev => prev.filter(inq => inq.id !== id));
   };
 
+  // Actions: Job Applications & Kanban Stage Manager
   const addJobApplication = (app) => {
     const a = {
       refId: `MNB-APP-${Math.floor(100000 + Math.random() * 900000)}`,
       date: new Date().toISOString(),
-      status: 'Submitted',
+      status: 'Applied',
+      stage: 'Applied',
       ...app
     };
     setJobApplications(prev => [a, ...prev]);
+
+    // Dispatch notification
+    dispatchNotificationAlert('application', a, emailSettings);
+    addNotification({
+      type: 'application',
+      title: 'New Candidate Application',
+      message: `${a.fullName} applied for ${a.jobTitle}`,
+      data: a
+    });
+
     return a;
   };
 
   const updateJobApplicationStatus = (refId, status) => {
-    setJobApplications(prev => prev.map(a => a.refId === refId ? { ...a, status } : a));
+    setJobApplications(prev => prev.map(a => a.refId === refId ? { ...a, status, stage: status } : a));
+  };
+
+  const updateApplicationStage = (refId, newStage) => {
+    setJobApplications(prev => prev.map(a => a.refId === refId ? { ...a, stage: newStage, status: newStage } : a));
   };
 
   const deleteJobApplication = (refId) => {
@@ -431,6 +562,15 @@ export const CompanyProvider = ({ children }) => {
       ...app
     };
     setTalentVaultApplications(prev => [t, ...prev]);
+
+    dispatchNotificationAlert('talent_vault', t, emailSettings);
+    addNotification({
+      type: 'talent_vault',
+      title: 'New Talent Pool Candidate',
+      message: `${t.fullName} registered in ${t.targetDepartment}`,
+      data: t
+    });
+
     return t;
   };
 
@@ -442,7 +582,7 @@ export const CompanyProvider = ({ children }) => {
     setTalentVaultApplications(prev => prev.filter(t => t.id !== id));
   };
 
-  // 8. Restore System Defaults
+  // Restore System Defaults
   const resetAllToDefaults = () => {
     setServices(defaultServices);
     setJobs(defaultJobs);
@@ -454,7 +594,9 @@ export const CompanyProvider = ({ children }) => {
     setRegionsServed(defaultRegions);
     setEmployeePerks(defaultPerks);
     setTestimonials(defaultTestimonials);
-    Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
+    setBlogs(initialBlogPosts);
+    setEmailSettings(defaultEmailSettings);
+    Object.values(STORAGE_KEYS).forEach(k => localStorage.getItem(k) && localStorage.removeItem(k));
   };
 
   return (
@@ -510,6 +652,7 @@ export const CompanyProvider = ({ children }) => {
         jobApplications,
         addJobApplication,
         updateJobApplicationStatus,
+        updateApplicationStage,
         deleteJobApplication,
 
         talentVaultApplications,
@@ -528,6 +671,19 @@ export const CompanyProvider = ({ children }) => {
         deleteNavItem,
         toggleNavItemVisibility,
         moveNavItem,
+
+        blogs,
+        addBlogPost,
+        updateBlogPost,
+        deleteBlogPost,
+
+        notifications,
+        addNotification,
+        markNotificationsRead,
+        clearNotifications,
+
+        emailSettings,
+        updateEmailSettings,
 
         resetAllToDefaults
       }}

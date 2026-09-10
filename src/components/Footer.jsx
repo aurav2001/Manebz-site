@@ -161,14 +161,19 @@ const Footer = ({ onNavigate }) => {
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('services')} className="hover:text-white transition-colors flex items-center gap-1.5 text-slate-300 font-medium cursor-pointer">
-                  <span>All 5 Verticals</span>
+                <button onClick={() => onNavigate('calculator')} className="group hover:text-white transition-colors flex items-center gap-1.5 text-slate-300 font-bold cursor-pointer">
+                  <span>Cost Calculator</span>
+                  <span className="text-[9px] font-black uppercase bg-red-500/20 text-red-400 border border-red-500/30 px-1.5 py-0.2 rounded">NEW</span>
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('blog')} className="hover:text-white transition-colors flex items-center gap-1.5 text-slate-300 font-medium cursor-pointer">
+                  <span>Blog & Insights</span>
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('payroll')} className="group hover:text-white transition-colors flex items-center gap-1.5 text-slate-300 font-bold cursor-pointer">
-                  <span>Payroll Calculator</span>
-                  <span className="text-[9px] font-black uppercase bg-red-500/20 text-red-400 border border-red-500/30 px-1.5 py-0.2 rounded">HOT</span>
+                  <span>Payroll & Compliance</span>
                 </button>
               </li>
               <li>

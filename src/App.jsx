@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import SEOHead from './components/SEOHead';
 import { CompanyProvider } from './context/CompanyContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 // Standard direct page imports for instant zero-latency transitions and zero chunk errors
 import HomePage from './pages/HomePage';
@@ -13,6 +14,8 @@ import CareersPage from './pages/CareersPage';
 import ContactPage from './pages/ContactPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import DynamicPage from './pages/DynamicPage';
+import CalculatorPage from './pages/CalculatorPage';
+import BlogPage from './pages/BlogPage';
 
 // Error Boundary for seamless chunk recovery
 class ChunkErrorBoundary extends Component {
@@ -70,7 +73,7 @@ function AppContent() {
     const parts = rawHash.split('/');
     const mainPage = parts[0] || 'home';
     const subRoute = parts.slice(1).join('/') || null;
-    const validStaticPages = ['home', 'about', 'services', 'payroll', 'careers', 'contact', 'admin'];
+    const validStaticPages = ['home', 'about', 'services', 'payroll', 'careers', 'contact', 'admin', 'calculator', 'blog'];
     
     if (validStaticPages.includes(mainPage)) {
       return { page: mainPage, subRoute: subRoute };
@@ -127,6 +130,10 @@ function AppContent() {
         return <CareersPage onNavigate={handleNavigate} />;
       case 'contact':
         return <ContactPage onNavigate={handleNavigate} />;
+      case 'calculator':
+        return <CalculatorPage onNavigate={handleNavigate} />;
+      case 'blog':
+        return <BlogPage onNavigate={handleNavigate} selectedSlug={routeInfo.subRoute} />;
       case 'admin':
         return <AdminDashboardPage onNavigate={handleNavigate} />;
       case 'p':
@@ -140,7 +147,7 @@ function AppContent() {
   const isAdminPage = routeInfo.page === 'admin';
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 flex flex-col justify-between selection:bg-sky-500 selection:text-white font-sans antialiased">
+    <div className="min-h-screen bg-white text-gray-900 flex flex-col justify-between selection:bg-red-500 selection:text-white font-sans antialiased">
       {/* 100% Dynamic SEO Meta Tags & Schema.org JSON-LD Manager */}
       <SEOHead currentPage={routeInfo.page} />
 
@@ -169,9 +176,11 @@ function AppContent() {
 
 function App() {
   return (
-    <CompanyProvider>
-      <AppContent />
-    </CompanyProvider>
+    <LanguageProvider>
+      <CompanyProvider>
+        <AppContent />
+      </CompanyProvider>
+    </LanguageProvider>
   );
 }
 
