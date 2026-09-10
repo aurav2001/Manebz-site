@@ -140,7 +140,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
 
     if (q.includes('whatsapp') || q.includes('chat') || q.includes('number')) {
       return {
-        text: 'You can directly connect with our central operations desk on WhatsApp at **+91 98765 43210** for instant quotes and site surveys.',
+        text: 'You can directly connect with our central operations desk on WhatsApp at **+91 91234 56789** for instant quotes and site surveys.',
         action: 'whatsapp'
       };
     }
@@ -253,7 +253,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
       {
         id: `bot-lead-${Date.now()}`,
         sender: 'bot',
-        text: `✅ **Lead Registered Successfully!**\n\nThank you **${leadForm.name}**! Your callback request has been assigned to our senior operations director.\n\n👉 **Auto-Forward to WhatsApp:** Click below to instantly send this inquiry to our official WhatsApp (+91 98765 43210).`,
+        text: `✅ **Lead Registered Successfully!**\n\nThank you **${leadForm.name}**! Your callback request has been assigned to our senior operations director.\n\n👉 **Auto-Forward to WhatsApp:** Click below to instantly send this inquiry to our official WhatsApp (+91 91234 56789).`,
         customWhatsAppText: formattedLeadText,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
@@ -266,7 +266,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
         ? `*NEW INQUIRY*\nName: ${leadForm.name}\nPhone: ${leadForm.phone}\nRequirement: ${leadForm.requirement || 'Corporate Services'}`
         : 'Hello MANABS Team, I would like to request an instant corporate facility and staffing proposal.'
     );
-    const url = `https://wa.me/919876543210?text=${encodeURIComponent(defaultMsg)}`;
+    const url = `https://wa.me/919123456789?text=${encodeURIComponent(defaultMsg)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -472,7 +472,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                               className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 shadow-md transition-colors cursor-pointer"
                             >
                               <WhatsAppIcon className="w-3.5 h-3.5" />
-                              <span>Open WhatsApp (+91 98765 43210)</span>
+                              <span>Open WhatsApp (+91 91234 56789)</span>
                             </button>
                           </div>
                         )}
@@ -698,16 +698,16 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                   className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <WhatsAppIcon className="w-4 h-4" />
-                  <span>Start WhatsApp Chat (+91 98765 43210)</span>
+                  <span>Start WhatsApp Chat (+91 91234 56789)</span>
                 </button>
 
                 <div className="text-center">
                   <a
-                    href="tel:+911149823000"
+                    href="tel:+911123456789"
                     className="text-[11px] font-bold text-slate-500 hover:text-slate-800 inline-flex items-center gap-1.5"
                   >
                     <Phone className="w-3.5 h-3.5 text-sky-600" />
-                    <span>Or Call Central Helpline: +91 11 4982 3000</span>
+                    <span>Or Call Central Helpline: +91 11 2345 6789</span>
                   </a>
                 </div>
               </div>

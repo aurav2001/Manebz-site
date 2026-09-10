@@ -55,11 +55,11 @@ const Footer = ({ onNavigate }) => {
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <a
-              href="tel:+911149823000"
+              href="tel:+911123456789"
               className="w-full sm:w-auto px-5 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-white/15 flex items-center justify-center gap-2 cursor-pointer"
             >
               <Phone className="w-3.5 h-3.5 text-sky-400" />
-              <span>+91 11 4982 3000</span>
+              <span>+91 11 2345 6789</span>
             </a>
           </div>
         </div>
@@ -211,11 +211,11 @@ const Footer = ({ onNavigate }) => {
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-sky-400 shrink-0" />
                 <div className="flex flex-col">
-                  <a href="tel:+911149823000" className="hover:text-white font-bold transition-colors">
-                    +91 11 4982 3000
+                  <a href="tel:+911123456789" className="hover:text-white font-bold transition-colors">
+                    +91 11 2345 6789
                   </a>
-                  <a href="tel:+919876543210" className="text-slate-400 hover:text-white text-[11px] transition-colors">
-                    +91 98765 43210
+                  <a href="tel:+919123456789" className="text-slate-400 hover:text-white text-[11px] transition-colors">
+                    +91 91234 56789
                   </a>
                 </div>
               </div>

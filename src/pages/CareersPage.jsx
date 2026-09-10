@@ -686,7 +686,7 @@ const CareersPage = ({ onNavigate }) => {
                           <input
                             type="tel"
                             required
-                            placeholder="+91 98765 43210"
+                            placeholder="+91 91234 56789"
                             value={applyForm.phone}
                             onChange={(e) => setApplyForm({ ...applyForm, phone: e.target.value })}
                             className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-red-500 text-xs"
@@ -870,7 +870,7 @@ const CareersPage = ({ onNavigate }) => {
                           <input
                             type="tel"
                             required
-                            placeholder="+91 98765 43210"
+                            placeholder="+91 91234 56789"
                             value={talentForm.phone}
                             onChange={(e) => setTalentForm({ ...talentForm, phone: e.target.value })}
                             className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-red-500 text-xs"

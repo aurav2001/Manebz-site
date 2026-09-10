@@ -87,7 +87,7 @@ const ContactPage = ({ onNavigate }) => {
 
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-red-600 shrink-0" />
-                <span>+91 11 4982 3000 / +91 98765 43210</span>
+                <span>+91 11 2345 6789 / +91 91234 56789</span>
               </div>
 
               <div className="flex items-center gap-3">
@@ -156,7 +156,7 @@ const ContactPage = ({ onNavigate }) => {
                     <input
                       type="tel"
                       required
-                      placeholder="+91 98765 43210"
+                      placeholder="+91 91234 56789"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-red-500 text-sm"

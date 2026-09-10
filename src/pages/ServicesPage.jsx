@@ -660,7 +660,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
                     <input 
                       type="tel"
                       required
-                      placeholder="+91 98765 43210"
+                      placeholder="+91 91234 56789"
                       value={quoteForm.phone}
                       onChange={(e) => setQuoteForm({ ...quoteForm, phone: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-white text-gray-900 text-xs focus:outline-none focus:ring-2 focus:ring-sky-400"
