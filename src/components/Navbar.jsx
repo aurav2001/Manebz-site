@@ -81,25 +81,25 @@ const Navbar = ({ currentPage, onNavigate }) => {
 
   return (
     <>
-      {/* 1. TOP HEADER: Clean White Bar (Visible at top of page, smooth hides on scroll) */}
-      <div className={`fixed top-0 left-0 right-0 z-40 flex justify-center transition-all duration-300 ease-in-out ${
+      {/* 1. TOP HEADER: Clean Floating Compact Bar (Visible at top of page, smooth hides on scroll) */}
+      <div className={`fixed top-2.5 sm:top-4 left-0 right-0 z-40 flex justify-center px-3 sm:px-6 transition-all duration-300 ease-in-out ${
         isScrolled
           ? '-translate-y-28 opacity-0 pointer-events-none'
           : 'translate-y-0 opacity-100 pointer-events-auto'
       }`}>
-        <header className="pointer-events-auto bg-white w-full lg:w-auto px-6 lg:px-12 py-3 rounded-b-2xl lg:rounded-b-3xl shadow-[0_4px_25px_rgba(0,0,0,0.06)] border-b lg:border-x border-gray-100 flex justify-between lg:justify-center items-center gap-6 lg:gap-10 transition-all duration-300 relative">
+        <header className="pointer-events-auto bg-white/95 backdrop-blur-md w-[92%] sm:w-auto max-w-5xl px-4 sm:px-8 py-2 sm:py-2.5 rounded-2xl lg:rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-gray-100/90 flex justify-between lg:justify-center items-center gap-4 sm:gap-6 lg:gap-8 transition-all duration-300 relative">
           
           {/* Logo Area */}
           <button 
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-3 text-left focus:outline-none group shrink-0"
+            className="flex items-center gap-2.5 text-left focus:outline-none group shrink-0"
           >
             <img 
               src={logoImg} 
               alt="MANEBZ / MANABS Logo" 
               loading="eager"
               decoding="async"
-              className="h-9 sm:h-10 w-auto object-contain rounded-lg shadow-sm border border-gray-100 group-hover:scale-105 transition-transform" 
+              className="h-7 sm:h-8 w-auto object-contain rounded-lg shadow-xs border border-gray-100 group-hover:scale-105 transition-transform" 
             />
           </button>
 
