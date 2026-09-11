@@ -13,10 +13,9 @@ const {
 
 let pool = null;
 
-// Initialize MySQL database and auto-create tables if missing
 export const initDB = async () => {
   try {
-    // 1. Initial connection without database to check/create DB
+    // 1. Initial connection without DB to create DB if missing
     const initConn = await mysql.createConnection({
       host: DB_HOST,
       port: Number(DB_PORT),
@@ -27,7 +26,7 @@ export const initDB = async () => {
     await initConn.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`);
     await initConn.end();
 
-    // 2. Create Connection Pool with target database
+    // 2. Create target Connection Pool
     pool = mysql.createPool({
       host: DB_HOST,
       port: Number(DB_PORT),
@@ -41,9 +40,166 @@ export const initDB = async () => {
       keepAliveInitialDelay: 10000
     });
 
-    console.log(`✅ [MySQL] Connected successfully to Database: ${DB_NAME} on ${DB_HOST}:${DB_PORT}`);
+    console.log(`✅ [MySQL] Connected to Database: ${DB_NAME} on ${DB_HOST}:${DB_PORT}`);
 
-    // 3. Create core tables if they do not exist
+    // 3. Create all tables
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS services (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        service_id VARCHAR(64) UNIQUE NOT NULL,
+        slug VARCHAR(150) UNIQUE NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        desc_short TEXT NOT NULL,
+        icon VARCHAR(64) DEFAULT 'Building2',
+        full_desc LONGTEXT DEFAULT NULL,
+        deliverables_json LONGTEXT DEFAULT NULL,
+        tech_specs_json LONGTEXT DEFAULT NULL,
+        tags_json LONGTEXT DEFAULT NULL,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_slug (slug)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS jobs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        job_id VARCHAR(64) UNIQUE NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        department VARCHAR(100) NOT NULL,
+        location VARCHAR(100) DEFAULT 'Delhi NCR',
+        experience VARCHAR(100) DEFAULT '1-3 Years',
+        ctc_range VARCHAR(100) DEFAULT 'Industry Standard',
+        type VARCHAR(50) DEFAULT 'Full-Time',
+        vacancies VARCHAR(20) DEFAULT '05',
+        description TEXT DEFAULT NULL,
+        requirements_json LONGTEXT DEFAULT NULL,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS company_stats (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        stat_id VARCHAR(64) UNIQUE NOT NULL,
+        label VARCHAR(150) NOT NULL,
+        value VARCHAR(50) NOT NULL,
+        prefix VARCHAR(20) DEFAULT '',
+        suffix VARCHAR(20) DEFAULT '+',
+        icon VARCHAR(64) DEFAULT 'TrendingUp',
+        order_num INT DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS milestones (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        milestone_id VARCHAR(64) UNIQUE NOT NULL,
+        year VARCHAR(20) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        icon VARCHAR(64) DEFAULT 'Award',
+        order_num INT DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS core_values (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        value_id VARCHAR(64) UNIQUE NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        icon VARCHAR(64) DEFAULT 'Shield',
+        order_num INT DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS statutory_compliances (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        compliance_id VARCHAR(64) UNIQUE NOT NULL,
+        act_name VARCHAR(255) NOT NULL,
+        applicability VARCHAR(255) NOT NULL,
+        filing_frequency VARCHAR(100) NOT NULL,
+        return_form VARCHAR(150) NOT NULL,
+        penalty_risk VARCHAR(255) NOT NULL,
+        authority VARCHAR(255) NOT NULL,
+        order_num INT DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS testimonials (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        testimonial_id VARCHAR(64) UNIQUE NOT NULL,
+        name VARCHAR(150) NOT NULL,
+        role VARCHAR(150) NOT NULL,
+        company VARCHAR(255) NOT NULL,
+        feedback TEXT NOT NULL,
+        rating INT DEFAULT 5,
+        avatar VARCHAR(500) DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS blogs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        blog_id VARCHAR(64) UNIQUE NOT NULL,
+        slug VARCHAR(150) UNIQUE NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        excerpt TEXT NOT NULL,
+        content LONGTEXT NOT NULL,
+        category VARCHAR(100) DEFAULT 'Facility Management',
+        read_time VARCHAR(50) DEFAULT '5 min read',
+        author VARCHAR(150) DEFAULT 'Editorial Team',
+        date_str VARCHAR(50) DEFAULT NULL,
+        cover_image VARCHAR(500) DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_slug (slug)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS nav_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nav_id VARCHAR(64) UNIQUE NOT NULL,
+        label VARCHAR(100) NOT NULL,
+        path VARCHAR(255) NOT NULL,
+        type VARCHAR(50) DEFAULT 'internal',
+        is_visible BOOLEAN DEFAULT TRUE,
+        is_hot BOOLEAN DEFAULT FALSE,
+        order_num INT DEFAULT 1,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS custom_pages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        page_id VARCHAR(64) UNIQUE NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        slug VARCHAR(150) UNIQUE NOT NULL,
+        subtitle TEXT DEFAULT NULL,
+        badge VARCHAR(100) DEFAULT NULL,
+        content_json LONGTEXT DEFAULT NULL,
+        show_in_navbar BOOLEAN DEFAULT TRUE,
+        is_published BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_slug (slug)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
     await pool.query(`
       CREATE TABLE IF NOT EXISTS inquiries (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -102,23 +258,6 @@ export const initDB = async () => {
     `);
 
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS custom_pages (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        page_id VARCHAR(64) UNIQUE NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        slug VARCHAR(150) UNIQUE NOT NULL,
-        subtitle TEXT DEFAULT NULL,
-        badge VARCHAR(100) DEFAULT NULL,
-        content_json LONGTEXT DEFAULT NULL,
-        show_in_navbar BOOLEAN DEFAULT TRUE,
-        is_published BOOLEAN DEFAULT TRUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        INDEX idx_slug (slug)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-    `);
-
-    await pool.query(`
       CREATE TABLE IF NOT EXISTS admin_settings (
         setting_key VARCHAR(100) PRIMARY KEY,
         setting_value LONGTEXT DEFAULT NULL,
@@ -126,7 +265,7 @@ export const initDB = async () => {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
-    console.log('✅ [MySQL] All database tables verified and ready.');
+    console.log('✅ [MySQL] All 14 tables verified & active in MySQL.');
     return pool;
   } catch (error) {
     console.error('❌ [MySQL] Database Connection Failed:', error.message);

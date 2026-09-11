@@ -147,6 +147,67 @@ export const CompanyProvider = ({ children }) => {
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.EMAIL_SETTINGS, JSON.stringify(emailSettings)); }, [emailSettings]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications)); }, [notifications]);
 
+  // Hydrate Data from MySQL Backend on Initial Load
+  useEffect(() => {
+    const hydrateFromBackend = async () => {
+      try {
+        const [srvRes, jobRes, statRes, cmpRes, tstRes, blogRes, navRes, pageRes, inqRes, appRes, setRes] = await Promise.allSettled([
+          api.services.getAll(),
+          api.jobs.getAll(),
+          api.stats.getAll(),
+          api.compliances.getAll(),
+          api.testimonials.getAll(),
+          api.blogs.getAll(),
+          api.navItems.getAll(),
+          api.pages.getAll(),
+          api.inquiries.getAll(),
+          api.careers.getAll(),
+          api.settings.get()
+        ]);
+
+        if (srvRes.status === 'fulfilled' && srvRes.value?.data?.length > 0) setServices(srvRes.value.data);
+        if (jobRes.status === 'fulfilled' && jobRes.value?.data?.length > 0) setJobs(jobRes.value.data);
+        if (statRes.status === 'fulfilled' && statRes.value?.data?.length > 0) setCompanyStats(statRes.value.data);
+        if (cmpRes.status === 'fulfilled' && cmpRes.value?.data?.length > 0) setStatutoryCompliances(cmpRes.value.data);
+        if (tstRes.status === 'fulfilled' && tstRes.value?.data?.length > 0) setTestimonials(tstRes.value.data);
+        if (blogRes.status === 'fulfilled' && blogRes.value?.data?.length > 0) setBlogs(blogRes.value.data);
+        if (navRes.status === 'fulfilled' && navRes.value?.data?.length > 0) setNavItems(navRes.value.data);
+        if (pageRes.status === 'fulfilled' && pageRes.value?.data?.length > 0) setCustomPages(pageRes.value.data);
+        if (inqRes.status === 'fulfilled' && inqRes.value?.data?.length > 0) {
+          setInquiries(inqRes.value.data.map(i => ({
+            id: i.inquiry_id || `INQ-${i.id}`,
+            name: i.name,
+            phone: i.phone,
+            email: i.email,
+            service: i.service,
+            status: i.status,
+            date: i.created_at
+          })));
+        }
+        if (appRes.status === 'fulfilled' && appRes.value?.data?.length > 0) {
+          setJobApplications(appRes.value.data.map(a => ({
+            refId: a.application_id || `MNB-APP-${a.id}`,
+            fullName: a.full_name,
+            email: a.email,
+            phone: a.phone,
+            jobTitle: a.job_title,
+            department: a.department,
+            status: a.status,
+            stage: a.status,
+            date: a.created_at
+          })));
+        }
+        if (setRes.status === 'fulfilled' && Object.keys(setRes.value?.data || {}).length > 0) {
+          setEmailSettings(prev => ({ ...prev, ...setRes.value.data }));
+        }
+      } catch (err) {
+        console.debug('Backend hydration skipped/offline:', err.message);
+      }
+    };
+
+    hydrateFromBackend();
+  }, []);
+
   // Notifications Helpers
   const addNotification = (notif) => {
     const newNotif = {
@@ -167,10 +228,14 @@ export const CompanyProvider = ({ children }) => {
   };
 
   const updateEmailSettings = (updated) => {
-    setEmailSettings(prev => ({ ...prev, ...updated }));
+    setEmailSettings(prev => {
+      const merged = { ...prev, ...updated };
+      api.settings.save(merged).catch(() => {});
+      return merged;
+    });
   };
 
-  // Dynamic Custom Pages Actions
+  // Dynamic Custom Pages Actions with MySQL Sync
   const addCustomPage = (page) => {
     const newPage = {
       id: `page-${Date.now()}`,
@@ -180,12 +245,13 @@ export const CompanyProvider = ({ children }) => {
       ...page
     };
     setCustomPages(prev => [newPage, ...prev]);
+    api.pages.save(newPage).catch(() => {});
 
     if (page.showInNavbar) {
       setNavItems(prev => {
         const exists = prev.some(item => item.path === `p/${newPage.slug}` || item.label.toLowerCase() === page.title.toLowerCase());
         if (exists) return prev;
-        return [
+        const updatedNav = [
           ...prev,
           {
             id: `nav-${Date.now()}`,
@@ -197,6 +263,8 @@ export const CompanyProvider = ({ children }) => {
             order: prev.length + 1
           }
         ];
+        api.navItems.saveAll(updatedNav).catch(() => {});
+        return updatedNav;
       });
     }
 
@@ -204,18 +272,28 @@ export const CompanyProvider = ({ children }) => {
   };
 
   const updateCustomPage = (id, updated) => {
-    setCustomPages(prev => prev.map(p => p.id === id ? { ...p, ...updated } : p));
+    setCustomPages(prev => {
+      const updatedList = prev.map(p => p.id === id ? { ...p, ...updated } : p);
+      const target = updatedList.find(p => p.id === id);
+      if (target) api.pages.save(target).catch(() => {});
+      return updatedList;
+    });
   };
 
   const deleteCustomPage = (id) => {
     const target = customPages.find(p => p.id === id);
     if (target) {
-      setNavItems(prev => prev.filter(item => item.path !== `p/${target.slug}`));
+      setNavItems(prev => {
+        const filtered = prev.filter(item => item.path !== `p/${target.slug}`);
+        api.navItems.saveAll(filtered).catch(() => {});
+        return filtered;
+      });
     }
     setCustomPages(prev => prev.filter(p => p.id !== id));
+    api.pages.delete(id).catch(() => {});
   };
 
-  // Dynamic Navigation Actions
+  // Dynamic Navigation Actions with MySQL Sync
   const addNavItem = (item) => {
     const newItem = {
       id: `nav-${Date.now()}`,
@@ -224,20 +302,36 @@ export const CompanyProvider = ({ children }) => {
       isHot: false,
       ...item
     };
-    setNavItems(prev => [...prev, newItem]);
+    setNavItems(prev => {
+      const updated = [...prev, newItem];
+      api.navItems.saveAll(updated).catch(() => {});
+      return updated;
+    });
     return newItem;
   };
 
   const updateNavItem = (id, updated) => {
-    setNavItems(prev => prev.map(item => item.id === id ? { ...item, ...updated } : item));
+    setNavItems(prev => {
+      const updatedList = prev.map(item => item.id === id ? { ...item, ...updated } : item);
+      api.navItems.saveAll(updatedList).catch(() => {});
+      return updatedList;
+    });
   };
 
   const deleteNavItem = (id) => {
-    setNavItems(prev => prev.filter(item => item.id !== id));
+    setNavItems(prev => {
+      const filtered = prev.filter(item => item.id !== id);
+      api.navItems.saveAll(filtered).catch(() => {});
+      return filtered;
+    });
   };
 
   const toggleNavItemVisibility = (id) => {
-    setNavItems(prev => prev.map(item => item.id === id ? { ...item, isVisible: !item.isVisible } : item));
+    setNavItems(prev => {
+      const toggled = prev.map(item => item.id === id ? { ...item, isVisible: !item.isVisible } : item);
+      api.navItems.saveAll(toggled).catch(() => {});
+      return toggled;
+    });
   };
 
   const moveNavItem = (index, direction) => {
@@ -249,9 +343,10 @@ export const CompanyProvider = ({ children }) => {
     newItems[targetIndex] = temp;
     const ordered = newItems.map((item, idx) => ({ ...item, order: idx + 1 }));
     setNavItems(ordered);
+    api.navItems.saveAll(ordered).catch(() => {});
   };
 
-  // Dynamic Blog CMS Actions
+  // Dynamic Blog CMS Actions with MySQL Sync
   const addBlogPost = (post) => {
     const newPost = {
       id: `post-${Date.now()}`,
@@ -266,15 +361,22 @@ export const CompanyProvider = ({ children }) => {
       ...post
     };
     setBlogs(prev => [newPost, ...prev]);
+    api.blogs.save(newPost).catch(() => {});
     return newPost;
   };
 
   const updateBlogPost = (id, updated) => {
-    setBlogs(prev => prev.map(b => b.id === id ? { ...b, ...updated } : b));
+    setBlogs(prev => {
+      const updatedList = prev.map(b => b.id === id ? { ...b, ...updated } : b);
+      const target = updatedList.find(b => b.id === id);
+      if (target) api.blogs.save(target).catch(() => {});
+      return updatedList;
+    });
   };
 
   const deleteBlogPost = (id) => {
     setBlogs(prev => prev.filter(b => b.id !== id));
+    api.blogs.delete(id).catch(() => {});
   };
 
   // Inquiries / Leads States
@@ -391,54 +493,86 @@ export const CompanyProvider = ({ children }) => {
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify(jobApplications)); }, [jobApplications]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.TALENT_VAULT, JSON.stringify(talentVaultApplications)); }, [talentVaultApplications]);
 
-  // Actions: Services Management
+  // Actions: Services Management with MySQL Sync
   const addService = (newService) => {
     const s = {
       id: `srv-${Date.now()}`,
       slug: newService.slug || newService.title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-'),
       ...newService
     };
-    setServices(prev => [...prev, s]);
+    setServices(prev => {
+      const updated = [...prev, s];
+      api.services.save(s).catch(() => {});
+      return updated;
+    });
     return s;
   };
 
   const updateService = (id, updatedFields) => {
-    setServices(prev => prev.map(s => s.id === id ? { ...s, ...updatedFields } : s));
+    setServices(prev => {
+      const updatedList = prev.map(s => s.id === id ? { ...s, ...updatedFields } : s);
+      const target = updatedList.find(s => s.id === id);
+      if (target) api.services.save(target).catch(() => {});
+      return updatedList;
+    });
   };
 
   const deleteService = (id) => {
     setServices(prev => prev.filter(s => s.id !== id));
+    api.services.delete(id).catch(() => {});
   };
 
-  // Actions: Jobs Management
+  // Actions: Jobs Management with MySQL Sync
   const addJob = (newJob) => {
     const j = {
       id: `job-custom-${Date.now()}`,
       ...newJob
     };
-    setJobs(prev => [j, ...prev]);
+    setJobs(prev => {
+      const updated = [j, ...prev];
+      api.jobs.save(j).catch(() => {});
+      return updated;
+    });
     return j;
   };
 
   const updateJob = (id, updatedFields) => {
-    setJobs(prev => prev.map(j => j.id === id ? { ...j, ...updatedFields } : j));
+    setJobs(prev => {
+      const updatedList = prev.map(j => j.id === id ? { ...j, ...updatedFields } : j);
+      const target = updatedList.find(j => j.id === id);
+      if (target) api.jobs.save(target).catch(() => {});
+      return updatedList;
+    });
   };
 
   const deleteJob = (id) => {
     setJobs(prev => prev.filter(j => j.id !== id));
+    api.jobs.delete(id).catch(() => {});
   };
 
-  // Actions: Stats, Milestones & Values
+  // Actions: Stats, Milestones & Values with MySQL Sync
   const updateStat = (id, updatedFields) => {
-    setCompanyStats(prev => prev.map(st => st.id === id ? { ...st, ...updatedFields } : st));
+    setCompanyStats(prev => {
+      const updated = prev.map(st => st.id === id ? { ...st, ...updatedFields } : st);
+      api.stats.saveAll(updated).catch(() => {});
+      return updated;
+    });
   };
 
   const addStat = (stat) => {
-    setCompanyStats(prev => [...prev, { id: Date.now(), ...stat }]);
+    setCompanyStats(prev => {
+      const updated = [...prev, { id: Date.now(), ...stat }];
+      api.stats.saveAll(updated).catch(() => {});
+      return updated;
+    });
   };
 
   const deleteStat = (id) => {
-    setCompanyStats(prev => prev.filter(st => st.id !== id));
+    setCompanyStats(prev => {
+      const updated = prev.filter(st => st.id !== id);
+      api.stats.saveAll(updated).catch(() => {});
+      return updated;
+    });
   };
 
   const updateMilestone = (index, updatedFields) => {
@@ -461,31 +595,52 @@ export const CompanyProvider = ({ children }) => {
     setStatutoryCompliances(prev => {
       const copy = [...prev];
       copy[index] = { ...copy[index], ...updatedFields };
+      api.compliances.saveAll(copy).catch(() => {});
       return copy;
     });
   };
 
   const addCompliance = (compliance) => {
-    setStatutoryCompliances(prev => [...prev, compliance]);
+    setStatutoryCompliances(prev => {
+      const updated = [...prev, compliance];
+      api.compliances.saveAll(updated).catch(() => {});
+      return updated;
+    });
   };
 
   const deleteCompliance = (index) => {
-    setStatutoryCompliances(prev => prev.filter((_, i) => i !== index));
+    setStatutoryCompliances(prev => {
+      const updated = prev.filter((_, i) => i !== index);
+      api.compliances.saveAll(updated).catch(() => {});
+      return updated;
+    });
   };
 
-  // Actions: Testimonials
+  // Actions: Testimonials with MySQL Sync
   const addTestimonial = (testimonial) => {
     const t = { id: `t-${Date.now()}`, ...testimonial };
-    setTestimonials(prev => [t, ...prev]);
+    setTestimonials(prev => {
+      const updated = [t, ...prev];
+      api.testimonials.saveAll(updated).catch(() => {});
+      return updated;
+    });
     return t;
   };
 
   const updateTestimonial = (id, updatedFields) => {
-    setTestimonials(prev => prev.map(t => t.id === id ? { ...t, ...updatedFields } : t));
+    setTestimonials(prev => {
+      const updated = prev.map(t => t.id === id ? { ...t, ...updatedFields } : t);
+      api.testimonials.saveAll(updated).catch(() => {});
+      return updated;
+    });
   };
 
   const deleteTestimonial = (id) => {
-    setTestimonials(prev => prev.filter(t => t.id !== id));
+    setTestimonials(prev => {
+      const updated = prev.filter(t => t.id !== id);
+      api.testimonials.saveAll(updated).catch(() => {});
+      return updated;
+    });
   };
 
   // Actions: Inquiries & Inboxes with Notification Dispatching and MySQL Backend Sync

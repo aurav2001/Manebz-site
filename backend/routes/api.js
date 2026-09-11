@@ -4,6 +4,7 @@ import careerRoutes from './careerRoutes.js';
 import contactRoutes from './contactRoutes.js';
 import pageRoutes from './pageRoutes.js';
 import settingsRoutes from './settingsRoutes.js';
+import contentRoutes from './contentRoutes.js';
 import { getPool } from '../config/db.js';
 
 const router = express.Router();
@@ -32,6 +33,7 @@ router.get('/health', async (req, res) => {
 });
 
 // Register Sub-routes
+router.use('/content', contentRoutes);
 router.use('/inquiries', inquiryRoutes);
 router.use('/careers', careerRoutes);
 router.use('/contact', contactRoutes);
