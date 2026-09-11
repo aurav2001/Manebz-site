@@ -13,6 +13,7 @@ import {
 } from '../data/companyData';
 import { initialBlogPosts } from '../data/blogData';
 import { dispatchNotificationAlert } from '../services/notificationService';
+import api from '../api/client';
 
 const CompanyContext = createContext();
 
@@ -487,8 +488,8 @@ export const CompanyProvider = ({ children }) => {
     setTestimonials(prev => prev.filter(t => t.id !== id));
   };
 
-  // Actions: Inquiries & Inboxes with Notification Dispatching
-  const addInquiry = (inquiry) => {
+  // Actions: Inquiries & Inboxes with Notification Dispatching and MySQL Backend Sync
+  const addInquiry = async (inquiry) => {
     const inq = {
       id: `INQ-${Math.floor(1000 + Math.random() * 9000)}`,
       date: new Date().toISOString(),
@@ -506,19 +507,28 @@ export const CompanyProvider = ({ children }) => {
       data: inq
     });
 
+    // Asynchronously sync with MySQL Backend
+    try {
+      await api.inquiries.create(inquiry);
+    } catch (e) {
+      console.debug('Backend API offline or queued locally:', e.message);
+    }
+
     return inq;
   };
 
   const updateInquiryStatus = (id, status) => {
     setInquiries(prev => prev.map(inq => inq.id === id ? { ...inq, status } : inq));
+    api.inquiries.updateStatus(id, status).catch(() => {});
   };
 
   const deleteInquiry = (id) => {
     setInquiries(prev => prev.filter(inq => inq.id !== id));
+    api.inquiries.delete(id).catch(() => {});
   };
 
-  // Actions: Job Applications & Kanban Stage Manager
-  const addJobApplication = (app) => {
+  // Actions: Job Applications & Kanban Stage Manager with MySQL Sync
+  const addJobApplication = async (app) => {
     const a = {
       refId: `MNB-APP-${Math.floor(100000 + Math.random() * 900000)}`,
       date: new Date().toISOString(),
@@ -537,19 +547,43 @@ export const CompanyProvider = ({ children }) => {
       data: a
     });
 
+    // Asynchronously sync with MySQL Backend
+    try {
+      await api.careers.submit({
+        fullName: a.fullName,
+        email: a.email,
+        phone: a.phone,
+        jobId: a.jobId || a.refId,
+        jobTitle: a.jobTitle,
+        department: a.department,
+        experience: a.experience,
+        location: a.location,
+        qualification: a.qualification,
+        currentCtc: a.currentCtc,
+        expectedCtc: a.expectedCtc,
+        resumeUrl: a.resumeUrl,
+        notes: a.notes
+      });
+    } catch (e) {
+      console.debug('Backend API offline or queued locally:', e.message);
+    }
+
     return a;
   };
 
   const updateJobApplicationStatus = (refId, status) => {
     setJobApplications(prev => prev.map(a => a.refId === refId ? { ...a, status, stage: status } : a));
+    api.careers.updateStatus(refId, status).catch(() => {});
   };
 
   const updateApplicationStage = (refId, newStage) => {
     setJobApplications(prev => prev.map(a => a.refId === refId ? { ...a, stage: newStage, status: newStage } : a));
+    api.careers.updateStatus(refId, newStage).catch(() => {});
   };
 
   const deleteJobApplication = (refId) => {
     setJobApplications(prev => prev.filter(a => a.refId !== refId));
+    api.careers.delete(refId).catch(() => {});
   };
 
   const addTalentVaultApplication = (app) => {

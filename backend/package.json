@@ -1,0 +1,22 @@
+{
+  "name": "manabs-backend",
+  "version": "1.0.0",
+  "description": "Enterprise Node.js + Express + MySQL REST API Backend for MANABS / MANEBZ",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": ["express", "mysql2", "manabs", "backend", "api"],
+  "author": "MANABS",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.12.0"
+  }
+}
