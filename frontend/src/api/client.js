@@ -6,7 +6,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || (
   typeof window !== 'undefined' && window.location.hostname === 'localhost'
     ? 'http://localhost:5000/api'
-    : '/api'
+    : (typeof window !== 'undefined' && window.location.hostname.includes('manabs') ? 'https://api.manabs.in/api' : '/api')
 );
 
 async function request(endpoint, options = {}) {
