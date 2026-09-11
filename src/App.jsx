@@ -131,8 +131,10 @@ function AppContent() {
         return <CareersPage onNavigate={handleNavigate} />;
       case 'contact':
         return <ContactPage onNavigate={handleNavigate} />;
+      /* Temporarily commented out
       case 'calculator':
         return <CalculatorPage onNavigate={handleNavigate} />;
+      */
       case 'blog':
         return <BlogPage onNavigate={handleNavigate} selectedSlug={routeInfo.subRoute} />;
       case 'admin':

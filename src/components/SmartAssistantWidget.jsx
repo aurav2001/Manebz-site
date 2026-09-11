@@ -507,8 +507,8 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                           {m.text.split('**').map((chunk, i) => i % 2 === 1 ? <strong key={i} className={isBot ? "font-bold text-slate-950" : "font-extrabold"}>{chunk}</strong> : chunk)}
                         </div>
 
-                        {/* Interactive Buttons embedded in Bot Replies */}
-                        {m.showCalcLink && (
+                        {/* Interactive Buttons embedded in Bot Replies (Temporarily commented out) */}
+                        {/* {m.showCalcLink && (
                           <div className="mt-2.5 pt-2 border-t border-gray-100">
                             <button
                               onClick={() => {
@@ -521,7 +521,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                               <ArrowRight className="w-3.5 h-3.5" />
                             </button>
                           </div>
-                        )}
+                        )} */}
 
                         {/* Feature 5: WhatsApp Auto-Forward Button */}
                         {m.customWhatsAppText && (

@@ -188,12 +188,12 @@ export default function BlogPage({ onNavigate, selectedSlug }) {
               Get an instant customized manpower and statutory cost proposal for your commercial facility in under 2 minutes.
             </p>
             <div className="flex justify-center gap-3 pt-2">
-              <button
+              {/* <button
                 onClick={() => onNavigate && onNavigate('calculator')}
                 className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider shadow-lg shadow-red-600/30 cursor-pointer"
               >
                 Use Cost Calculator
-              </button>
+              </button> */}
               <button
                 onClick={() => onNavigate && onNavigate('contact')}
                 className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold cursor-pointer"
