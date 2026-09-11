@@ -69,9 +69,15 @@ const PageLoadingFallback = () => (
 );
 
 function AppContent() {
-  const getRouteInfoFromHash = () => {
-    const rawHash = window.location.hash.replace('#/', '').replace('#', '');
-    const parts = rawHash.split('/');
+  const getRouteInfoFromPath = () => {
+    // 1. If user has a legacy hash like /#/services, clean it up to pathname
+    if (window.location.hash && window.location.hash.startsWith('#/')) {
+      const hashPath = window.location.hash.replace('#/', '');
+      window.history.replaceState({}, '', `/${hashPath}`);
+    }
+
+    const pathname = window.location.pathname.replace(/^\/+/g, '').replace(/\/+$/g, '');
+    const parts = pathname ? pathname.split('/') : [];
     const mainPage = parts[0] || 'home';
     const subRoute = parts.slice(1).join('/') || null;
     const validStaticPages = ['home', 'about', 'services', 'payroll', 'careers', 'contact', 'admin', 'calculator', 'blog'];
@@ -82,40 +88,55 @@ function AppContent() {
     if (mainPage === 'p' && subRoute) {
       return { page: 'p', subRoute: subRoute };
     }
-    // Check if it's directly a custom page slug
-    return { page: 'p', subRoute: mainPage };
+    if (pathname) {
+      // Direct custom page slug (e.g. /my-custom-page)
+      return { page: 'p', subRoute: mainPage };
+    }
+    return { page: 'home', subRoute: null };
   };
 
-  const [routeInfo, setRouteInfo] = useState(getRouteInfoFromHash());
+  const [routeInfo, setRouteInfo] = useState(getRouteInfoFromPath());
 
   useEffect(() => {
-    const handleHashChange = () => {
-      setRouteInfo(getRouteInfoFromHash());
+    const handlePopState = () => {
+      setRouteInfo(getRouteInfoFromPath());
     };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   const handleNavigate = (pageId, subRoute = null) => {
-    let targetHash = pageId;
     let mainPage = pageId;
     let sub = subRoute;
+    let targetPath = '/';
 
     if (pageId.startsWith('p/')) {
       mainPage = 'p';
       sub = pageId.replace('p/', '');
-      targetHash = pageId;
+      targetPath = `/p/${sub}`;
     } else if (pageId.includes('/')) {
       const parts = pageId.split('/');
       mainPage = parts[0];
       sub = parts[1];
-      targetHash = pageId;
-    } else if (subRoute) {
-      targetHash = `${pageId}/${subRoute}`;
+      targetPath = `/${pageId}`;
+    } else if (pageId === 'home') {
+      mainPage = 'home';
+      sub = null;
+      targetPath = '/';
+    } else {
+      mainPage = pageId;
+      if (subRoute) {
+        targetPath = `/${pageId}/${subRoute}`;
+      } else {
+        targetPath = `/${pageId}`;
+      }
     }
 
     setRouteInfo({ page: mainPage, subRoute: sub });
-    window.location.hash = `#/${targetHash}`;
+    
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState({}, '', targetPath);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
