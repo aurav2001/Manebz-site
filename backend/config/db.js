@@ -15,30 +15,36 @@ let pool = null;
 
 export const initDB = async () => {
   try {
-    // 1. Initial connection without DB to create DB if missing
-    const initConn = await mysql.createConnection({
-      host: DB_HOST,
-      port: Number(DB_PORT),
-      user: DB_USER,
-      password: DB_PASSWORD
-    });
-
-    await initConn.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`);
-    await initConn.end();
-
-    // 2. Create target Connection Pool
-    pool = mysql.createPool({
-      host: DB_HOST,
-      port: Number(DB_PORT),
-      user: DB_USER,
-      password: DB_PASSWORD,
-      database: DB_NAME,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-      enableKeepAlive: true,
-      keepAliveInitialDelay: 10000
-    });
+    // 1. Try connecting directly to target DB
+    try {
+      pool = mysql.createPool({
+        host: DB_HOST,
+        port: Number(DB_PORT),
+        user: DB_USER,
+        password: DB_PASSWORD,
+        database: DB_NAME,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+        enableKeepAlive: true,
+        keepAliveInitialDelay: 10000
+      });
+      await pool.query('SELECT 1');
+    } catch (connErr) {
+      // If DB missing (e.g. local development), attempt to create it
+      if (connErr.code === 'ER_BAD_DB_ERROR') {
+        const initConn = await mysql.createConnection({
+          host: DB_HOST,
+          port: Number(DB_PORT),
+          user: DB_USER,
+          password: DB_PASSWORD
+        });
+        await initConn.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`);
+        await initConn.end();
+      } else {
+        throw connErr;
+      }
+    }
 
     console.log(`✅ [MySQL] Connected to Database: ${DB_NAME} on ${DB_HOST}:${DB_PORT}`);
 
