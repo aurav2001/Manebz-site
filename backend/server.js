@@ -33,8 +33,9 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
-// API Routes
+// API Routes (supports both /api and root mount for cPanel sub-path deployments)
 app.use('/api', apiRouter);
+app.use('/', apiRouter);
 
 // Root Index Route
 app.get('/', (req, res) => {
