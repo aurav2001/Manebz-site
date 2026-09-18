@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { Phone, Mail, MapPin, Send, CheckCircle2, Clock, ShieldCheck, Building2, Award, ArrowLeft } from 'lucide-react';
 import { statutoryCompliances, regionsServed } from '../data/companyData';
 import serviceBg from '../assets/servicebg.avif';
+import { useCompany } from '../context/CompanyContext';
+import HiringRequestForm from '../components/HiringRequestForm';
 
 const ContactPage = ({ onNavigate }) => {
+  const { contactInfo } = useCompany();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -30,7 +33,7 @@ const ContactPage = ({ onNavigate }) => {
         <div className="absolute inset-0 z-0">
           <img 
             src={serviceBg} 
-            alt="Contact MANABS" 
+            alt="Contact MANEBZ" 
             className="w-full h-full object-cover opacity-20"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#071324] via-[#071324]/85 to-[#071324]/60" />
@@ -48,7 +51,7 @@ const ContactPage = ({ onNavigate }) => {
 
             <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md">
               <Award className="w-3.5 h-3.5 text-red-400 shrink-0" />
-              <span>Connect With MANABS</span>
+              <span>Connect With MANEBZ</span>
             </div>
           </div>
 
@@ -81,23 +84,23 @@ const ContactPage = ({ onNavigate }) => {
                 <MapPin className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                 <div>
                   <strong className="block text-gray-900 font-bold">Central Resource Cell & HQ:</strong>
-                  <span>Delhi & NCR Hub, New Delhi / Gurugram / Noida, India</span>
+                  <span>{contactInfo.addressLine}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-red-600 shrink-0" />
-                <span>+91 11 2345 6789 / +91 91234 56789</span>
+                <span>{contactInfo.phonePrimary}{contactInfo.phoneSecondary ? ` / ${contactInfo.phoneSecondary}` : ''}</span>
               </div>
 
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-red-600 shrink-0" />
-                <span>contact@manabs.com / operations@manebz.com</span>
+                <span>{contactInfo.emailPrimary}{contactInfo.emailSecondary ? ` / ${contactInfo.emailSecondary}` : ''}</span>
               </div>
 
               <div className="flex items-center gap-3">
                 <Clock className="w-5 h-5 text-red-600 shrink-0" />
-                <span>24/7/365 Round-the-Clock Facilities Management</span>
+                <span>{contactInfo.hours}</span>
               </div>
             </div>
 
@@ -156,7 +159,7 @@ const ContactPage = ({ onNavigate }) => {
                     <input
                       type="tel"
                       required
-                      placeholder="+91 91234 56789"
+                      placeholder={contactInfo.phoneSecondary || '+91 ...'}
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-red-500 text-sm"
@@ -260,6 +263,9 @@ const ContactPage = ({ onNavigate }) => {
         </div>
       </div>
 
+
+      {/* Companies post staffing requirements straight into the Admin/HR queue. */}
+      <HiringRequestForm onNavigate={onNavigate} />
     </div>
   );
 };

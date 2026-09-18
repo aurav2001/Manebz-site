@@ -12,8 +12,11 @@ import {
   Globe2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useCompany } from '../context/CompanyContext';
+import { toTelHref } from '../data/siteContact';
 
 const InquirySection = () => {
+  const { contactInfo } = useCompany();
   const [inquiryForm, setInquiryForm] = useState({
     name: '',
     email: '',
@@ -102,7 +105,7 @@ const InquirySection = () => {
                   <PhoneCall className="w-4 h-4 text-cyan-400" />
                   <div>
                     <span className="text-slate-400 block text-[10px]">Direct Phone line</span>
-                    <a href="tel:+911123456789" className="hover:text-cyan-300 font-medium">+91 11 2345 6789 / +91 80 4455 8800</a>
+                    <a href={toTelHref(contactInfo.phonePrimary)} className="hover:text-cyan-300 font-medium">+91 11 2345 6789 / +91 80 4455 8800</a>
                   </div>
                 </div>
 

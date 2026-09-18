@@ -26,6 +26,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
+import { toTelHref, toWhatsAppHref } from '../data/siteContact';
 
 // WhatsApp icon SVG component
 const WhatsAppIcon = ({ className = "w-5 h-5" }) => (
@@ -44,7 +45,7 @@ const QUICK_PROMPTS = [
 ];
 
 const SmartAssistantWidget = ({ onNavigate }) => {
-  const { addInquiry } = useCompany();
+  const { addInquiry, contactInfo } = useCompany();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'whatsapp'
   const [hasUnread, setHasUnread] = useState(true);
@@ -53,7 +54,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     {
       id: 'msg-1',
       sender: 'bot',
-      text: 'Namaste! 👋 Welcome to **MANABS Facilities & Workforce Management**.\n\nMain aapka **AI Assistant** hoon. Aap Housekeeping, Manpower Staffing, Payroll, PF/ESI Compliances, ya Pricing ke baare mein kuch bhi puch sakte hain — **type karein ya Mic 🎙️ se bolein!**',
+      text: 'Namaste! 👋 Welcome to **MANEBZ Facilities & Workforce Management**.\n\nMain aapka **AI Assistant** hoon. Aap Housekeeping, Manpower Staffing, Payroll, PF/ESI Compliances, ya Pricing ke baare mein kuch bhi puch sakte hain — **type karein ya Mic 🎙️ se bolein!**',
       time: 'Just now'
     }
   ]);
@@ -150,7 +151,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     // 1. GREETINGS & CASUAL TALK
     if (/^(hi|hello|hey|namaste|hlo|pranam|ram ram|kya haal|kaise ho|good morning|good evening|good afternoon)/i.test(q)) {
       return {
-        text: 'Hello! Kaise hain aap? 😊\n\nMANABS India ki premier **Integrated Facilities & Workforce Staffing** partner hai. Aaj hum aapki facility ya business requirements mein kaise madad kar sakte hain?',
+        text: 'Hello! Kaise hain aap? 😊\n\nMANEBZ India ki premier **Integrated Facilities & Workforce Staffing** partner hai. Aaj hum aapki facility ya business requirements mein kaise madad kar sakte hain?',
         promptLead: false
       };
     }
@@ -165,7 +166,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     // 2. HOUSEKEEPING, SOFT SERVICES, CLEANING, SANITIZATION
     if (q.includes('housekeeping') || q.includes('cleaning') || q.includes('safai') || q.includes('cleaner') || q.includes('sanitization') || q.includes('deep clean') || q.includes('scrubber') || q.includes('sweeper')) {
       return {
-        text: '🧹 **MANABS Mechanized Housekeeping & Soft Services:**\n\n• **Mechanized Machinery:** Ride-On Auto Scrubbers, High-Pressure Jet Washers, Single-Disc Polishers.\n• **Eco & Hospital Grade Chemicals:** Diversey / Taski certified non-toxic chemicals.\n• **Trained & Verified Staff:** 100% Police & Aadhar verified housekeeping boys, pantry staff, and on-site supervisors.\n• **Checklists & Audits:** Daily digital location audit checklists with zero time-lag replenishment.\n\n👉 *Kya aapko office, hospital, mall ya factory ke liye proposal chahiye? Apna number share karein instant quote ke liye.*',
+        text: '🧹 **MANEBZ Mechanized Housekeeping & Soft Services:**\n\n• **Mechanized Machinery:** Ride-On Auto Scrubbers, High-Pressure Jet Washers, Single-Disc Polishers.\n• **Eco & Hospital Grade Chemicals:** Diversey / Taski certified non-toxic chemicals.\n• **Trained & Verified Staff:** 100% Police & Aadhar verified housekeeping boys, pantry staff, and on-site supervisors.\n• **Checklists & Audits:** Daily digital location audit checklists with zero time-lag replenishment.\n\n👉 *Kya aapko office, hospital, mall ya factory ke liye proposal chahiye? Apna number share karein instant quote ke liye.*',
         promptLead: true,
         showCalcLink: true
       };
@@ -200,7 +201,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     // 6. LOCATIONS & GEOGRAPHIC COVERAGE
     if (q.includes('delhi') || q.includes('noida') || q.includes('gurgaon') || q.includes('gurugram') || q.includes('faridabad') || q.includes('ghaziabad') || q.includes('up') || q.includes('uttar pradesh') || q.includes('haryana') || q.includes('uttarakhand') || q.includes('location') || q.includes('kahan') || q.includes('area') || q.includes('coverage') || q.includes('city') || q.includes('pan india')) {
       return {
-        text: '📍 **MANABS Operational Coverage:**\n\n• **Delhi NCR:** Delhi, Noida, Greater Noida, Gurgaon, Faridabad, Ghaziabad.\n• **Uttar Pradesh:** Lucknow, Kanpur, Agra, Meerut, Varanasi.\n• **Haryana:** Manesar, Sonipat, Panipat, Rewari, Rohtak.\n• **Uttarakhand:** Dehradun, Haridwar, Pantnagar, Rudrapur.\n• **Pan-India:** Multi-location enterprise contracts.\n\n👉 *Aapki site kahan par hai? Hum 24-48 hours mein inspection aur deployment start kar sakte hain.*',
+        text: '📍 **MANEBZ Operational Coverage:**\n\n• **Delhi NCR:** Delhi, Noida, Greater Noida, Gurgaon, Faridabad, Ghaziabad.\n• **Uttar Pradesh:** Lucknow, Kanpur, Agra, Meerut, Varanasi.\n• **Haryana:** Manesar, Sonipat, Panipat, Rewari, Rohtak.\n• **Uttarakhand:** Dehradun, Haridwar, Pantnagar, Rudrapur.\n• **Pan-India:** Multi-location enterprise contracts.\n\n👉 *Aapki site kahan par hai? Hum 24-48 hours mein inspection aur deployment start kar sakte hain.*',
         promptLead: true
       };
     }
@@ -224,7 +225,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     // 9. COMPANY HERITAGE, EXPERIENCE, CLIENTS
     if (q.includes('company') || q.includes('experience') || q.includes('heritage') || q.includes('owner') || q.includes('director') || q.includes('kab start') || q.includes('clients') || q.includes('manabs') || q.includes('manebz')) {
       return {
-        text: '🏢 **About MANABS / MANEBZ:**\n\n• **Established:** 27th February 2014 (10+ Years Corporate Pioneer Heritage).\n• **Clients:** 500+ Top Indian Corporate Clients & MNCs.\n• **Retention:** 99.4% Client Retention Rate.\n• **Quality Standards:** ISO 9001 & EMS Eco-friendly operational framework.\n\n👉 *Would you like to speak directly with our Senior Management on WhatsApp?*',
+        text: '🏢 **About MANEBZ:**\n\n• **Established:** 27th February 2014 (10+ Years Corporate Pioneer Heritage).\n• **Clients:** 500+ Top Indian Corporate Clients & MNCs.\n• **Retention:** 99.4% Client Retention Rate.\n• **Quality Standards:** ISO 9001 & EMS Eco-friendly operational framework.\n\n👉 *Would you like to speak directly with our Senior Management on WhatsApp?*',
         action: 'whatsapp',
         promptLead: true
       };
@@ -233,7 +234,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     // 10. JOB SEEKERS / RECRUITMENT / APPLY FOR JOB
     if (q.includes('job') || q.includes('naukri') || q.includes('vacancy') || q.includes('resume') || q.includes('cv') || q.includes('apply') || q.includes('interview') || q.includes('salary date') || q.includes('fresher')) {
       return {
-        text: '💼 **Career & Job Opportunities at MANABS:**\n\n• Hum active hirings kar rahe hain for: Facility Managers, Supervisors, Housekeeping Staff, Forklift Drivers, HR Executives, and MEP Technicians.\n• **Benefits:** Guaranteed on-time salary, PF, ESI medical insurance, uniform, and bonus.\n• Aap website ke **Careers Portal** par direct apply kar sakte hain!\n\n👉 *Apna Name aur Mobile number share karein, humari HR recruitment team aapse contact karegi.*',
+        text: '💼 **Career & Job Opportunities at MANEBZ:**\n\n• Hum active hirings kar rahe hain for: Facility Managers, Supervisors, Housekeeping Staff, Forklift Drivers, HR Executives, and MEP Technicians.\n• **Benefits:** Guaranteed on-time salary, PF, ESI medical insurance, uniform, and bonus.\n• Aap website ke **Careers Portal** par direct apply kar sakte hain!\n\n👉 *Apna Name aur Mobile number share karein, humari HR recruitment team aapse contact karegi.*',
         promptLead: true
       };
     }
@@ -241,7 +242,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     // 11. CONTACT / PHONE / MEETING / DIRECT WHATSAPP
     if (q.includes('whatsapp') || q.includes('contact') || q.includes('phone') || q.includes('number') || q.includes('call') || q.includes('meeting') || q.includes('office') || q.includes('address')) {
       return {
-        text: '📞 **Connect with MANABS Central Command:**\n\n• **Direct WhatsApp:** +91 91234 56789\n• **Central Helpline:** +91 11 2345 6789\n• **Email Desk:** contact@manabs.com\n\n👉 *Aap niche diye gaye button par click karke direct WhatsApp chat start kar sakte hain.*',
+        text: `📞 **Connect with MANEBZ Central Command:**\n\n• **Direct WhatsApp:** ${contactInfo.whatsapp}\n• **Central Helpline:** ${contactInfo.phonePrimary}\n• **Email Desk:** ${contactInfo.emailPrimary}\n\n👉 *Aap niche diye gaye button par click karke direct WhatsApp chat start kar sakte hain.*`,
         action: 'whatsapp',
         promptLead: true
       };
@@ -249,7 +250,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
 
     // DEFAULT SMART FALLBACK
     return {
-      text: `Aapne **"${userQuery}"** ke baare mein pucha hai.\n\nMANABS provide karti hai:\n1. Integrated Facility Management & Mechanized Housekeeping\n2. Corporate Staffing & 100% Compliant Payroll\n3. Logistics, Warehousing & MEP Maintenance\n\n👉 *Aapki specific requirement ke according formal quotation aur proposal ke liye apna Name & Phone number share karein ya WhatsApp par connect karein.*`,
+      text: `Aapne **"${userQuery}"** ke baare mein pucha hai.\n\nMANEBZ provide karti hai:\n1. Integrated Facility Management & Mechanized Housekeeping\n2. Corporate Staffing & 100% Compliant Payroll\n3. Logistics, Warehousing & MEP Maintenance\n\n👉 *Aapki specific requirement ke according formal quotation aur proposal ke liye apna Name & Phone number share karein ya WhatsApp par connect karein.*`,
       promptLead: true
     };
   };
@@ -314,7 +315,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     setShowLeadPrompt(false);
 
     // 2. Prepare formatted WhatsApp auto-forwarding text
-    const formattedLeadText = `*🔔 NEW CORPORATE INQUIRY (MANABS)*\n\n👤 *Client Name:* ${leadForm.name}\n📱 *Phone / WhatsApp:* ${leadForm.phone}\n🏢 *Requirement:* ${leadForm.requirement || 'Integrated Facility & Corporate Staffing'}\n⚡ *Status:* Immediate Callback Requested (15 Min)\n\n_Sent via MANABS Smart AI Assistant_`;
+    const formattedLeadText = `*🔔 NEW CORPORATE INQUIRY (MANEBZ)*\n\n👤 *Client Name:* ${leadForm.name}\n📱 *Phone / WhatsApp:* ${leadForm.phone}\n🏢 *Requirement:* ${leadForm.requirement || 'Integrated Facility & Corporate Staffing'}\n⚡ *Status:* Immediate Callback Requested (15 Min)\n\n_Sent via MANEBZ Smart AI Assistant_`;
 
     // 3. Add confirmation message with 1-click WhatsApp Forwarding Button
     setMessages(prev => [
@@ -333,9 +334,9 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     const defaultMsg = customMessage || (
       leadForm.name 
         ? `*NEW INQUIRY*\nName: ${leadForm.name}\nPhone: ${leadForm.phone}\nRequirement: ${leadForm.requirement || 'Corporate Services'}`
-        : 'Hello MANABS Team, I would like to request an instant corporate facility and staffing proposal.'
+        : 'Hello MANEBZ Team, I would like to request an instant corporate facility and staffing proposal.'
     );
-    const url = `https://wa.me/919123456789?text=${encodeURIComponent(defaultMsg)}`;
+    const url = toWhatsAppHref(contactInfo.whatsapp, defaultMsg);
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -371,19 +372,19 @@ const SmartAssistantWidget = ({ onNavigate }) => {
           {hasUnread && (
             <div className="hidden sm:flex absolute -top-10 right-0 bg-slate-900 text-white text-xs font-bold py-1 px-3 rounded-full shadow-xl border border-slate-700 whitespace-nowrap animate-bounce items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>💬 MANABS AI & WhatsApp</span>
+              <span>💬 MANEBZ AI & WhatsApp</span>
             </div>
           )}
 
           <button
             onClick={() => setIsOpen(true)}
             className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white p-2.5 shadow-[0_10px_35px_rgba(0,0,0,0.18)] hover:shadow-[0_15px_45px_rgba(220,38,38,0.35)] border-2 border-red-600 flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer relative group overflow-visible"
-            aria-label="Open MANABS AI Assistant & WhatsApp"
+            aria-label="Open MANEBZ AI Assistant & WhatsApp"
           >
             {/* Original Company Logo */}
             <img 
               src={logoImg} 
-              alt="MANABS Logo" 
+              alt="MANEBZ Logo" 
               className="w-full h-full object-contain"
             />
 
@@ -411,13 +412,13 @@ const SmartAssistantWidget = ({ onNavigate }) => {
               <div className="relative bg-white px-2 py-1 rounded-xl shadow-inner border border-white/20 flex items-center justify-center">
                 <img 
                   src={logoImg} 
-                  alt="MANABS Logo" 
+                  alt="MANEBZ Logo" 
                   className="h-6 w-auto object-contain rounded"
                 />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-extrabold text-sm text-white tracking-tight">MANABS Smart AI</h3>
+                  <h3 className="font-extrabold text-sm text-white tracking-tight">MANEBZ Smart AI</h3>
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.2 rounded font-mono font-bold">24/7 ONLINE</span>
                 </div>
                 <p className="text-[11px] text-slate-300">Voice Assistant & WhatsApp Hotline</p>
@@ -431,7 +432,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                     {
                       id: `msg-reset-${Date.now()}`,
                       sender: 'bot',
-                      text: 'Hello! 👋 Welcome to **MANABS Facilities & Workforce Management**.\n\nAap Housekeeping, Manpower Staffing, Payroll, PF/ESI Compliances, ya Pricing ke baare mein kuch bhi puch sakte hain!',
+                      text: 'Hello! 👋 Welcome to **MANEBZ Facilities & Workforce Management**.\n\nAap Housekeeping, Manpower Staffing, Payroll, PF/ESI Compliances, ya Pricing ke baare mein kuch bhi puch sakte hain!',
                       time: 'Just now'
                     }
                   ]);
@@ -494,7 +495,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                     >
                       {isBot && (
                         <div className="w-7 h-7 rounded-lg bg-white p-0.5 border border-gray-200 shadow-sm shrink-0 mt-0.5">
-                          <img src={logoImg} alt="MANABS" className="w-full h-full object-contain rounded-md" />
+                          <img src={logoImg} alt="MANEBZ" className="w-full h-full object-contain rounded-md" />
                         </div>
                       )}
 
@@ -544,7 +545,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                               className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 shadow-md transition-colors cursor-pointer"
                             >
                               <WhatsAppIcon className="w-3.5 h-3.5" />
-                              <span>Open WhatsApp (+91 91234 56789)</span>
+                              <span>Open WhatsApp ({contactInfo.whatsapp})</span>
                             </button>
                           </div>
                         )}
@@ -561,7 +562,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                 {isTyping && (
                   <div className="flex gap-2 items-center text-slate-400">
                     <div className="w-7 h-7 rounded-lg bg-white p-0.5 border border-gray-200 shadow-sm shrink-0">
-                      <img src={logoImg} alt="MANABS" className="w-full h-full object-contain rounded-md" />
+                      <img src={logoImg} alt="MANEBZ" className="w-full h-full object-contain rounded-md" />
                     </div>
                     <div className="bg-white p-3 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" />
@@ -757,9 +758,9 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                   </span>
 
                   {[
-                    { label: '🏢 Request IFM & Housekeeping Quote', text: 'Hello MANABS, I want to request a facility management & mechanized housekeeping proposal.' },
-                    { label: '👥 Corporate Staffing & Payroll Sourcing', text: 'Hello MANABS, I need corporate manpower staffing and 100% compliant payroll outsourcing.' },
-                    { label: '🚚 Logistics & Warehouse Operations', text: 'Hello MANABS, I require warehousing support and logistics operations crew.' },
+                    { label: '🏢 Request IFM & Housekeeping Quote', text: 'Hello MANEBZ, I want to request a facility management & mechanized housekeeping proposal.' },
+                    { label: '👥 Corporate Staffing & Payroll Sourcing', text: 'Hello MANEBZ, I need corporate manpower staffing and 100% compliant payroll outsourcing.' },
+                    { label: '🚚 Logistics & Warehouse Operations', text: 'Hello MANEBZ, I require warehousing support and logistics operations crew.' },
                     { label: '📞 Request Senior Management Callback', text: 'Hello, please arrange an immediate call with your senior operations director.' }
                   ].map((tpl, i) => (
                     <button
@@ -780,16 +781,16 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                   className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <WhatsAppIcon className="w-4 h-4" />
-                  <span>Start WhatsApp Chat (+91 91234 56789)</span>
+                  <span>Start WhatsApp Chat ({contactInfo.whatsapp})</span>
                 </button>
 
                 <div className="text-center">
                   <a
-                    href="tel:+911123456789"
+                    href={toTelHref(contactInfo.phonePrimary)}
                     className="text-[11px] font-bold text-slate-500 hover:text-slate-800 inline-flex items-center gap-1.5"
                   >
                     <Phone className="w-3.5 h-3.5 text-sky-600" />
-                    <span>Or Call Central Helpline: +91 11 2345 6789</span>
+                    <span>Or Call Central Helpline: {contactInfo.phonePrimary}</span>
                   </a>
                 </div>
               </div>

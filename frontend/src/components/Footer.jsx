@@ -1,5 +1,7 @@
 import React from 'react';
 import logoImg from '../assets/logo.jpg';
+import { useCompany } from '../context/CompanyContext';
+import { toTelHref } from '../data/siteContact';
 import { 
   Phone, 
   Mail, 
@@ -14,10 +16,9 @@ import {
   Calculator,
   Briefcase
 } from 'lucide-react';
-import { useCompany } from '../context/CompanyContext';
 
 const Footer = ({ onNavigate }) => {
-  const { services } = useCompany();
+  const { contactInfo, services } = useCompany();
 
   return (
     <footer className="relative bg-gradient-to-b from-[#0a192f] via-[#071324] to-[#030914] text-slate-400 pt-16 pb-28 sm:pb-24 border-t border-slate-800/80 overflow-hidden">
@@ -54,11 +55,11 @@ const Footer = ({ onNavigate }) => {
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <a
-              href="tel:+911123456789"
+              href={toTelHref(contactInfo.phonePrimary)}
               className="w-full sm:w-auto px-5 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-white/15 flex items-center justify-center gap-2 cursor-pointer"
             >
               <Phone className="w-3.5 h-3.5 text-sky-400" />
-              <span>+91 11 2345 6789</span>
+              <span>{contactInfo.phonePrimary}</span>
             </a>
           </div>
         </div>
@@ -72,7 +73,7 @@ const Footer = ({ onNavigate }) => {
               <div className="bg-white p-1.5 rounded-2xl shadow-md border border-white/20 inline-block">
                 <img 
                   src={logoImg} 
-                  alt="MANEBZ / MANABS Logo" 
+                  alt="MANEBZ Logo" 
                   loading="lazy"
                   decoding="async"
                   className="h-9 w-auto object-contain rounded-lg"
@@ -156,7 +157,7 @@ const Footer = ({ onNavigate }) => {
               </li>
               <li>
                 <button onClick={() => onNavigate('about')} className="hover:text-white transition-colors flex items-center gap-1.5 text-slate-300 font-medium cursor-pointer">
-                  <span>About MANABS</span>
+                  <span>About MANEBZ</span>
                 </button>
               </li>
               {/* Cost Calculator - Temporarily commented out
@@ -212,19 +213,19 @@ const Footer = ({ onNavigate }) => {
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-sky-400 shrink-0" />
                 <div className="flex flex-col">
-                  <a href="tel:+911123456789" className="hover:text-white font-bold transition-colors">
-                    +91 11 2345 6789
+                  <a href={toTelHref(contactInfo.phonePrimary)} className="hover:text-white font-bold transition-colors">
+                    {contactInfo.phonePrimary}
                   </a>
-                  <a href="tel:+919123456789" className="text-slate-400 hover:text-white text-[11px] transition-colors">
-                    +91 91234 56789
+                  <a href={toTelHref(contactInfo.phoneSecondary)} className="text-slate-400 hover:text-white text-[11px] transition-colors">
+                    {contactInfo.phoneSecondary}
                   </a>
                 </div>
               </div>
 
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-red-400 shrink-0" />
-                <a href="mailto:contact@manabs.com" className="hover:text-white font-medium transition-colors">
-                  contact@manabs.com
+                <a href={`mailto:${contactInfo.emailPrimary}`} className="hover:text-white font-medium transition-colors">
+                  {contactInfo.emailPrimary}
                 </a>
               </div>
 
@@ -241,7 +242,7 @@ const Footer = ({ onNavigate }) => {
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <div className="flex items-center gap-2 text-center sm:text-left">
             <span>
-              © {new Date().getFullYear()} <strong className="text-white">MANABS / MANEBZ Facilities & Workforce Management</strong>. All rights reserved.
+              © {new Date().getFullYear()} <strong className="text-white">MANEBZ Facilities & Workforce Management</strong>. All rights reserved.
             </span>
           </div>
 
@@ -260,13 +261,8 @@ const Footer = ({ onNavigate }) => {
             <span className="text-slate-400 hover:text-white transition-colors cursor-default">
               Privacy & Security
             </span>
-            <span className="text-slate-700">•</span>
-            <button 
-              onClick={() => onNavigate('admin')} 
-              className="text-slate-500 hover:text-red-400 transition-colors cursor-pointer font-bold"
-            >
-              🔒 Admin Portal
-            </button>
+            {/* Admin Portal link removed — the panel is reached with the Ctrl+M shortcut
+                (see the keyboard handler in App.jsx) or by visiting /admin directly. */}
           </div>
         </div>
 

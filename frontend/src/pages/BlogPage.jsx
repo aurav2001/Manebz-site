@@ -73,7 +73,7 @@ export default function BlogPage({ onNavigate, selectedSlug }) {
     return (
       <div className="min-h-screen bg-slate-950 text-gray-100 pt-28 pb-20 px-4 sm:px-6 lg:px-8">
         <SEOHead
-          title={`${activePost.title} | MANABS Insights`}
+          title={`${activePost.title} | MANEBZ Insights`}
           description={activePost.excerpt}
           keywords={activePost.tags?.join(', ') || 'facility management, labour law, staffing'}
         />
@@ -211,7 +211,7 @@ export default function BlogPage({ onNavigate, selectedSlug }) {
   return (
     <div className="min-h-screen bg-slate-950 text-gray-100 pt-28 pb-20 px-4 sm:px-6 lg:px-8">
       <SEOHead
-        title="Knowledge Hub, Labour Law & Facility Trends | MANABS"
+        title="Knowledge Hub, Labour Law & Facility Trends | MANEBZ"
         description="Stay ahead with executive guides on Indian labour law updates, EPF/ESI statutory compliance, mechanized facility management, and staffing benchmarks."
         keywords="labour law compliance blog, facility management articles, EPF ESI guide India, contract staffing whitepapers"
       />

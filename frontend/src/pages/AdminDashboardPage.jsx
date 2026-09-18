@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import logoImg from '../assets/logo.jpg';
 import {
   LayoutDashboard,
@@ -55,9 +55,56 @@ import {
   Kanban,
   Send,
   FileSpreadsheet,
-  CheckCircle
+  CheckCircle,
+  ClipboardList,
+  UserCog
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
+import api, { setAuthExpiredHandler } from '../api/client';
+import ImageUploadField from '../components/ImageUploadField';
+import HomePageEditor from '../components/admin/HomePageEditor';
+import ContactDetailsEditor from '../components/admin/ContactDetailsEditor';
+import AboutPageEditor from '../components/admin/AboutPageEditor';
+import PanelLogin from '../components/admin/PanelLogin';
+import UsersEditor from '../components/admin/UsersEditor';
+import EmployeeRecords from '../components/admin/EmployeeRecords';
+import HiringRequests from '../components/admin/HiringRequests';
+
+// Which roles may open each panel section. The sidebar filters on this, and a guard
+// below snaps anyone who lands somewhere they should not be — reloading with a stored
+// token restores the last section, which would otherwise show a recruiter the
+// admin dashboard.
+const SECTION_ROLES = {
+  overview: ['admin', 'hr'],
+  inquiries: ['admin', 'hr'],
+  applications: ['admin', 'hr', 'recruiter'],
+  services: ['admin'],
+  jobs: ['admin', 'hr'],
+  'talent-vault': ['admin', 'hr', 'recruiter'],
+  blogs: ['admin'],
+  navigation: ['admin'],
+  'hiring-requests': ['admin', 'hr', 'recruiter'],
+  employees: ['admin', 'hr', 'recruiter'],
+  team: ['admin', 'hr'],
+  'home-page': ['admin'],
+  'contact-details': ['admin'],
+  'about-page': ['admin'],
+  pages: ['admin'],
+  notifications: ['admin'],
+  'company-info': ['admin'],
+  testimonials: ['admin'],
+  settings: ['admin'],
+};
+
+const landingSectionFor = (role) => (role === 'recruiter' ? 'employees' : 'overview');
+
+// Each role gets its own colour so a glance at the sidebar says which panel this is —
+// every role used to see "Admin Panel" and "Welcome back, Administrator".
+const ROLE_THEME = {
+  admin:     { label: 'Admin Panel',     tile: 'bg-[#0f172a]',  badge: 'bg-red-500/20 text-red-300 border border-red-400/40' },
+  hr:        { label: 'HR Panel',        tile: 'bg-sky-700',    badge: 'bg-sky-500/20 text-sky-200 border border-sky-400/40' },
+  recruiter: { label: 'Recruiter Panel', tile: 'bg-emerald-700', badge: 'bg-emerald-500/20 text-emerald-200 border border-emerald-400/40' },
+};
 
 const AdminDashboardPage = ({ onNavigate }) => {
   const {
@@ -75,50 +122,77 @@ const AdminDashboardPage = ({ onNavigate }) => {
     blogs, addBlogPost, updateBlogPost, deleteBlogPost,
     notifications, addNotification, markNotificationsRead, clearNotifications,
     emailSettings, updateEmailSettings,
+    homeContent, updateHomeContent, resetHomeContent,
+    contactInfo, updateContactInfo, resetContactInfo,
+    coreValues, updateCoreValues, updateAboutContent,
+    qualityAssurancePoints, regionsServed,
+    syncError, clearSyncError, refreshAdminData,
     resetAllToDefaults
   } = useCompany();
 
-  // Authentication State with 'Admin123' Password Protection
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    try {
-      return sessionStorage.getItem('manabs_admin_authenticated') === 'true';
-    } catch {
-      return false;
-    }
-  });
-  const [passwordInput, setPasswordInput] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState('');
+  // Authentication — the server decides. The token it returns carries the role, and the
+  // API enforces it; hiding sidebar items is convenience, not the security boundary.
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const isAuthenticated = Boolean(currentUser);
 
-  const handlePasswordSubmit = (e) => {
-    e.preventDefault();
-    if (passwordInput === 'Admin12345') {
-      setIsAuthenticated(true);
-      try {
-        sessionStorage.setItem('manabs_admin_authenticated', 'true');
-      } catch (err) {
-        console.error(err);
-      }
-      setPasswordError('');
-      setPasswordInput('');
-    } else {
-      setPasswordError('Invalid Admin Password. Please enter Admin123');
+  const role = currentUser?.role;
+  const isAdmin = role === 'admin';
+  const isStaff = role === 'admin' || role === 'hr';
+
+  // A stored token may have expired while the tab was closed.
+  useEffect(() => {
+    if (!api.auth.hasToken()) {
+      setAuthChecked(true);
+      return;
     }
+    api.auth.verify()
+      .then((res) => {
+        setCurrentUser(res.user);
+        return refreshAdminData();
+      })
+      .catch(() => api.auth.logout())
+      .finally(() => setAuthChecked(true));
+  }, []);
+
+  // Any 401 from anywhere in the panel drops us back to the login screen.
+  useEffect(() => {
+    setAuthExpiredHandler(() => {
+      setCurrentUser(null);
+      setLoginError('Your session expired. Please sign in again.');
+    });
+    return () => setAuthExpiredHandler(null);
+  }, []);
+
+  const handleSignedIn = async (user) => {
+    setCurrentUser(user);
+    setLoginError('');
+    // Leads, applications and settings were withheld before login — fetch them now.
+    await refreshAdminData().catch(() => {});
+    // Recruiters have no dashboard widgets, so start them where their work is.
+    setActiveSection(landingSectionFor(user.role));
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    try {
-      sessionStorage.removeItem('manabs_admin_authenticated');
-    } catch (err) {
-      console.error(err);
-    }
-    setPasswordInput('');
-    setPasswordError('');
+    api.auth.logout();
+    setCurrentUser(null);
+    setLoginError('');
   };
 
   // Active Sidebar Section
   const [activeSection, setActiveSection] = useState('overview'); // overview, services, jobs, inquiries, applications, talent-vault, blogs, notifications, company-info, testimonials, settings
+
+  // Keep the open section within what this role may see. Without this, a recruiter
+  // reloading the page lands on the admin dashboard, which reports client leads and
+  // revenue-facing counts they have no business seeing.
+  useEffect(() => {
+    if (!role) return;
+    const allowed = SECTION_ROLES[activeSection];
+    if (!allowed || !allowed.includes(role)) {
+      setActiveSection(landingSectionFor(role));
+    }
+  }, [role, activeSection]);
 
   // Search & Filter in Sub-sections
   const [subSearch, setSubSearch] = useState('');
@@ -135,7 +209,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
     slug: '',
     category: 'Statutory Compliance',
     excerpt: '',
-    author: 'MANABS Editorial Board',
+    author: 'MANEBZ Editorial Board',
     authorRole: 'Compliance & Strategy Lead',
     coverImage: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&auto=format&fit=crop',
     readTime: '5 min read',
@@ -193,7 +267,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
   };
 
   const handleExportInquiriesCSV = () => {
-    downloadCSV(inquiries, 'MANABS_Quotation_Leads', [
+    downloadCSV(inquiries, 'MANEBZ_Quotation_Leads', [
       { label: 'Inquiry ID', accessor: 'id' },
       { label: 'Date', accessor: inq => inq.date ? new Date(inq.date).toLocaleString() : '' },
       { label: 'Client / Company Name', accessor: 'name' },
@@ -208,7 +282,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
   };
 
   const handleExportApplicationsCSV = () => {
-    downloadCSV(jobApplications, 'MANABS_Candidate_Pipeline', [
+    downloadCSV(jobApplications, 'MANEBZ_Candidate_Pipeline', [
       { label: 'Application ID', accessor: 'refId' },
       { label: 'Applied Date', accessor: app => app.date ? new Date(app.date).toLocaleString() : '' },
       { label: 'Candidate Full Name', accessor: 'fullName' },
@@ -224,7 +298,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
   };
 
   const handleExportTalentVaultCSV = () => {
-    downloadCSV(talentVaultApplications, 'MANABS_Talent_Pool_Bank', [
+    downloadCSV(talentVaultApplications, 'MANEBZ_Talent_Pool_Bank', [
       { label: 'Vault ID', accessor: 'id' },
       { label: 'Registration Date', accessor: t => t.date ? new Date(t.date).toLocaleString() : '' },
       { label: 'Candidate Full Name', accessor: 'fullName' },
@@ -326,10 +400,10 @@ const AdminDashboardPage = ({ onNavigate }) => {
   </div>
 
   <div class="section-title">Candidate Statement & Cover Experience</div>
-  <div class="content-box">${applicant.message || applicant.keySkills || 'Candidate profile registered in MANABS Central Resource Cell.'}</div>
+  <div class="content-box">${applicant.message || applicant.keySkills || 'Candidate profile registered in MANEBZ Central Resource Cell.'}</div>
 
   <div class="footer">
-    <span>MANABS INTEGRATED FACILITY & STAFFING MANAGEMENT</span>
+    <span>MANEBZ INTEGRATED FACILITY & STAFFING MANAGEMENT</span>
     <span>CONFIDENTIAL CANDIDATE DOSSIER</span>
   </div>
 </body>
@@ -395,7 +469,8 @@ const AdminDashboardPage = ({ onNavigate }) => {
     rating: 5,
     quote: '',
     metric: '99.9% Uptime',
-    serviceUsed: 'Integrated Facilities Management'
+    serviceUsed: 'Integrated Facilities Management',
+    image: ''
   });
 
   // Custom Dynamic Page Form State
@@ -570,7 +645,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
       if (parts.length >= 2) {
         return { q: parts[0].trim(), a: parts.slice(1).join('|').trim() };
       }
-      return { q: line.trim(), a: 'Contact MANABS helpdesk for specifics.' };
+      return { q: line.trim(), a: 'Contact MANEBZ helpdesk for specifics.' };
     }).filter(f => f.q.length > 0);
 
     const slug = serviceForm.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -659,7 +734,9 @@ const AdminDashboardPage = ({ onNavigate }) => {
   const openTestimonialModal = (t = null) => {
     if (t) {
       setEditingItem(t);
-      setTestimonialForm({ ...t });
+      // image is always defined so the input stays controlled, even for older
+      // testimonials saved before this field existed.
+      setTestimonialForm({ ...t, image: t.image || t.avatar || '' });
     } else {
       setEditingItem(null);
       setTestimonialForm({
@@ -670,7 +747,8 @@ const AdminDashboardPage = ({ onNavigate }) => {
         rating: 5,
         quote: '',
         metric: '99.9% Uptime',
-        serviceUsed: 'Integrated Facilities Management'
+        serviceUsed: 'Integrated Facilities Management',
+        image: ''
       });
     }
     setModalType('testimonial');
@@ -708,99 +786,24 @@ const AdminDashboardPage = ({ onNavigate }) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `manabs-website-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `manebz-website-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     showToast('Data backup downloaded successfully!');
   };
 
+  // Wait for the stored-token check before deciding, otherwise a signed-in admin sees
+  // the login screen flash on every refresh.
+  if (!authChecked) {
+    return <div className="min-h-screen bg-[#060d1a]" aria-busy="true" />;
+  }
+
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#0a192f] flex items-center justify-center p-4 text-white relative overflow-hidden">
-        {/* Glowing Background Orbs */}
-        <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-sky-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-red-500/15 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="max-w-md w-full bg-white/10 backdrop-blur-2xl border border-white/20 p-8 sm:p-10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] text-center space-y-6 relative z-10">
-
-          {/* Main Logo & Security Shield */}
-          <div className="flex flex-col items-center gap-3">
-            <div className="p-2.5 bg-white rounded-2xl shadow-xl border border-white/30">
-              <img
-                src={logoImg}
-                alt="MANABS / MANEBZ Logo"
-                className="h-12 w-auto object-contain"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <span className="text-xs font-black uppercase tracking-widest text-sky-400 bg-sky-950/70 px-3.5 py-1 rounded-full border border-sky-500/30 inline-block">
-              MANABS / MANEBZ Admin Portal
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              Control Center Login
-            </h2>
-            <p className="text-sm text-gray-300 font-medium">
-              Enter admin security password to access live website management.
-            </p>
-          </div>
-
-          <form onSubmit={handlePasswordSubmit} className="space-y-4 text-left">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-200 mb-2">
-                Admin Security Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  placeholder="Enter Admin Password"
-                  value={passwordInput}
-                  onChange={(e) => {
-                    setPasswordInput(e.target.value);
-                    if (passwordError) setPasswordError('');
-                  }}
-                  className="w-full px-4 py-3.5 pr-12 rounded-xl bg-white/10 border border-white/25 text-base text-white placeholder-gray-400 focus:outline-none focus:border-sky-400 focus:bg-white/15 transition-all font-semibold"
-                  autoFocus
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            {passwordError && (
-              <div className="p-3 rounded-xl bg-red-950/80 border border-red-500/60 text-red-300 text-sm font-semibold flex items-center gap-2">
-                <X className="w-4 h-4 text-red-400 shrink-0" />
-                <span>{passwordError}</span>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="w-full py-4 bg-gradient-to-r from-red-600 to-sky-600 hover:from-red-500 hover:to-sky-500 font-extrabold text-sm uppercase tracking-wider text-white rounded-xl transition-all shadow-lg shadow-red-500/25 active:scale-98 flex items-center justify-center gap-2"
-            >
-              <Unlock className="w-5 h-5" />
-              <span>Unlock Dashboard</span>
-            </button>
-
-            <div className="pt-2 text-center">
-              <button
-                type="button"
-                onClick={() => onNavigate('home')}
-                className="text-sm font-semibold text-gray-400 hover:text-sky-300 transition-colors inline-flex items-center gap-1.5"
-              >
-                <span>← Return to Public Website</span>
-              </button>
-            </div>
-          </form>
-
-        </div>
-      </div>
+      <PanelLogin
+        onSignedIn={handleSignedIn}
+        onNavigate={onNavigate}
+        initialError={loginError}
+      />
     );
   }
 
@@ -815,17 +818,42 @@ const AdminDashboardPage = ({ onNavigate }) => {
         </div>
       )}
 
+      {/* Backend Sync Failure Banner — a save that only reached this browser is not a save */}
+      {syncError && (
+        <div className="fixed bottom-6 right-6 z-50 max-w-sm bg-red-950 text-white px-5 py-4 rounded-2xl shadow-2xl border border-red-400 flex items-start gap-3 text-sm">
+          <AlertCircle className="w-5 h-5 text-red-300 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="font-bold">Not saved to the server</p>
+            <p className="text-red-200 text-xs mt-1 font-medium">
+              {syncError.message} — this change is only stored in this browser and other visitors will not see it.
+            </p>
+          </div>
+          <button
+            onClick={clearSyncError}
+            className="text-red-300 hover:text-white shrink-0"
+            aria-label="Dismiss sync error"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* LEFT SIDEBAR (Matching User's Reference Screenshot) */}
       <aside className="w-full md:w-64 lg:w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 md:sticky md:top-0 md:h-screen z-30 shadow-xs">
 
-        {/* Admin Panel Branding Header */}
+        {/* Panel header — names the role so HR and recruiters never mistake this for
+            the admin view, and shows who is signed in. */}
         <div className="p-5 border-b border-slate-100 flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-[#0f172a] text-white flex items-center justify-center shadow-md shrink-0">
-            <Settings className="w-5 h-5 text-white" />
+          <div className={`w-10 h-10 rounded-xl text-white flex items-center justify-center shadow-md shrink-0 font-black text-sm ${ROLE_THEME[role]?.tile || 'bg-[#0f172a]'}`}>
+            {(currentUser?.name || currentUser?.email || '?').charAt(0).toUpperCase()}
           </div>
-          <div>
-            <h2 className="text-base font-extrabold text-slate-900 leading-tight">Admin Panel</h2>
-            <p className="text-xs text-slate-400 font-semibold">Manabz CMS</p>
+          <div className="min-w-0">
+            <h2 className="text-base font-extrabold text-slate-900 leading-tight truncate">
+              {ROLE_THEME[role]?.label || 'Panel'}
+            </h2>
+            <p className="text-xs text-slate-500 font-semibold truncate" title={currentUser?.email}>
+              {currentUser?.name || currentUser?.email}
+            </p>
           </div>
         </div>
 
@@ -840,12 +868,18 @@ const AdminDashboardPage = ({ onNavigate }) => {
             { id: 'talent-vault', label: 'Talent Bank', icon: Database, badge: talentVaultApplications.length, badgeColor: 'bg-purple-100 text-purple-700' },
             { id: 'blogs', label: 'Blog & News CMS', icon: BookOpen, badge: blogs?.length || 0, badgeColor: 'bg-rose-100 text-rose-700' },
             { id: 'navigation', label: 'Navigation', icon: Menu, badge: navItems?.length || 0, badgeColor: 'bg-emerald-100 text-emerald-700' },
+            { id: 'hiring-requests', label: 'Hiring Requests', icon: Briefcase, badge: null },
+            { id: 'employees', label: 'Employee Records', icon: ClipboardList, badge: null },
+            { id: 'team', label: 'Team Accounts', icon: UserCog, badge: null },
+            { id: 'home-page', label: 'Home Page', icon: Columns, badge: null },
+            { id: 'contact-details', label: 'Contact Details', icon: Phone, badge: null },
+            { id: 'about-page', label: 'About Page', icon: FileText, badge: null },
             { id: 'pages', label: 'Pages', icon: Globe, badge: customPages?.length || 0, badgeColor: 'bg-amber-100 text-amber-700' },
             { id: 'notifications', label: 'Alerts & Webhooks', icon: Bell, badge: notifications?.filter(n => !n.read).length || null, badgeColor: 'bg-red-600 text-white animate-pulse' },
             { id: 'company-info', label: 'Content & Heritage', icon: Edit3, badge: null },
             { id: 'testimonials', label: 'Testimonials', icon: Star, badge: testimonials.length },
             { id: 'settings', label: 'System Settings', icon: Settings, badge: null },
-          ].map((tab) => {
+          ].filter((tab) => (SECTION_ROLES[tab.id] || []).includes(role)).map((tab) => {
             const Icon = tab.icon;
             const isActive = activeSection === tab.id;
             return (
@@ -882,7 +916,10 @@ const AdminDashboardPage = ({ onNavigate }) => {
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:text-red-600 hover:bg-red-50 font-bold transition-all text-sm cursor-pointer"
           >
             <LogOut className="w-5 h-5 text-slate-500" />
-            <span>Logout</span>
+            <span className="flex-1 text-left">Logout</span>
+            <span className="text-[10px] font-semibold text-slate-400 truncate max-w-[9rem]" title={currentUser?.email}>
+              {currentUser?.email}
+            </span>
           </button>
         </div>
       </aside>
@@ -901,6 +938,12 @@ const AdminDashboardPage = ({ onNavigate }) => {
                       activeSection === 'applications' ? 'Job Applications' :
                         activeSection === 'talent-vault' ? 'Future Talent Bank' :
                           activeSection === 'navigation' ? 'Navigation Menu Manager' :
+                          activeSection === 'hiring-requests' ? 'Hiring Requests' :
+                          activeSection === 'employees' ? 'Employee Records' :
+                          activeSection === 'team' ? 'Team Accounts' :
+                          activeSection === 'home-page' ? 'Home Page Content' :
+                          activeSection === 'contact-details' ? 'Contact Details' :
+                          activeSection === 'about-page' ? 'About Page Content' :
                             activeSection === 'pages' ? 'Custom Pages & CMS' :
                               activeSection === 'company-info' ? 'Company Heritage & Content' :
                                 activeSection === 'testimonials' ? 'Client Testimonials' : 'System Settings'}
@@ -940,11 +983,19 @@ const AdminDashboardPage = ({ onNavigate }) => {
               {/* Welcome Banner Card (matching reference design) */}
               <div className="bg-[#0f172a] text-white p-6 sm:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-slate-800">
                 <div className="space-y-2">
+                  <div className="flex items-center gap-2.5 flex-wrap mb-1">
+                    <span className={`text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-md ${ROLE_THEME[role]?.badge || 'bg-white/10 text-white'}`}>
+                      {ROLE_THEME[role]?.label || role}
+                    </span>
+                    <span className="text-xs text-slate-400 font-medium truncate">{currentUser?.email}</span>
+                  </div>
                   <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                    Welcome back, Administrator 👋
+                    Welcome back, {(currentUser?.name || 'there').split(' ')[0]} 👋
                   </h2>
                   <p className="text-sm sm:text-base text-slate-300 font-medium">
-                    Manage your website content, candidate inquiries, job applications, and workforce operations in real-time.
+                    {role === 'hr'
+                      ? 'Manage hiring requests, candidates, job openings and your recruiting team.'
+                      : 'Manage your website content, candidate inquiries, job applications, and workforce operations in real-time.'}
                   </p>
                 </div>
                 <button
@@ -2142,7 +2193,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                           slug: '',
                           category: 'Statutory Compliance',
                           excerpt: '',
-                          author: 'MANABS Editorial Board',
+                          author: 'MANEBZ Editorial Board',
                           authorRole: 'Compliance & Strategy Lead',
                           coverImage: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&auto=format&fit=crop',
                           readTime: '5 min read',
@@ -2215,7 +2266,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                                   slug: post.slug,
                                   category: post.category || 'Statutory Compliance',
                                   excerpt: post.excerpt || '',
-                                  author: post.author || 'MANABS Editorial Board',
+                                  author: post.author || 'MANEBZ Editorial Board',
                                   authorRole: post.authorRole || 'Compliance & Strategy Lead',
                                   coverImage: post.coverImage || '',
                                   readTime: post.readTime || '5 min read',
@@ -2364,7 +2415,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                             type="text"
                             value={blogForm.author}
                             onChange={(e) => setBlogForm({ ...blogForm, author: e.target.value })}
-                            placeholder="e.g. MANABS Statutory Advisory"
+                            placeholder="e.g. MANEBZ Statutory Advisory"
                             className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:border-red-500 focus:outline-none"
                           />
                         </div>
@@ -2853,6 +2904,47 @@ const AdminDashboardPage = ({ onNavigate }) => {
           )}
 
           {/* SECTION: CUSTOM PAGES & DYNAMIC CMS */}
+          {activeSection === 'hiring-requests' && (
+            <HiringRequests currentUser={currentUser} showToast={showToast} />
+          )}
+
+          {activeSection === 'employees' && (
+            <EmployeeRecords currentUser={currentUser} showToast={showToast} />
+          )}
+
+          {activeSection === 'team' && isStaff && (
+            <UsersEditor currentUser={currentUser} showToast={showToast} />
+          )}
+
+          {activeSection === 'home-page' && (
+            <HomePageEditor
+              homeContent={homeContent}
+              onSave={updateHomeContent}
+              onReset={resetHomeContent}
+              showToast={showToast}
+            />
+          )}
+
+          {activeSection === 'contact-details' && (
+            <ContactDetailsEditor
+              contactInfo={contactInfo}
+              onSave={updateContactInfo}
+              onReset={resetContactInfo}
+              showToast={showToast}
+            />
+          )}
+
+          {activeSection === 'about-page' && (
+            <AboutPageEditor
+              coreValues={coreValues}
+              qaPoints={qualityAssurancePoints}
+              regions={regionsServed}
+              onSaveValues={updateCoreValues}
+              onSaveAbout={updateAboutContent}
+              showToast={showToast}
+            />
+          )}
+
           {activeSection === 'pages' && (
             <div className="space-y-6">
               {!isEditingPage ? (
@@ -3182,7 +3274,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-6">
               <div>
                 <h3 className="text-xl sm:text-2xl font-black text-gray-950">System Settings & Data Tools</h3>
-                <p className="text-sm text-gray-600 mt-1 font-medium">Export site backups or reset all dynamic data to initial MANABS defaults.</p>
+                <p className="text-sm text-gray-600 mt-1 font-medium">Export site backups or reset all dynamic data to initial MANEBZ defaults.</p>
               </div>
 
               <div className="space-y-4 pt-2">
@@ -3558,6 +3650,15 @@ const AdminDashboardPage = ({ onNavigate }) => {
                 </div>
               </div>
 
+              {/* Photo shown on the left panel of the testimonial card. Optional — without
+                  one the card falls back to a gradient panel with the client's initial. */}
+              <ImageUploadField
+                label="Client Photo / Site Image"
+                value={testimonialForm.image}
+                onChange={(url) => setTestimonialForm({ ...testimonialForm, image: url })}
+                hint="Leave empty to show a gradient panel with the client's initial instead."
+              />
+
               <div className="pt-4 border-t border-gray-100 flex justify-end gap-3">
                 <button
                   type="button"
@@ -3849,7 +3950,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
                 <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500">
                   <div className="flex items-center gap-1.5 font-bold text-emerald-700">
                     <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    <span>MANABS National Resource Cell • Certified Candidate Review</span>
+                    <span>MANEBZ National Resource Cell • Certified Candidate Review</span>
                   </div>
                   <span className="font-mono text-slate-400">ID: {previewResumeModal.refId}</span>
                 </div>
@@ -3860,7 +3961,7 @@ const AdminDashboardPage = ({ onNavigate }) => {
             {/* Modal Footer */}
             <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-between shrink-0">
               <span className="text-xs text-slate-500 font-medium hidden sm:inline">
-                MANABS Central Resource Cell • HR Candidate Dossier
+                MANEBZ Central Resource Cell • HR Candidate Dossier
               </span>
               <div className="flex items-center gap-3 ml-auto">
                 <button

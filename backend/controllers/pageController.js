@@ -7,17 +7,26 @@ export const getPages = async (req, res) => {
     const pool = getPool();
     if (pool) {
       const [rows] = await pool.query('SELECT * FROM custom_pages ORDER BY created_at DESC');
-      const pages = rows.map(r => ({
-        id: r.page_id,
-        title: r.title,
-        slug: r.slug,
-        subtitle: r.subtitle,
-        badge: r.badge,
-        sections: r.content_json ? JSON.parse(r.content_json) : [],
-        showInNavbar: Boolean(r.show_in_navbar),
-        isPublished: Boolean(r.is_published),
-        createdAt: r.created_at
-      }));
+      const pages = rows.map(r => {
+        const mapped = {
+          id: r.page_id,
+          title: r.title,
+          slug: r.slug,
+          subtitle: r.subtitle,
+          badge: r.badge,
+          sections: r.content_json ? JSON.parse(r.content_json) : [],
+          showInNavbar: Boolean(r.show_in_navbar),
+          isPublished: Boolean(r.is_published),
+          createdAt: r.created_at
+        };
+        // A page also carries heroTagline, heroImage and content, which have no columns.
+        if (!r.data_json) return mapped;
+        try {
+          return { ...mapped, ...JSON.parse(r.data_json), id: mapped.id };
+        } catch {
+          return mapped;
+        }
+      });
       return res.status(200).json({ success: true, count: pages.length, data: pages });
     } else {
       return res.status(200).json({ success: true, count: fallbackPages.length, data: fallbackPages });
@@ -41,8 +50,8 @@ export const savePage = async (req, res) => {
 
     if (pool) {
       const query = `
-        INSERT INTO custom_pages (page_id, title, slug, subtitle, badge, content_json, show_in_navbar, is_published)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO custom_pages (page_id, title, slug, subtitle, badge, content_json, show_in_navbar, is_published, data_json)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
           title = VALUES(title),
           slug = VALUES(slug),
@@ -50,18 +59,20 @@ export const savePage = async (req, res) => {
           badge = VALUES(badge),
           content_json = VALUES(content_json),
           show_in_navbar = VALUES(show_in_navbar),
-          is_published = VALUES(is_published)
+          is_published = VALUES(is_published),
+          data_json = VALUES(data_json)
       `;
 
       await pool.execute(query, [
-        pageId,
+        String(pageId),
         title.trim(),
         slug.trim().toLowerCase(),
         subtitle || null,
         badge || null,
         JSON.stringify(sections || []),
         showInNavbar !== false,
-        isPublished !== false
+        isPublished !== false,
+        JSON.stringify({ ...req.body, id: pageId })
       ]);
 
       return res.status(200).json({

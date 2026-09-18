@@ -6,9 +6,16 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "seed": "node seed.js"
   },
-  "keywords": ["express", "mysql2", "manabs", "backend", "api"],
+  "keywords": [
+    "express",
+    "mysql2",
+    "manabs",
+    "backend",
+    "api"
+  ],
   "author": "MANABS",
   "license": "ISC",
   "dependencies": {

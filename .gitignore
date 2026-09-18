@@ -30,3 +30,12 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Local deployment staging
+build
+
+# Uploaded media (lives on the server, not in the repo)
+backend/uploads/
+
+# Office lock files
+~$*

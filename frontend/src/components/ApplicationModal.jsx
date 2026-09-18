@@ -98,7 +98,7 @@ const ApplicationModal = ({ job, isFutureOpening, onClose }) => {
             <div className="mb-6 space-y-1 pb-3 border-b border-gray-100">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 text-sky-700 text-xs font-bold border border-sky-200">
                 <Database className="w-3.5 h-3.5 text-red-600" />
-                <span>{isFutureOpening ? 'MANABS Future Talent Bank' : 'Direct Job Application'}</span>
+                <span>{isFutureOpening ? 'MANEBZ Future Talent Bank' : 'Direct Job Application'}</span>
               </div>
               <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900">
                 {isFutureOpening ? 'Submit Resume for Future Openings' : `Apply: ${job?.title}`}
@@ -273,7 +273,7 @@ const ApplicationModal = ({ job, isFutureOpening, onClose }) => {
                   className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-red-600 via-sky-600 to-sky-700 hover:from-red-700 hover:to-sky-800 text-white font-extrabold text-xs uppercase tracking-wider shadow-md active:scale-98 transition-all flex items-center justify-center gap-2"
                 >
                   <Send className="w-4 h-4" />
-                  <span>{isFutureOpening ? 'Register Profile in MANABS Future Talent Pool' : 'Submit Job Application'}</span>
+                  <span>{isFutureOpening ? 'Register Profile in MANEBZ Future Talent Pool' : 'Submit Job Application'}</span>
                 </button>
               </div>
 
@@ -295,7 +295,7 @@ const ApplicationModal = ({ job, isFutureOpening, onClose }) => {
               </h3>
               <p className="text-xs text-gray-600 max-w-md mx-auto mt-1 leading-relaxed">
                 {isFutureOpening 
-                  ? 'Your profile is now stored in the MANABS National Resource Cell. Our HR recruitment team will proactively reach out to you via Phone/WhatsApp as new opportunities open.'
+                  ? 'Your profile is now stored in the MANEBZ National Resource Cell. Our HR recruitment team will proactively reach out to you via Phone/WhatsApp as new opportunities open.'
                   : `Your application for ${job?.title} has been received and routed to our hiring supervisor.`}
               </p>
             </div>

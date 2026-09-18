@@ -5,6 +5,12 @@ import contactRoutes from './contactRoutes.js';
 import pageRoutes from './pageRoutes.js';
 import settingsRoutes from './settingsRoutes.js';
 import contentRoutes from './contentRoutes.js';
+import authRoutes from './authRoutes.js';
+import uploadRoutes from './uploadRoutes.js';
+import userRoutes from './userRoutes.js';
+import employeeRoutes from './employeeRoutes.js';
+import companyRoutes from './companyRoutes.js';
+import hiringRequestRoutes from './hiringRequestRoutes.js';
 import { getPool } from '../config/db.js';
 
 const router = express.Router();
@@ -33,6 +39,12 @@ router.get('/health', async (req, res) => {
 });
 
 // Register Sub-routes
+router.use('/auth', authRoutes);
+router.use('/uploads', uploadRoutes);
+router.use('/users', userRoutes);
+router.use('/employees', employeeRoutes);
+router.use('/companies', companyRoutes);
+router.use('/hiring-requests', hiringRequestRoutes);
 router.use('/content', contentRoutes);
 router.use('/inquiries', inquiryRoutes);
 router.use('/careers', careerRoutes);

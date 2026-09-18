@@ -136,7 +136,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
             ) : (
               <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md">
                 <Award className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                <span>MANABS 5-Pillar Service Spectrum</span>
+                <span>MANEBZ 5-Pillar Service Spectrum</span>
               </div>
             )}
           </div>
@@ -353,7 +353,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
               <div className="text-center max-w-2xl mx-auto space-y-2">
                 <span className="text-xs font-bold uppercase tracking-widest text-sky-600">Cross-Vertical Comparison</span>
                 <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
-                  MANABS Service Capability Matrix
+                  MANEBZ Service Capability Matrix
                 </h3>
                 <p className="text-xs text-gray-500">
                   Comparing operational standards, compliance coverage, and delivery models across all 5 verticals.
@@ -466,7 +466,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
                   </div>
                   <div>
                     <span className="text-[10px] font-extrabold uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full text-sky-300">
-                      MANABS Specialized Vertical
+                      MANEBZ Specialized Vertical
                     </span>
                     <h2 className="text-2xl sm:text-4xl font-extrabold uppercase tracking-tight mt-1">
                       {currentService.title}
@@ -571,7 +571,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
               <div className="space-y-1">
                 <span className="text-xs font-bold uppercase tracking-widest text-red-600">Deliverables & Features</span>
                 <h3 className="text-2xl font-extrabold text-gray-900">
-                  What You Get with MANABS {currentService.title}
+                  What You Get with MANEBZ {currentService.title}
                 </h3>
               </div>
 
@@ -731,7 +731,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
 
       </div>
 
-      {/* 4. INTERACTIVE PAYROLL COMPONENT (Included on services page for quick calculation) */}
+      {/* 4. PAYROLL & STATUTORY COMPLIANCE COMPONENT */}
       <PayrollSection onNavigate={onNavigate} />
 
       {/* 5. QUALITY ASSURANCE & STATUTORY STANDARDS BANNER */}
@@ -743,7 +743,7 @@ const ServicesPage = ({ onNavigate, initialServiceSlug = null }) => {
               Quality Assurance Systems
             </span>
             <h3 className="text-2xl sm:text-3xl font-bold">
-              Why Corporate India Relies on MANABS
+              Why Corporate India Relies on MANEBZ
             </h3>
             <p className="text-xs text-gray-300">
               Structured inspection, Suggestion Registers, JIT management, and zero time-lag execution.

@@ -197,7 +197,7 @@ const CareersPage = ({ onNavigate }) => {
 
             <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md">
               <Award className="w-3.5 h-3.5 text-red-400 shrink-0" />
-              <span>MANABS National Resource Cell • Careers</span>
+              <span>MANEBZ National Resource Cell • Careers</span>
             </div>
           </div>
 
@@ -995,7 +995,7 @@ const CareersPage = ({ onNavigate }) => {
                           className="mt-0.5 rounded text-red-600 focus:ring-red-400"
                         />
                         <label htmlFor="vault-consent" className="text-[11px] leading-tight cursor-pointer">
-                          I agree to let MANABS HR team store my profile in the National Resource Cell talent bank for future matching opportunities.
+                          I agree to let MANEBZ HR team store my profile in the National Resource Cell talent bank for future matching opportunities.
                         </label>
                       </div>
 
@@ -1018,7 +1018,7 @@ const CareersPage = ({ onNavigate }) => {
                       </span>
                       <h4 className="text-lg font-bold text-gray-900">Profile Added to Vault!</h4>
                       <p className="text-xs text-gray-600 leading-relaxed max-w-xs mx-auto">
-                        Thank you <span className="font-bold text-gray-800">{talentForm.fullName}</span>. Your resume is indexed in the MANABS central database for priority scout contact.
+                        Thank you <span className="font-bold text-gray-800">{talentForm.fullName}</span>. Your resume is indexed in the MANEBZ central database for priority scout contact.
                       </p>
                       <button
                         onClick={() => {

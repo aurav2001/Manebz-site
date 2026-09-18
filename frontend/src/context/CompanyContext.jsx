@@ -12,6 +12,8 @@ import {
   testimonialsData as defaultTestimonials
 } from '../data/companyData';
 import { initialBlogPosts } from '../data/blogData';
+import { defaultHomeContent, mergeHomeContent } from '../data/homeContent';
+import { defaultContactInfo, mergeContactInfo } from '../data/siteContact';
 import { dispatchNotificationAlert } from '../services/notificationService';
 import api from '../api/client';
 
@@ -46,7 +48,7 @@ const defaultCustomPages = [
     badge: 'Statutory Governance',
     heroTagline: '100% Statutory Compliant Facility Management & Workforce Operations',
     heroImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop',
-    content: 'MANABS operates on strict compliance pillars ensuring every deployed team member is covered by mandatory PF, ESI, Group Medical Insurance, and national labor laws. We provide automated challans, monthly compliance dockets, and verified biometric logs.',
+    content: 'MANEBZ operates on strict compliance pillars ensuring every deployed team member is covered by mandatory PF, ESI, Group Medical Insurance, and national labor laws. We provide automated challans, monthly compliance dockets, and verified biometric logs.',
     sections: [
       {
         heading: '100% PF & ESI Statutory Governance',
@@ -115,6 +117,10 @@ export const CompanyProvider = ({ children }) => {
   const [testimonials, setTestimonials] = useState(() => getStored(STORAGE_KEYS.TESTIMONIALS, defaultTestimonials));
   const [customPages, setCustomPages] = useState(() => getStored(STORAGE_KEYS.PAGES, defaultCustomPages));
   const [navItems, setNavItems] = useState(() => defaultNavItems);
+  // Editable home page copy, merged over the shipped defaults.
+  const [homeContent, setHomeContent] = useState(defaultHomeContent);
+  // Contact details, shared by the footer, contact page and chat widget.
+  const [contactInfo, setContactInfo] = useState(defaultContactInfo);
   const [blogs, setBlogs] = useState(() => getStored(STORAGE_KEYS.BLOGS, initialBlogPosts));
   
   // 2. Email / Webhook Settings
@@ -140,6 +146,70 @@ export const CompanyProvider = ({ children }) => {
     }
   ]));
 
+  // 4. Backend Sync Status
+  // Every save used to swallow its rejection, so a write that never reached MySQL
+  // looked exactly like a successful one — the change survived in localStorage on this
+  // browser and was invisible to everyone else. Record the failure instead.
+  const [syncError, setSyncError] = useState(null);
+  // Flips once the first backend fetch settles. A page that only exists in MySQL is
+  // absent on the very first render, so "not found" must wait for this.
+  const [contentLoaded, setContentLoaded] = useState(false);
+
+  const trackSyncError = (err) => {
+    console.error('[MANEBZ SYNC] Backend save failed:', err);
+    setSyncError({
+      message: err?.message || 'Backend sync failed',
+      time: new Date().toISOString()
+    });
+  };
+
+  const clearSyncError = () => setSyncError(null);
+
+  // Home page copy. Saved whole so a partial edit never drops the other sections.
+  const updateHomeContent = (patch) => {
+    setHomeContent((prev) => {
+      const next = mergeHomeContent({ ...prev, ...patch });
+      api.sections.save('home', next).catch(trackSyncError);
+      return next;
+    });
+  };
+
+  const resetHomeContent = () => {
+    setHomeContent(defaultHomeContent);
+    api.sections.save('home', defaultHomeContent).catch(trackSyncError);
+  };
+
+  // Core values already have their own table and endpoint; the About page's QA points
+  // and regions have neither, so they ride in the generic "about" section instead of
+  // needing two more tables.
+  const updateCoreValues = (list) => {
+    setCoreValues(list);
+    api.coreValues.saveAll(list).catch(trackSyncError);
+  };
+
+  const updateAboutContent = (patch) => {
+    const next = {
+      qaPoints: patch.qaPoints ?? qualityAssurancePoints,
+      regions: patch.regions ?? regionsServed,
+    };
+    setQualityAssurancePoints(next.qaPoints);
+    setRegionsServed(next.regions);
+    api.sections.save('about', next).catch(trackSyncError);
+  };
+
+  const updateContactInfo = (patch) => {
+    setContactInfo((prev) => {
+      const next = mergeContactInfo({ ...prev, ...patch });
+      api.sections.save('contact', next).catch(trackSyncError);
+      return next;
+    });
+  };
+
+  const resetContactInfo = () => {
+    setContactInfo(defaultContactInfo);
+    api.sections.save('contact', defaultContactInfo).catch(trackSyncError);
+  };
+
   // Auto-persist settings & data
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.PAGES, JSON.stringify(customPages)); }, [customPages]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.NAV_ITEMS, JSON.stringify(navItems)); }, [navItems]);
@@ -151,14 +221,19 @@ export const CompanyProvider = ({ children }) => {
   useEffect(() => {
     const hydrateFromBackend = async () => {
       try {
-        const [srvRes, jobRes, statRes, cmpRes, tstRes, blogRes, navRes, pageRes, inqRes, appRes, setRes] = await Promise.allSettled([
+        const [srvRes, jobRes, statRes, msRes, valRes, cmpRes, tstRes, blogRes, navRes, homeRes, contactRes, aboutRes, pageRes, inqRes, appRes, setRes] = await Promise.allSettled([
           api.services.getAll(),
           api.jobs.getAll(),
           api.stats.getAll(),
+          api.milestones.getAll(),
+          api.coreValues.getAll(),
           api.compliances.getAll(),
           api.testimonials.getAll(),
           api.blogs.getAll(),
           api.navItems.getAll(),
+          api.sections.get('home'),
+          api.sections.get('contact'),
+          api.sections.get('about'),
           api.pages.getAll(),
           api.inquiries.getAll(),
           api.careers.getAll(),
@@ -168,10 +243,23 @@ export const CompanyProvider = ({ children }) => {
         if (srvRes.status === 'fulfilled' && srvRes.value?.data?.length > 0) setServices(srvRes.value.data);
         if (jobRes.status === 'fulfilled' && jobRes.value?.data?.length > 0) setJobs(jobRes.value.data);
         if (statRes.status === 'fulfilled' && statRes.value?.data?.length > 0) setCompanyStats(statRes.value.data);
+        if (msRes.status === 'fulfilled' && msRes.value?.data?.length > 0) setMilestones(msRes.value.data);
+        if (valRes.status === 'fulfilled' && valRes.value?.data?.length > 0) setCoreValues(valRes.value.data);
         if (cmpRes.status === 'fulfilled' && cmpRes.value?.data?.length > 0) setStatutoryCompliances(cmpRes.value.data);
         if (tstRes.status === 'fulfilled' && tstRes.value?.data?.length > 0) setTestimonials(tstRes.value.data);
         if (blogRes.status === 'fulfilled' && blogRes.value?.data?.length > 0) setBlogs(blogRes.value.data);
         if (navRes.status === 'fulfilled' && navRes.value?.data?.length > 0) setNavItems(navRes.value.data);
+        if (homeRes.status === 'fulfilled' && homeRes.value?.data) {
+          setHomeContent(mergeHomeContent(homeRes.value.data));
+        }
+        if (contactRes.status === 'fulfilled' && contactRes.value?.data) {
+          setContactInfo(mergeContactInfo(contactRes.value.data));
+        }
+        if (aboutRes.status === 'fulfilled' && aboutRes.value?.data) {
+          const a = aboutRes.value.data;
+          if (a.qaPoints?.length > 0) setQualityAssurancePoints(a.qaPoints);
+          if (a.regions?.length > 0) setRegionsServed(a.regions);
+        }
         if (pageRes.status === 'fulfilled' && pageRes.value?.data?.length > 0) setCustomPages(pageRes.value.data);
         if (inqRes.status === 'fulfilled' && inqRes.value?.data?.length > 0) {
           setInquiries(inqRes.value.data.map(i => ({
@@ -181,6 +269,8 @@ export const CompanyProvider = ({ children }) => {
             email: i.email,
             service: i.service,
             status: i.status,
+            message: i.message,
+            source: i.source,
             date: i.created_at
           })));
         }
@@ -194,6 +284,13 @@ export const CompanyProvider = ({ children }) => {
             department: a.department,
             status: a.status,
             stage: a.status,
+            experience: a.experience,
+            location: a.location,
+            qualification: a.qualification,
+            currentCtc: a.current_ctc,
+            expectedCtc: a.expected_ctc,
+            resumeUrl: a.resume_url,
+            notes: a.notes,
             date: a.created_at
           })));
         }
@@ -202,11 +299,60 @@ export const CompanyProvider = ({ children }) => {
         }
       } catch (err) {
         console.debug('Backend hydration skipped/offline:', err.message);
+      } finally {
+        setContentLoaded(true);
       }
     };
 
     hydrateFromBackend();
   }, []);
+
+  // Leads, applications and settings are admin-only reads, so the load above gets a 401
+  // for them on a normal visit. The panel calls this once the admin actually logs in.
+  const refreshAdminData = async () => {
+    const [inqRes, appRes, setRes] = await Promise.allSettled([
+      api.inquiries.getAll(),
+      api.careers.getAll(),
+      api.settings.get()
+    ]);
+
+    if (inqRes.status === 'fulfilled' && inqRes.value?.data?.length > 0) {
+      setInquiries(inqRes.value.data.map(i => ({
+        id: i.inquiry_id || `INQ-${i.id}`,
+        name: i.name,
+        phone: i.phone,
+        email: i.email,
+        service: i.service,
+        status: i.status,
+        message: i.message,
+        source: i.source,
+        date: i.created_at
+      })));
+    }
+    if (appRes.status === 'fulfilled' && appRes.value?.data?.length > 0) {
+      setJobApplications(appRes.value.data.map(a => ({
+        refId: a.application_id || `MNB-APP-${a.id}`,
+        fullName: a.full_name,
+        email: a.email,
+        phone: a.phone,
+        jobTitle: a.job_title,
+        department: a.department,
+        status: a.status,
+        stage: a.status,
+        experience: a.experience,
+        location: a.location,
+        qualification: a.qualification,
+        currentCtc: a.current_ctc,
+        expectedCtc: a.expected_ctc,
+        resumeUrl: a.resume_url,
+        notes: a.notes,
+        date: a.created_at
+      })));
+    }
+    if (setRes.status === 'fulfilled' && Object.keys(setRes.value?.data || {}).length > 0) {
+      setEmailSettings(prev => ({ ...prev, ...setRes.value.data }));
+    }
+  };
 
   // Notifications Helpers
   const addNotification = (notif) => {
@@ -230,7 +376,7 @@ export const CompanyProvider = ({ children }) => {
   const updateEmailSettings = (updated) => {
     setEmailSettings(prev => {
       const merged = { ...prev, ...updated };
-      api.settings.save(merged).catch(() => {});
+      api.settings.save(merged).catch(trackSyncError);
       return merged;
     });
   };
@@ -245,7 +391,7 @@ export const CompanyProvider = ({ children }) => {
       ...page
     };
     setCustomPages(prev => [newPage, ...prev]);
-    api.pages.save(newPage).catch(() => {});
+    api.pages.save(newPage).catch(trackSyncError);
 
     if (page.showInNavbar) {
       setNavItems(prev => {
@@ -263,7 +409,7 @@ export const CompanyProvider = ({ children }) => {
             order: prev.length + 1
           }
         ];
-        api.navItems.saveAll(updatedNav).catch(() => {});
+        api.navItems.saveAll(updatedNav).catch(trackSyncError);
         return updatedNav;
       });
     }
@@ -275,7 +421,7 @@ export const CompanyProvider = ({ children }) => {
     setCustomPages(prev => {
       const updatedList = prev.map(p => p.id === id ? { ...p, ...updated } : p);
       const target = updatedList.find(p => p.id === id);
-      if (target) api.pages.save(target).catch(() => {});
+      if (target) api.pages.save(target).catch(trackSyncError);
       return updatedList;
     });
   };
@@ -285,12 +431,12 @@ export const CompanyProvider = ({ children }) => {
     if (target) {
       setNavItems(prev => {
         const filtered = prev.filter(item => item.path !== `p/${target.slug}`);
-        api.navItems.saveAll(filtered).catch(() => {});
+        api.navItems.saveAll(filtered).catch(trackSyncError);
         return filtered;
       });
     }
     setCustomPages(prev => prev.filter(p => p.id !== id));
-    api.pages.delete(id).catch(() => {});
+    api.pages.delete(id).catch(trackSyncError);
   };
 
   // Dynamic Navigation Actions with MySQL Sync
@@ -304,7 +450,7 @@ export const CompanyProvider = ({ children }) => {
     };
     setNavItems(prev => {
       const updated = [...prev, newItem];
-      api.navItems.saveAll(updated).catch(() => {});
+      api.navItems.saveAll(updated).catch(trackSyncError);
       return updated;
     });
     return newItem;
@@ -313,7 +459,7 @@ export const CompanyProvider = ({ children }) => {
   const updateNavItem = (id, updated) => {
     setNavItems(prev => {
       const updatedList = prev.map(item => item.id === id ? { ...item, ...updated } : item);
-      api.navItems.saveAll(updatedList).catch(() => {});
+      api.navItems.saveAll(updatedList).catch(trackSyncError);
       return updatedList;
     });
   };
@@ -321,7 +467,7 @@ export const CompanyProvider = ({ children }) => {
   const deleteNavItem = (id) => {
     setNavItems(prev => {
       const filtered = prev.filter(item => item.id !== id);
-      api.navItems.saveAll(filtered).catch(() => {});
+      api.navItems.saveAll(filtered).catch(trackSyncError);
       return filtered;
     });
   };
@@ -329,7 +475,7 @@ export const CompanyProvider = ({ children }) => {
   const toggleNavItemVisibility = (id) => {
     setNavItems(prev => {
       const toggled = prev.map(item => item.id === id ? { ...item, isVisible: !item.isVisible } : item);
-      api.navItems.saveAll(toggled).catch(() => {});
+      api.navItems.saveAll(toggled).catch(trackSyncError);
       return toggled;
     });
   };
@@ -343,7 +489,7 @@ export const CompanyProvider = ({ children }) => {
     newItems[targetIndex] = temp;
     const ordered = newItems.map((item, idx) => ({ ...item, order: idx + 1 }));
     setNavItems(ordered);
-    api.navItems.saveAll(ordered).catch(() => {});
+    api.navItems.saveAll(ordered).catch(trackSyncError);
   };
 
   // Dynamic Blog CMS Actions with MySQL Sync
@@ -353,7 +499,7 @@ export const CompanyProvider = ({ children }) => {
       slug: (post.slug || post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')),
       publishedDate: new Date().toISOString().split('T')[0],
       readTime: post.readTime || '5 min read',
-      author: post.author || 'MANABS Editorial Board',
+      author: post.author || 'MANEBZ Editorial Board',
       authorRole: post.authorRole || 'Compliance & Strategy Lead',
       authorAvatar: post.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop',
       coverImage: post.coverImage || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop',
@@ -361,7 +507,7 @@ export const CompanyProvider = ({ children }) => {
       ...post
     };
     setBlogs(prev => [newPost, ...prev]);
-    api.blogs.save(newPost).catch(() => {});
+    api.blogs.save(newPost).catch(trackSyncError);
     return newPost;
   };
 
@@ -369,14 +515,14 @@ export const CompanyProvider = ({ children }) => {
     setBlogs(prev => {
       const updatedList = prev.map(b => b.id === id ? { ...b, ...updated } : b);
       const target = updatedList.find(b => b.id === id);
-      if (target) api.blogs.save(target).catch(() => {});
+      if (target) api.blogs.save(target).catch(trackSyncError);
       return updatedList;
     });
   };
 
   const deleteBlogPost = (id) => {
     setBlogs(prev => prev.filter(b => b.id !== id));
-    api.blogs.delete(id).catch(() => {});
+    api.blogs.delete(id).catch(trackSyncError);
   };
 
   // Inquiries / Leads States
@@ -502,7 +648,7 @@ export const CompanyProvider = ({ children }) => {
     };
     setServices(prev => {
       const updated = [...prev, s];
-      api.services.save(s).catch(() => {});
+      api.services.save(s).catch(trackSyncError);
       return updated;
     });
     return s;
@@ -512,14 +658,14 @@ export const CompanyProvider = ({ children }) => {
     setServices(prev => {
       const updatedList = prev.map(s => s.id === id ? { ...s, ...updatedFields } : s);
       const target = updatedList.find(s => s.id === id);
-      if (target) api.services.save(target).catch(() => {});
+      if (target) api.services.save(target).catch(trackSyncError);
       return updatedList;
     });
   };
 
   const deleteService = (id) => {
     setServices(prev => prev.filter(s => s.id !== id));
-    api.services.delete(id).catch(() => {});
+    api.services.delete(id).catch(trackSyncError);
   };
 
   // Actions: Jobs Management with MySQL Sync
@@ -530,7 +676,7 @@ export const CompanyProvider = ({ children }) => {
     };
     setJobs(prev => {
       const updated = [j, ...prev];
-      api.jobs.save(j).catch(() => {});
+      api.jobs.save(j).catch(trackSyncError);
       return updated;
     });
     return j;
@@ -540,29 +686,31 @@ export const CompanyProvider = ({ children }) => {
     setJobs(prev => {
       const updatedList = prev.map(j => j.id === id ? { ...j, ...updatedFields } : j);
       const target = updatedList.find(j => j.id === id);
-      if (target) api.jobs.save(target).catch(() => {});
+      if (target) api.jobs.save(target).catch(trackSyncError);
       return updatedList;
     });
   };
 
   const deleteJob = (id) => {
     setJobs(prev => prev.filter(j => j.id !== id));
-    api.jobs.delete(id).catch(() => {});
+    api.jobs.delete(id).catch(trackSyncError);
   };
 
   // Actions: Stats, Milestones & Values with MySQL Sync
   const updateStat = (id, updatedFields) => {
     setCompanyStats(prev => {
       const updated = prev.map(st => st.id === id ? { ...st, ...updatedFields } : st);
-      api.stats.saveAll(updated).catch(() => {});
+      api.stats.saveAll(updated).catch(trackSyncError);
       return updated;
     });
   };
 
   const addStat = (stat) => {
     setCompanyStats(prev => {
-      const updated = [...prev, { id: Date.now(), ...stat }];
-      api.stats.saveAll(updated).catch(() => {});
+      // String id: the backend stores stat_id as VARCHAR and returns it as a string,
+      // so a numeric id here stops matching its own row after the next page load.
+      const updated = [...prev, { id: `stat-${Date.now()}`, ...stat }];
+      api.stats.saveAll(updated).catch(trackSyncError);
       return updated;
     });
   };
@@ -570,7 +718,7 @@ export const CompanyProvider = ({ children }) => {
   const deleteStat = (id) => {
     setCompanyStats(prev => {
       const updated = prev.filter(st => st.id !== id);
-      api.stats.saveAll(updated).catch(() => {});
+      api.stats.saveAll(updated).catch(trackSyncError);
       return updated;
     });
   };
@@ -579,23 +727,32 @@ export const CompanyProvider = ({ children }) => {
     setMilestones(prev => {
       const copy = [...prev];
       copy[index] = { ...copy[index], ...updatedFields };
+      api.milestones.saveAll(copy).catch(trackSyncError);
       return copy;
     });
   };
 
   const addMilestone = (milestone) => {
-    setMilestones(prev => [...prev, milestone]);
+    setMilestones(prev => {
+      const updated = [...prev, milestone];
+      api.milestones.saveAll(updated).catch(trackSyncError);
+      return updated;
+    });
   };
 
   const deleteMilestone = (index) => {
-    setMilestones(prev => prev.filter((_, i) => i !== index));
+    setMilestones(prev => {
+      const updated = prev.filter((_, i) => i !== index);
+      api.milestones.saveAll(updated).catch(trackSyncError);
+      return updated;
+    });
   };
 
   const updateCompliance = (index, updatedFields) => {
     setStatutoryCompliances(prev => {
       const copy = [...prev];
       copy[index] = { ...copy[index], ...updatedFields };
-      api.compliances.saveAll(copy).catch(() => {});
+      api.compliances.saveAll(copy).catch(trackSyncError);
       return copy;
     });
   };
@@ -603,7 +760,7 @@ export const CompanyProvider = ({ children }) => {
   const addCompliance = (compliance) => {
     setStatutoryCompliances(prev => {
       const updated = [...prev, compliance];
-      api.compliances.saveAll(updated).catch(() => {});
+      api.compliances.saveAll(updated).catch(trackSyncError);
       return updated;
     });
   };
@@ -611,7 +768,7 @@ export const CompanyProvider = ({ children }) => {
   const deleteCompliance = (index) => {
     setStatutoryCompliances(prev => {
       const updated = prev.filter((_, i) => i !== index);
-      api.compliances.saveAll(updated).catch(() => {});
+      api.compliances.saveAll(updated).catch(trackSyncError);
       return updated;
     });
   };
@@ -621,7 +778,7 @@ export const CompanyProvider = ({ children }) => {
     const t = { id: `t-${Date.now()}`, ...testimonial };
     setTestimonials(prev => {
       const updated = [t, ...prev];
-      api.testimonials.saveAll(updated).catch(() => {});
+      api.testimonials.saveAll(updated).catch(trackSyncError);
       return updated;
     });
     return t;
@@ -630,7 +787,7 @@ export const CompanyProvider = ({ children }) => {
   const updateTestimonial = (id, updatedFields) => {
     setTestimonials(prev => {
       const updated = prev.map(t => t.id === id ? { ...t, ...updatedFields } : t);
-      api.testimonials.saveAll(updated).catch(() => {});
+      api.testimonials.saveAll(updated).catch(trackSyncError);
       return updated;
     });
   };
@@ -638,7 +795,7 @@ export const CompanyProvider = ({ children }) => {
   const deleteTestimonial = (id) => {
     setTestimonials(prev => {
       const updated = prev.filter(t => t.id !== id);
-      api.testimonials.saveAll(updated).catch(() => {});
+      api.testimonials.saveAll(updated).catch(trackSyncError);
       return updated;
     });
   };
@@ -674,12 +831,12 @@ export const CompanyProvider = ({ children }) => {
 
   const updateInquiryStatus = (id, status) => {
     setInquiries(prev => prev.map(inq => inq.id === id ? { ...inq, status } : inq));
-    api.inquiries.updateStatus(id, status).catch(() => {});
+    api.inquiries.updateStatus(id, status).catch(trackSyncError);
   };
 
   const deleteInquiry = (id) => {
     setInquiries(prev => prev.filter(inq => inq.id !== id));
-    api.inquiries.delete(id).catch(() => {});
+    api.inquiries.delete(id).catch(trackSyncError);
   };
 
   // Actions: Job Applications & Kanban Stage Manager with MySQL Sync
@@ -728,17 +885,17 @@ export const CompanyProvider = ({ children }) => {
 
   const updateJobApplicationStatus = (refId, status) => {
     setJobApplications(prev => prev.map(a => a.refId === refId ? { ...a, status, stage: status } : a));
-    api.careers.updateStatus(refId, status).catch(() => {});
+    api.careers.updateStatus(refId, status).catch(trackSyncError);
   };
 
   const updateApplicationStage = (refId, newStage) => {
     setJobApplications(prev => prev.map(a => a.refId === refId ? { ...a, stage: newStage, status: newStage } : a));
-    api.careers.updateStatus(refId, newStage).catch(() => {});
+    api.careers.updateStatus(refId, newStage).catch(trackSyncError);
   };
 
   const deleteJobApplication = (refId) => {
     setJobApplications(prev => prev.filter(a => a.refId !== refId));
-    api.careers.delete(refId).catch(() => {});
+    api.careers.delete(refId).catch(trackSyncError);
   };
 
   const addTalentVaultApplication = (app) => {
@@ -871,6 +1028,23 @@ export const CompanyProvider = ({ children }) => {
 
         emailSettings,
         updateEmailSettings,
+
+        homeContent,
+        updateHomeContent,
+        resetHomeContent,
+
+        updateCoreValues,
+        updateAboutContent,
+
+        contactInfo,
+        updateContactInfo,
+        resetContactInfo,
+
+        contentLoaded,
+
+        syncError,
+        clearSyncError,
+        refreshAdminData,
 
         resetAllToDefaults
       }}

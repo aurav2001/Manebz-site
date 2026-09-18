@@ -45,7 +45,7 @@ const PayrollPage = ({ onNavigate }) => {
 
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
               <Award className="w-3.5 h-3.5 text-red-400" />
-              <span>MANABS Payroll & Workforce Solutions</span>
+              <span>MANEBZ Payroll & Workforce Solutions</span>
             </div>
           </div>
 
@@ -59,7 +59,7 @@ const PayrollPage = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* Main Interactive Payroll Engine */}
+      {/* Main Payroll & Statutory Compliance Engine */}
       <div className="py-8">
         <PayrollSection onNavigate={onNavigate} />
       </div>
@@ -73,7 +73,7 @@ const PayrollPage = ({ onNavigate }) => {
               Zero-Risk Regulatory Governance
             </span>
             <h3 className="text-2xl sm:text-3xl font-bold">
-              Complete Statutory Filings Handled by MANABS
+              Complete Statutory Filings Handled by MANEBZ
             </h3>
             <p className="text-xs text-gray-300">
               Never worry about audit notices, late return penalties, or compliance discrepancies.

@@ -10,7 +10,7 @@ export const companyMilestones = [
   {
     year: "2014 (27th Feb)",
     title: "Foundation & Genesis",
-    description: "MANABS was founded on 27th February 2014 by a team of veteran professionals from facilities & engineering industries in Delhi & NCR.",
+    description: "MANEBZ was founded on 27th February 2014 by a team of veteran professionals from facilities & engineering industries in Delhi & NCR.",
     badge: "Origin",
   },
   {
@@ -164,7 +164,7 @@ export const servicesData = [
       { step: "04", title: "Automated Payroll & Continuous QA", desc: "Biometric sync, monthly ECR challan filing, on-time salary disbursal, and performance audits." }
     ],
     faqs: [
-      { q: "How does MANABS ensure 100% statutory compliance?", a: "We handle monthly PF Electronic Challan cum Return (ECR), ESIC return filings, Profession Tax, and GST with timestamped compliance records accessible to our clients." },
+      { q: "How does MANEBZ ensure 100% statutory compliance?", a: "We handle monthly PF Electronic Challan cum Return (ECR), ESIC return filings, Profession Tax, and GST with timestamped compliance records accessible to our clients." },
       { q: "What is the training curriculum in the Resource Cell?", a: "The 2-week curriculum includes standard operating procedures (SOPs), chemical handling safety, machine operation, emergency response, and professional etiquette." },
       { q: "What happens if deployed personnel take unplanned leave?", a: "We maintain an active buffer pool of pre-trained backup staff ensuring immediate same-day replacement with zero disruption to your daily operations." }
     ]
@@ -209,7 +209,7 @@ export const servicesData = [
     faqs: [
       { q: "How does the JIT management system work in practice?", a: "Our JIT system coordinates consumables, spare parts, and packaging replenishment precisely when needed, eliminating clutter and idle buffer inventory." },
       { q: "Are all forklift and machine operators certified?", a: "Yes, every machine operator undergoes background verification, medical clearance, and certified training for forklift, stacker, and BOPT handling." },
-      { q: "Can MANABS scale logistics operations during festive peak seasons?", a: "Absolutely. Our regional Resource Cell enables rapid scaling of workforce by 200%+ during high-demand surges with 24-48 hours notice." }
+      { q: "Can MANEBZ scale logistics operations during festive peak seasons?", a: "Absolutely. Our regional Resource Cell enables rapid scaling of workforce by 200%+ during high-demand surges with 24-48 hours notice." }
     ]
   },
   {
@@ -292,8 +292,8 @@ export const servicesData = [
       { step: "04", title: "Phased Relocation & Live Handover", desc: "Managing physical asset movement over weekends to ensure Monday morning 100% operational readiness." }
     ],
     faqs: [
-      { q: "How does MANABS ensure zero business disruption during office relocation?", a: "We plan relocations in phased weekend batches. IT servers, workstations, and files are packed on Friday evening and reassembled and tested by Sunday afternoon." },
-      { q: "Can MANABS assist with both commercial office and warehouse leasing?", a: "Yes, we handle corporate office towers, tech parks, industrial warehousing hubs, and manufacturing facilities across North India and pan-India." },
+      { q: "How does MANEBZ ensure zero business disruption during office relocation?", a: "We plan relocations in phased weekend batches. IT servers, workstations, and files are packed on Friday evening and reassembled and tested by Sunday afternoon." },
+      { q: "Can MANEBZ assist with both commercial office and warehouse leasing?", a: "Yes, we handle corporate office towers, tech parks, industrial warehousing hubs, and manufacturing facilities across North India and pan-India." },
       { q: "Do you help renegotiate existing lease agreements?", a: "Yes, our lease advisory team evaluates current market benchmark rentals and represents you in negotiating lease renewals or restructuring terms." }
     ]
   },
@@ -643,7 +643,7 @@ export const testimonialsData = [
     company: "Apex Tower & Business Parks",
     location: "Cyber City, Gurugram (Delhi NCR)",
     rating: 5,
-    quote: "MANABS has been managing our 450,000 sq.ft commercial tech park for over 4 years. Their 24/7 technical team, state-of-the-art bio-friendly cleaning machinery, and strict adherence to ISO & EMS quality standards have kept our tenant satisfaction at an all-time high.",
+    quote: "MANEBZ has been managing our 450,000 sq.ft commercial tech park for over 4 years. Their 24/7 technical team, state-of-the-art bio-friendly cleaning machinery, and strict adherence to ISO & EMS quality standards have kept our tenant satisfaction at an all-time high.",
     metric: "99.9% Facility Uptime",
     serviceUsed: "Integrated Facilities Management",
   },
@@ -665,7 +665,7 @@ export const testimonialsData = [
     company: "Shree Ganga FMCG Warehouses",
     location: "Lucknow & Kanpur (Uttar Pradesh)",
     rating: 5,
-    quote: "Implementing MANABS's JIT Management System across our multi-city fulfillment hubs reduced material handling turnaround by 40%. The surprise quality audit visits by their senior management ensure standard operating discipline every day.",
+    quote: "Implementing MANEBZ's JIT Management System across our multi-city fulfillment hubs reduced material handling turnaround by 40%. The surprise quality audit visits by their senior management ensure standard operating discipline every day.",
     metric: "40% Faster Turnaround",
     serviceUsed: "Logistics & Warehouse Operations",
   },
@@ -676,7 +676,7 @@ export const testimonialsData = [
     company: "Himalayan Industrial Corridor",
     location: "Pantnagar & Haridwar (Uttarakhand)",
     rating: 5,
-    quote: "When we relocated our manufacturing facility, MANABS handled both the turn-key site setup and deployment of 200+ trained technical operators. Their local network in Uttarakhand combined with corporate rigor in Delhi NCR is unmatched.",
+    quote: "When we relocated our manufacturing facility, MANEBZ handled both the turn-key site setup and deployment of 200+ trained technical operators. Their local network in Uttarakhand combined with corporate rigor in Delhi NCR is unmatched.",
     metric: "Zero-Disruption Relocation",
     serviceUsed: "Real Estate Advisory & Leasing",
   },
@@ -687,7 +687,7 @@ export const testimonialsData = [
     company: "Sterling FinCorp Corporate Towers",
     location: "Delhi NCR & Pan-India",
     rating: 5,
-    quote: "For compliance audits, MANABS is the gold standard. Every monthly PF ECR, ESIC return, and suggestion register is maintained meticulously with timestamped checklists. Truly a trusted partner for over 6 years.",
+    quote: "For compliance audits, MANEBZ is the gold standard. Every monthly PF ECR, ESIC return, and suggestion register is maintained meticulously with timestamped checklists. Truly a trusted partner for over 6 years.",
     metric: "Zero Compliance Gap",
     serviceUsed: "Compliance Management & Audits",
   },

@@ -14,6 +14,7 @@ import CareersPage from './pages/CareersPage';
 import ContactPage from './pages/ContactPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import DynamicPage from './pages/DynamicPage';
+import NotFoundPage from './pages/NotFoundPage';
 import CalculatorPage from './pages/CalculatorPage';
 import BlogPage from './pages/BlogPage';
 import SmartAssistantWidget from './components/SmartAssistantWidget';
@@ -64,7 +65,7 @@ const PageLoadingFallback = () => (
       <div className="w-12 h-12 rounded-full border-4 border-gray-100 border-t-red-600 animate-spin" />
       <div className="w-6 h-6 rounded-full bg-sky-500/20 absolute" />
     </div>
-    <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Loading MANABS...</span>
+    <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Loading MANEBZ...</span>
   </div>
 );
 
@@ -80,7 +81,7 @@ function AppContent() {
     const parts = pathname ? pathname.split('/') : [];
     const mainPage = parts[0] || 'home';
     const subRoute = parts.slice(1).join('/') || null;
-    const validStaticPages = ['home', 'about', 'services', 'payroll', 'careers', 'contact', 'admin', 'calculator', 'blog'];
+    const validStaticPages = ['home', 'about', 'services', 'payroll', 'careers', 'contact', 'admin', 'blog'];
     
     if (validStaticPages.includes(mainPage)) {
       return { page: mainPage, subRoute: subRoute };
@@ -103,6 +104,25 @@ function AppContent() {
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Ctrl+M (Cmd+M on Mac) opens the admin panel. This replaces the footer link — it
+  // only reveals the login screen, so it is a convenience, not an access control.
+  useEffect(() => {
+    const handleAdminShortcut = (e) => {
+      if (e.key?.toLowerCase() !== 'm' || !(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return;
+
+      // Don't hijack the combo while someone is typing in a form field.
+      const el = e.target;
+      const tag = el?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select' || el?.isContentEditable) return;
+
+      e.preventDefault();
+      handleNavigate('admin');
+    };
+
+    window.addEventListener('keydown', handleAdminShortcut);
+    return () => window.removeEventListener('keydown', handleAdminShortcut);
   }, []);
 
   const handleNavigate = (pageId, subRoute = null) => {
@@ -163,8 +183,11 @@ function AppContent() {
       case 'p':
         return <DynamicPage slug={routeInfo.subRoute} onNavigate={handleNavigate} />;
       case 'home':
-      default:
         return <HomePage onNavigate={handleNavigate} />;
+      default:
+        // A route that resolved to no page at all. Showing the homepage here would hide
+        // the broken link instead of reporting it.
+        return <NotFoundPage onNavigate={handleNavigate} attemptedPath={routeInfo.page} />;
     }
   };
 

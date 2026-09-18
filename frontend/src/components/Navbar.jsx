@@ -22,6 +22,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
+import { toTelHref } from '../data/siteContact';
 
 const iconMap = {
   Users: Users,
@@ -32,7 +33,7 @@ const iconMap = {
 };
 
 const Navbar = ({ currentPage, onNavigate }) => {
-  const { services, addInquiry, navItems } = useCompany();
+  const { services, addInquiry, navItems, contactInfo } = useCompany();
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
   const [hoveredTab, setHoveredTab] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -96,7 +97,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
           >
             <img 
               src={logoImg} 
-              alt="MANEBZ / MANABS Logo" 
+              alt="MANEBZ Logo" 
               loading="eager"
               decoding="async"
               className="h-9 sm:h-10 w-auto object-contain rounded-lg shadow-sm border border-gray-100 group-hover:scale-105 transition-transform" 
@@ -215,7 +216,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
           <div className="mb-2.5 w-[calc(100vw-32px)] sm:w-[380px] max-w-[380px] bg-white/95 backdrop-blur-2xl rounded-2xl p-3.5 shadow-2xl border border-gray-200 animate-in fade-in slide-in-from-bottom-2 duration-200">
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-100 px-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                MANABS Service Spectrum
+                MANEBZ Service Spectrum
               </span>
               <button
                 onClick={() => {
@@ -476,11 +477,11 @@ const Navbar = ({ currentPage, onNavigate }) => {
                   Central Helpdesk
                 </span>
                 <a
-                  href="tel:+911123456789"
+                  href={toTelHref(contactInfo.phonePrimary)}
                   className="flex items-center gap-2 text-xs font-bold text-slate-800 hover:text-red-600 transition-colors"
                 >
                   <Phone className="w-3.5 h-3.5 text-red-600" />
-                  <span>+91 11 2345 6789</span>
+                  <span>{contactInfo.phonePrimary}</span>
                 </a>
               </div>
 

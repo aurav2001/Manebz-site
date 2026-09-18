@@ -1,5 +1,5 @@
 /**
- * MANABS Real-time Notification Engine
+ * MANEBZ Real-time Notification Engine
  * Supports Webhook Dispatch, In-app Chime & Browser Push Alerts
  */
 
@@ -33,7 +33,7 @@ export const playNotificationChime = () => {
 
 // Dispatch Email or Webhook Alert to configured destinations
 export const dispatchNotificationAlert = async (type, data, settings = {}) => {
-  console.log(`[MANABS NOTIFICATION] Dispatching alert [${type}]:`, data);
+  console.log(`[MANEBZ NOTIFICATION] Dispatching alert [${type}]:`, data);
 
   // Play audio cue
   playNotificationChime();
@@ -60,7 +60,7 @@ export const dispatchNotificationAlert = async (type, data, settings = {}) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          source: 'MANABS Enterprise Portal',
+          source: 'MANEBZ Enterprise Portal',
           event: type,
           timestamp: new Date().toISOString(),
           payload: data

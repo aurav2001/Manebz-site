@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { servicesData, companyStats, qualityAssurancePoints } from '../data/companyData';
 import { useCompany } from '../context/CompanyContext';
+import { defaultHomeContent } from '../data/homeContent';
 import PayrollSection from '../components/PayrollSection';
 import TestimonialsSlider from '../components/TestimonialsSlider';
 import FAQSection from '../components/FAQSection';
@@ -30,77 +31,39 @@ const iconMap = {
   ShieldCheck: ShieldCheck,
 };
 
-const heroSlides = [
-  {
-    image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop',
-    title: 'Integrated Facilities Management',
-    tagline: 'Modern Corporate Infrastructure & Soft Services Governance',
-    badge: 'Integrated Facilities'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=2074&auto=format&fit=crop',
-    title: 'Corporate Staffing & Payroll',
-    tagline: '100% Statutory Compliant Workforce & Resource Cell',
-    badge: 'Staffing & Payroll'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop',
-    title: 'Logistics & Warehousing',
-    tagline: 'JIT Supply Chain & Certified Operations Crew',
-    badge: 'Logistics Operations'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=2070&auto=format&fit=crop',
-    title: 'Engineering & Maintenance (MEP)',
-    tagline: '24/7/365 HVAC, Electrical & Facility Uptime Governance',
-    badge: 'Engineering & MEP'
-  }
-];
-
-const workSteps = [
-  {
-    step: 'Step 01',
-    title: 'Consultation & Site Audit',
-    desc: 'Understanding your corporate facilities, workforce volume, logistics flow, and statutory compliance needs.',
-    icon: Building2,
-    color: 'text-sky-600 bg-sky-50',
-  },
-  {
-    step: 'Step 02',
-    title: 'Resource Cell Screening',
-    desc: 'Rigorous selection and mandatory 2-week training including 6-8 days induction for all personnel.',
-    icon: GraduationCap,
-    color: 'text-red-600 bg-red-50',
-  },
-  {
-    step: 'Step 03',
-    title: 'Bio-Friendly Deployment',
-    desc: 'Mobilization of state-of-the-art machines, eco-friendly consumables, and manager-level supervisors.',
-    icon: Award,
-    color: 'text-sky-600 bg-sky-50',
-  },
-  {
-    step: 'Step 04',
-    title: '24/7 Operations & QA Audits',
-    desc: 'Round-the-clock facility uptime, ISO/EMS checklists, JIT replenishment, and unannounced surprise visits.',
-    icon: ShieldCheck,
-    color: 'text-red-600 bg-red-50',
-  },
+// Cycled by position for the "How we operate" cards, so the admin panel only has to
+// collect words — no icon picker, and any number of steps still looks intentional.
+const stepIcons = [Building2, GraduationCap, Award, ShieldCheck];
+const stepTints = [
+  'text-sky-600 bg-sky-50',
+  'text-red-600 bg-red-50',
 ];
 
 const HomePage = ({ onNavigate }) => {
-  const { services, companyStats: dynamicStats, addInquiry, blogs } = useCompany();
+  const { services, companyStats: dynamicStats, addInquiry, blogs, homeContent } = useCompany();
+  // Everything below reads from homeContent, which the admin panel edits. The arrays
+  // fall back to the shipped defaults so an empty save never leaves the page blank.
+  const hero = homeContent.hero;
+  const heroSlides = hero.slides?.length > 0 ? hero.slides : defaultHomeContent.hero.slides;
+  const servicesIntro = homeContent.servicesIntro;
+  const workflow = homeContent.workflow;
+  const workSteps = workflow.steps?.length > 0 ? workflow.steps : defaultHomeContent.workflow.steps;
+  const qaBanner = homeContent.qaBanner;
   const [emailInput, setEmailInput] = useState('');
   const [emailSubmitted, setEmailSubmitted] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // Auto-rotate hero images every 10 seconds (10000ms)
+  // Auto-rotate hero images every 10 seconds (10000ms). Keyed on the slide count so
+  // removing a slide in the admin panel cannot leave the index pointing past the end.
   useEffect(() => {
+    setActiveSlide((prev) => (prev < heroSlides.length ? prev : 0));
     const timer = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % heroSlides.length);
     }, 10000);
     return () => clearInterval(timer);
-  }, []);
+  }, [heroSlides.length]);
+
+  const activeHeroSlide = heroSlides[activeSlide] || heroSlides[0];
 
   const handleEmailSubmit = (e) => {
     e.preventDefault();
@@ -153,25 +116,25 @@ const HomePage = ({ onNavigate }) => {
           <div className="flex flex-wrap items-center justify-center gap-2">
             <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/15 text-sky-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-xs">
               <Award className="w-3.5 h-3.5 text-red-400 shrink-0" />
-              <span>Founded Feb 27, 2014 • Delhi NCR • North India</span>
+              <span>{hero.eyebrow}</span>
             </div>
 
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600/30 border border-red-500/40 text-red-300 text-[11px] sm:text-xs font-bold backdrop-blur-md animate-pulse">
               <CheckCircle2 className="w-3 h-3 text-red-400 shrink-0" />
-              <span>{heroSlides[activeSlide].badge}</span>
+              <span>{activeHeroSlide.badge}</span>
             </div>
           </div>
 
           {/* Heading */}
           <h1 className="text-2xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
-            Strategic Facilities Management & <br className="hidden sm:inline" />
+            {hero.headingLine1} <br className="hidden sm:inline" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-sky-200 to-red-500">
-              Skilled Workforce Solutions
+              {hero.headingHighlight}
             </span>
           </h1>
 
           <p className="text-xs sm:text-base text-gray-200 max-w-3xl mx-auto leading-relaxed drop-shadow-sm font-medium px-2 sm:px-0">
-            {heroSlides[activeSlide].tagline} — Delivering state-of-the-art machines, bio-friendly consumables, trained personnel, and 100% statutory compliance (PF, ESI, PAN) 24/7/365.
+            {activeHeroSlide.tagline} — {hero.subtext}
           </p>
 
           {/* Consultation Quote Request Form */}
@@ -266,14 +229,16 @@ const HomePage = ({ onNavigate }) => {
         
         <div className="mb-16 text-left max-w-3xl space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold uppercase tracking-wider">
-            <span>Corporate Solutions</span>
+            <span>{servicesIntro.eyebrow}</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-            Comprehensive <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0a192f] via-sky-700 to-red-600">Facilities & Staffing</span> Ecosystem
+            {servicesIntro.headingBefore}{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0a192f] via-sky-700 to-red-600">{servicesIntro.headingHighlight}</span>{' '}
+            {servicesIntro.headingAfter}
           </h2>
           <div className="w-16 h-1.5 bg-gradient-to-r from-sky-500 to-blue-600 rounded-full mt-3 mb-3" />
           <p className="text-slate-600 text-base sm:text-lg font-normal leading-relaxed pt-1">
-            Tailored corporate services designed to accelerate business productivity, guarantee 100% statutory compliance, and ensure robust operational security.
+            {servicesIntro.subtext}
           </p>
         </div>
 
@@ -370,30 +335,33 @@ const HomePage = ({ onNavigate }) => {
           
           <div className="text-center max-w-2xl mx-auto mb-16 space-y-2">
             <span className="text-xs font-bold uppercase tracking-widest text-sky-600 block">
-              Operational Rigor
+              {workflow.eyebrow}
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-              How MANABS Operates
+              {workflow.heading}
             </h2>
             <div className="w-16 h-1 bg-gradient-to-r from-red-600 to-sky-600 mx-auto rounded-full mt-2" />
             <p className="text-gray-600 text-xs sm:text-sm pt-1">
-              A systematic 4-step framework guaranteeing zero time-lag and 100% compliance.
+              {workflow.subtext}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {workSteps.map((ws) => {
-              const Icon = ws.icon;
+            {workSteps.map((ws, idx) => {
+              // Icon and tint follow the step's position, so an admin adding or
+              // reordering steps never has to think about them.
+              const Icon = stepIcons[idx % stepIcons.length];
+              const tint = stepTints[idx % stepTints.length];
               return (
-                <div 
-                  key={ws.step}
+                <div
+                  key={ws.id || ws.step || idx}
                   className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-3 hover:border-red-400 transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-extrabold uppercase tracking-wider text-red-600">
                       {ws.step}
                     </span>
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${ws.color}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tint}`}>
                       <Icon className="w-5 h-5" />
                     </div>
                   </div>
@@ -423,17 +391,17 @@ const HomePage = ({ onNavigate }) => {
             
             <div className="lg:col-span-8 space-y-4">
               <span className="text-xs font-bold uppercase tracking-widest text-sky-400">
-                100% Statutory Adherence & Quality Assurance
+                {qaBanner.eyebrow}
               </span>
               <h3 className="text-2xl sm:text-3xl font-extrabold leading-tight">
-                PF, ESI, PAN & Service Tax Registered with ISO & EMS Quality Management
+                {qaBanner.heading}
               </h3>
               <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                We implement structured location checklists, Suggestion Registers, JIT replenishment, and surprise field audits by senior leadership to ensure flawless 24/7 operations.
+                {qaBanner.text}
               </p>
 
               <div className="flex flex-wrap gap-2 pt-2">
-                {['P.F. Registration', 'E.S.I. Registration', 'PAN Compliant', 'GST / Tax Adherence', 'ISO & EMS Audits', 'JIT System'].map((item, i) => (
+                {(qaBanner.chips || []).map((item, i) => (
                   <span key={i} className="px-3 py-1 bg-white/10 rounded-lg text-xs font-semibold text-sky-200 border border-white/10">
                     ✓ {item}
                   </span>

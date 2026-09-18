@@ -16,7 +16,7 @@ const homeFAQs = [
   {
     id: 'faq-1',
     category: 'compliance',
-    question: 'How does MANABS guarantee 100% PF, ESI, and Statutory Compliance?',
+    question: 'How does MANEBZ guarantee 100% PF, ESI, and Statutory Compliance?',
     answer: 'We operate a dedicated Statutory Compliance Cell. Every deployed employee is covered under EPFO and ESIC from Day 1. By the 15th of every month, we provide client partners with consolidated compliance dockets containing certified bank-verified ECR payment challans, Form 5/10 returns, and digital wage sheets—guaranteeing zero statutory liability for the principal employer.'
   },
   {
@@ -40,7 +40,7 @@ const homeFAQs = [
   {
     id: 'faq-5',
     category: 'payroll',
-    question: 'Can MANABS handle automated biometric attendance and direct salary disbursals?',
+    question: 'Can MANEBZ handle automated biometric attendance and direct salary disbursals?',
     answer: 'Yes. We provide integrated biometric machines and GPS-based geo-fencing attendance tracking. Our automated payroll engine computes exact basic pay, HRA, 2x overtime rates, and statutory deductions, enabling single-click direct bank NEFT/IMPS transfers and automated WhatsApp/SMS digital payslip delivery.'
   },
   {

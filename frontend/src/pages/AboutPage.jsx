@@ -24,6 +24,9 @@ import {
 import { useCompany } from '../context/CompanyContext';
 import serviceBg from '../assets/servicebg.avif';
 
+// Cycled by position for the core values cards — no icon picker in the admin panel.
+const valueIcons = [HeartHandshake, ShieldCheck, Scale, Award, Users, GraduationCap];
+
 const AboutPage = ({ onNavigate }) => {
   const { 
     companyStats: dynamicStats, 
@@ -40,7 +43,7 @@ const AboutPage = ({ onNavigate }) => {
         <div className="absolute inset-0 z-0">
           <img 
             src={serviceBg} 
-            alt="About MANABS" 
+            alt="About MANEBZ" 
             className="w-full h-full object-cover opacity-20"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#071324] via-[#071324]/85 to-[#071324]/60" />
@@ -58,7 +61,7 @@ const AboutPage = ({ onNavigate }) => {
 
             <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md">
               <Award className="w-3.5 h-3.5 text-red-400 shrink-0" />
-              <span>About MANABS / MANEBZ</span>
+              <span>About MANEBZ</span>
             </div>
           </div>
 
@@ -89,16 +92,16 @@ const AboutPage = ({ onNavigate }) => {
 
             <div className="space-y-4 text-gray-700 text-sm sm:text-base leading-relaxed">
               <p>
-                <strong>MANABS</strong> was originally founded on <strong>27th February 2014</strong> by a team of seasoned professionals from the facilities & engineering industries in <strong>Delhi & NCR</strong>. From the very beginning, the company made a head start in the provision of well-trained & well-equipped personnel to its customers.
+                <strong>MANEBZ</strong> was originally founded on <strong>27th February 2014</strong> by a team of seasoned professionals from the facilities & engineering industries in <strong>Delhi & NCR</strong>. From the very beginning, the company made a head start in the provision of well-trained & well-equipped personnel to its customers.
               </p>
               <p>
                 The company has broadened its scope of services and commenced providing state-of-the-art machines & equipments with <strong>bio-friendly consumables & tools</strong> to a rapidly growing list of corporate clients.
               </p>
               <p>
-                With its base of operations in <strong>Delhi, Uttar Pradesh, Haryana & Uttarakhand</strong>, Manabs is well spread geographically to provide an elevated level of service, instant agility, and unmatched local support.
+                With its base of operations in <strong>Delhi, Uttar Pradesh, Haryana & Uttarakhand</strong>, Manebz is well spread geographically to provide an elevated level of service, instant agility, and unmatched local support.
               </p>
               <p className="bg-sky-50/60 p-4 rounded-xl border-l-4 border-sky-500 text-gray-800 text-sm">
-                <em>"For the past twenty years when the concept of Outsourcing & facilities did not exist in Indian Corporate Industry, our founders were pioneers in this service domain. MANABS over a period of time has added value services i.e. Manager Level Staff, also providing highly skilled Services for back Offices."</em>
+                <em>"For the past twenty years when the concept of Outsourcing & facilities did not exist in Indian Corporate Industry, our founders were pioneers in this service domain. MANEBZ over a period of time has added value services i.e. Manager Level Staff, also providing highly skilled Services for back Offices."</em>
               </p>
             </div>
 
@@ -177,6 +180,51 @@ const AboutPage = ({ onNavigate }) => {
 
         </div>
       </section>
+
+      {/* Core Values — edited from Admin Panel → About Page */}
+      {(dynamicCoreValues || coreValues)?.length > 0 && (
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+
+          <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-red-600">
+              What We Stand For
+            </span>
+            <h2 className="text-3xl font-extrabold text-gray-900">
+              Our Core Values
+            </h2>
+            <div className="w-16 h-1 bg-gradient-to-r from-red-600 to-sky-600 mx-auto rounded-full" />
+            <p className="text-xs sm:text-sm text-gray-500">
+              The principles that govern how we hire, deploy and manage every person working under the MANEBZ banner.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {(dynamicCoreValues || coreValues).map((val, index) => {
+              // Icon cycles by position so the admin panel only has to collect words.
+              const Icon = valueIcons[index % valueIcons.length];
+              return (
+                <div
+                  key={val.id || index}
+                  className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-200 shadow-sm hover:border-red-500 hover:shadow-lg transition-all group flex gap-5"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors flex items-center justify-center shrink-0">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <div className="min-w-0 space-y-2">
+                    <h3 className="text-base font-bold text-gray-900 group-hover:text-red-600 transition-colors">
+                      {val.title}
+                    </h3>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                      {val.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+        </section>
+      )}
 
       {/* Statutory Compliances & HR Section (Exact from User prompt) */}
       <section className="bg-gray-50 py-16 border-y border-gray-200">
@@ -291,7 +339,7 @@ const AboutPage = ({ onNavigate }) => {
               </div>
               <h3 className="text-xl sm:text-2xl font-bold">24 Hours a Day, 7 Days a Week</h3>
               <p className="text-xs sm:text-sm text-red-100 mt-2 leading-relaxed">
-                "That's how most companies need smooth operating facilities. And that's what MANABS delivers. Led by a team of facility management experts, we manage day-to-day facilities around the clock with zero time lag."
+                "That's how most companies need smooth operating facilities. And that's what MANEBZ delivers. Led by a team of facility management experts, we manage day-to-day facilities around the clock with zero time lag."
               </p>
             </div>
 

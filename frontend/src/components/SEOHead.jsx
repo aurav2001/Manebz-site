@@ -2,40 +2,40 @@ import React, { useEffect } from 'react';
 
 const seoConfig = {
   home: {
-    title: 'MANABS / MANEBZ — Strategic Facilities Management & Workforce Solutions',
+    title: 'MANEBZ — Strategic Facilities Management & Workforce Solutions',
     description: 'Pioneers in Strategic Facilities Management, HR Staffing & Payroll, Logistics & Warehouse Management, Real Estate Advisory, and 100% Statutory Compliances since 2014 across Delhi NCR, UP, Haryana, Uttarakhand.',
-    keywords: 'facilities management Delhi NCR, corporate HR staffing India, payroll outsourcing, warehouse management, real estate advisory, PF ESI compliance, bio-friendly facility maintenance, MANABS, MANEBZ',
-    canonical: 'https://manabs.com/#/home',
+    keywords: 'facilities management Delhi NCR, corporate HR staffing India, payroll outsourcing, warehouse management, real estate advisory, PF ESI compliance, bio-friendly facility maintenance, MANEBZ, MANEBZ',
+    canonical: 'https://manebz.com/#/home',
   },
   about: {
-    title: 'About Us | Know MANABS Better — Founded 27th Feb 2014',
+    title: 'About Us | Know MANEBZ Better — Founded 27th Feb 2014',
     description: 'Founded on 27th February 2014 by facilities & engineering pioneers in Delhi NCR. Learn about our in-house National Resource Cell, 2-week training model, and ISO/EMS Quality Assurance.',
-    keywords: 'About MANABS, MANEBZ history, facilities pioneers India, Resource Cell training, statutory compliance HR, ISO 9001 EMS facilities',
-    canonical: 'https://manabs.com/#/about',
+    keywords: 'About MANEBZ, MANEBZ history, facilities pioneers India, Resource Cell training, statutory compliance HR, ISO 9001 EMS facilities',
+    canonical: 'https://manebz.com/#/about',
   },
   services: {
-    title: 'Services Spectrum | Integrated Facilities, HR Staffing & Logistics — MANABS',
-    description: 'Explore MANABS 5 core verticals: HR Staffing & Payroll, Logistics & Warehouse, Integrated Facilities Management (IFM), Real Estate Advisory, and Compliance Management & Audits.',
+    title: 'Services Spectrum | Integrated Facilities, HR Staffing & Logistics — MANEBZ',
+    description: 'Explore MANEBZ 5 core verticals: HR Staffing & Payroll, Logistics & Warehouse, Integrated Facilities Management (IFM), Real Estate Advisory, and Compliance Management & Audits.',
     keywords: 'integrated facilities management, corporate staffing services, warehouse maintenance, commercial leasing advisory, statutory audits, 24/7 building upkeep',
-    canonical: 'https://manabs.com/#/services',
+    canonical: 'https://manebz.com/#/services',
   },
   payroll: {
-    title: 'Automated Payroll & Statutory Compliance Suite | Salary Calculator — MANABS',
+    title: 'Automated Payroll & Statutory Compliance Suite | Salary Calculator — MANEBZ',
     description: 'End-to-end payroll outsourcing, EPFO monthly ECR, ESIC return filings, biometric attendance sync, automated salary computation, and instant digital payslips.',
     keywords: 'payroll outsourcing India, statutory compliance PF ESI, salary calculator CTC, digital payslip generation, biometric attendance sync, EPFO ECR challan',
-    canonical: 'https://manabs.com/#/payroll',
+    canonical: 'https://manebz.com/#/payroll',
   },
   careers: {
-    title: 'Careers & Job Openings | Recruit Quality Resources, Nurture & Retain — MANABS',
+    title: 'Careers & Job Openings | Recruit Quality Resources, Nurture & Retain — MANEBZ',
     description: 'Explore exciting career opportunities in Facilities Management, HR & Payroll, MEP Engineering, and Logistics across Delhi NCR, UP, Haryana, and Uttarakhand.',
-    keywords: 'facility manager jobs, HR payroll jobs Delhi NCR, MEP technician careers, warehouse supervisor jobs, MANABS hiring',
-    canonical: 'https://manabs.com/#/careers',
+    keywords: 'facility manager jobs, HR payroll jobs Delhi NCR, MEP technician careers, warehouse supervisor jobs, MANEBZ hiring',
+    canonical: 'https://manebz.com/#/careers',
   },
   contact: {
-    title: 'Contact Us | Corporate Enquiry & Proposal Request — MANABS',
-    description: 'Get in touch with MANABS facilities and workforce consultants in Delhi & NCR, Uttar Pradesh, Haryana, Uttarakhand, and Pan-India. 24/7 operations support.',
-    keywords: 'contact MANABS, facility management enquiry, hire workforce Delhi NCR, corporate staffing quote, MANEBZ office address',
-    canonical: 'https://manabs.com/#/contact',
+    title: 'Contact Us | Corporate Enquiry & Proposal Request — MANEBZ',
+    description: 'Get in touch with MANEBZ facilities and workforce consultants in Delhi & NCR, Uttar Pradesh, Haryana, Uttarakhand, and Pan-India. 24/7 operations support.',
+    keywords: 'contact MANEBZ, facility management enquiry, hire workforce Delhi NCR, corporate staffing quote, MANEBZ office address',
+    canonical: 'https://manebz.com/#/contact',
   },
 };
 
@@ -60,7 +60,7 @@ const SEOHead = ({ currentPage }) => {
     // 3. Primary Meta Tags
     setMeta('name', 'description', data.description);
     setMeta('name', 'keywords', data.keywords);
-    setMeta('name', 'author', 'MANABS / MANEBZ Facilities & Workforce Management');
+    setMeta('name', 'author', 'MANEBZ Facilities & Workforce Management');
     setMeta('name', 'robots', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
 
     // 4. OpenGraph Tags
@@ -68,7 +68,7 @@ const SEOHead = ({ currentPage }) => {
     setMeta('property', 'og:description', data.description);
     setMeta('property', 'og:type', 'website');
     setMeta('property', 'og:url', data.canonical);
-    setMeta('property', 'og:site_name', 'MANABS / MANEBZ');
+    setMeta('property', 'og:site_name', 'MANEBZ');
     setMeta('property', 'og:locale', 'en_IN');
 
     // 5. Twitter Card Tags
@@ -100,10 +100,10 @@ const SEOHead = ({ currentPage }) => {
       "@graph": [
         {
           "@type": "Organization",
-          "@id": "https://manabs.com/#organization",
-          "name": "MANABS / MANEBZ",
-          "url": "https://manabs.com",
-          "logo": "https://manabs.com/assets/logo.jpg",
+          "@id": "https://manebz.com/#organization",
+          "name": "MANEBZ",
+          "url": "https://manebz.com",
+          "logo": "https://manebz.com/assets/logo.jpg",
           "foundingDate": "2014-02-27",
           "founders": [
             {
@@ -134,11 +134,11 @@ const SEOHead = ({ currentPage }) => {
         },
         {
           "@type": "WebSite",
-          "@id": "https://manabs.com/#website",
-          "url": "https://manabs.com",
-          "name": "MANABS Facilities & Workforce Management",
+          "@id": "https://manebz.com/#website",
+          "url": "https://manebz.com",
+          "name": "MANEBZ Facilities & Workforce Management",
           "publisher": {
-            "@id": "https://manabs.com/#organization"
+            "@id": "https://manebz.com/#organization"
           }
         },
         {
@@ -148,7 +148,7 @@ const SEOHead = ({ currentPage }) => {
               "@type": "ListItem",
               "position": 1,
               "name": "Home",
-              "item": "https://manabs.com/#/home"
+              "item": "https://manebz.com/#/home"
             },
             {
               "@type": "ListItem",

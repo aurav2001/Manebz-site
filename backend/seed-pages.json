@@ -1,0 +1,28 @@
+[
+  {
+    "id": "page-1",
+    "title": "Statutory Compliance & Standards",
+    "slug": "statutory-compliance",
+    "badge": "Statutory Governance",
+    "subtitle": "100% Statutory Compliant Facility Management & Workforce Operations",
+    "heroTagline": "100% Statutory Compliant Facility Management & Workforce Operations",
+    "heroImage": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop",
+    "content": "MANABS operates on strict compliance pillars ensuring every deployed team member is covered by mandatory PF, ESI, Group Medical Insurance, and national labor laws. We provide automated challans, monthly compliance dockets, and verified biometric logs.",
+    "sections": [
+      {
+        "heading": "100% PF & ESI Statutory Governance",
+        "text": "Zero-liability guarantee for client enterprises. Verified challan proofs are submitted before the 15th of every operational month."
+      },
+      {
+        "heading": "ISO & Bio-Friendly Facility Upkeep",
+        "text": "State-of-the-art machinery and eco-certified chemicals ensuring top tier hygiene without environmental degradation."
+      },
+      {
+        "heading": "24/7 Rapid Escalation Desk",
+        "text": "Dedicated site operational managers and 24x7 control center hotline for immediate emergency mobilization across Delhi NCR, UP, Haryana & Uttarakhand."
+      }
+    ],
+    "showInNavbar": true,
+    "isPublished": true
+  }
+]

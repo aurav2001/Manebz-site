@@ -13,28 +13,25 @@ import {
   ArrowLeft 
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
+import NotFoundPage from './NotFoundPage';
 import serviceBg from '../assets/servicebg.avif';
 
 const DynamicPage = ({ slug, onNavigate }) => {
-  const { customPages } = useCompany();
-  const page = customPages.find(p => p.slug === slug || p.id === slug) || customPages[0];
+  const { customPages, contentLoaded } = useCompany();
+
+  // No falling back to customPages[0]: that made every mistyped URL render the first
+  // custom page, so /anything looked like a real, live page instead of a 404.
+  const page = (customPages || []).find(
+    (p) => (p.slug === slug || p.id === slug) && p.isPublished !== false
+  );
 
   if (!page) {
-    return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center pt-36 pb-20 px-4 text-center">
-        <div className="w-16 h-16 rounded-3xl bg-red-50 text-red-600 flex items-center justify-center mb-4">
-          <FileText className="w-8 h-8" />
-        </div>
-        <h1 className="text-3xl font-black text-slate-900">Page Not Found</h1>
-        <p className="text-slate-600 mt-2 max-w-md">The requested custom page could not be located or may have been updated.</p>
-        <button
-          onClick={() => onNavigate('home')}
-          className="mt-6 px-6 py-3 rounded-full bg-slate-900 text-white font-bold text-xs uppercase tracking-wider hover:bg-slate-800 transition-all cursor-pointer"
-        >
-          Return to Home
-        </button>
-      </div>
-    );
+    // Pages that live only in MySQL are missing until the first fetch settles, so hold
+    // a blank frame rather than flashing 404 at a visitor on a perfectly valid link.
+    if (!contentLoaded) {
+      return <div className="min-h-[70vh]" aria-busy="true" />;
+    }
+    return <NotFoundPage onNavigate={onNavigate} attemptedPath={slug} />;
   }
 
   const bgImage = page.heroImage && !page.heroImage.includes('unsplash.com') ? page.heroImage : serviceBg;
