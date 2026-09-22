@@ -79,7 +79,7 @@ const defaultNavItems = [
 ];
 
 const defaultEmailSettings = {
-  adminEmail: 'operations@manabs.com',
+  adminEmail: 'info@manebz.com',
   enableInstantAlerts: true,
   enableBrowserPush: true,
   enableSoundChime: true,

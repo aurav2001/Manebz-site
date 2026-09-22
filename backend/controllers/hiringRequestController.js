@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { getPool } from '../config/db.js';
 import { countFallbackFills } from './employeeController.js';
+import { notifyHiringRequest } from '../services/mailer.js';
 
 /**
  * Staffing requirements raised by client companies.
@@ -96,6 +97,27 @@ export const createHiringRequest = async (req, res) => {
 
     const count = Math.max(1, Math.min(999, Number(headcount) || 1));
     const requestId = uid();
+
+    // Trigger async email notification in background
+    notifyHiringRequest({
+      requestId,
+      companyName: companyName.trim(),
+      contactPerson: contactPerson?.trim(),
+      phone: phone.trim(),
+      email: email?.trim(),
+      roleTitle: roleTitle.trim(),
+      headcount: count,
+      location,
+      experience,
+      salaryRange,
+      startDate,
+      urgency,
+      notes,
+      source
+    }).catch(err => {
+      console.warn('⚠️ [HiringRequest] Email notification error:', err.message);
+    });
+
     const pool = getPool();
 
     if (!pool) {

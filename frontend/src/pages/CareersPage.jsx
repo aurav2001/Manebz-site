@@ -685,7 +685,7 @@ const CareersPage = ({ onNavigate }) => {
                           <input
                             type="tel"
                             required
-                            placeholder="+91 91234 56789"
+                            placeholder="+91 98XXX XXXXX"
                             value={applyForm.phone}
                             onChange={(e) => setApplyForm({ ...applyForm, phone: e.target.value })}
                             className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-red-500 text-xs"
@@ -864,12 +864,12 @@ const CareersPage = ({ onNavigate }) => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                            Mobile / WhatsApp *
+                            Mobile Number *
                           </label>
                           <input
                             type="tel"
                             required
-                            placeholder="+91 91234 56789"
+                            placeholder="+91 98XXX XXXXX"
                             value={talentForm.phone}
                             onChange={(e) => setTalentForm({ ...talentForm, phone: e.target.value })}
                             className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-red-500 text-xs"

@@ -1,4 +1,5 @@
 import { getPool } from '../config/db.js';
+import { notifyContactForm } from '../services/mailer.js';
 
 let fallbackMessages = [];
 
@@ -12,6 +13,11 @@ export const submitContactMessage = async (req, res) => {
         message: 'Name, email, phone, and message are required'
       });
     }
+
+    // Trigger async email notification in background
+    notifyContactForm({ name, email, phone, subject, message }).catch(err => {
+      console.warn('⚠️ [Contact] Email notification error:', err.message);
+    });
 
     const pool = getPool();
     if (pool) {

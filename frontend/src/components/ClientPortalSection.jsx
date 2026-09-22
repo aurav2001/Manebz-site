@@ -368,7 +368,7 @@ const ClientPortalSection = () => {
                     <input
                       type="tel"
                       required
-                      placeholder="+91 91234 56789"
+                      placeholder="+91 98XXX XXXXX"
                       value={clientQueryForm.phone}
                       onChange={(e) => setClientQueryForm({ ...clientQueryForm, phone: e.target.value })}
                       className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-cyan-400 text-xs text-white placeholder-slate-400 focus:outline-none"

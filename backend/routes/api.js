@@ -11,13 +11,14 @@ import userRoutes from './userRoutes.js';
 import employeeRoutes from './employeeRoutes.js';
 import companyRoutes from './companyRoutes.js';
 import hiringRequestRoutes from './hiringRequestRoutes.js';
-import { getPool } from '../config/db.js';
+import { getPool, getDbDiagnosticInfo } from '../config/db.js';
 
 const router = express.Router();
 
 // Health Check API Endpoint
 router.get('/health', async (req, res) => {
   const pool = getPool();
+  const diag = getDbDiagnosticInfo ? getDbDiagnosticInfo() : {};
   let dbStatus = 'Disconnected / Fallback Mode';
   
   if (pool) {
@@ -34,6 +35,7 @@ router.get('/health', async (req, res) => {
     system: 'MANABS / MANEBZ Enterprise Portal API',
     uptime: process.uptime(),
     database: dbStatus,
+    ...(pool ? {} : { dbError: diag.error || 'Connection failed', dbConfig: diag.config }),
     timestamp: new Date().toISOString()
   });
 });

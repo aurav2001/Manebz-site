@@ -215,7 +215,7 @@ function AppContent() {
         </ChunkErrorBoundary>
       </main>
 
-      {/* Smart Assistant & Direct WhatsApp Lead Widget */}
+      {/* Smart Assistant & Help Desk Lead Widget */}
       {!isAdminPage && <SmartAssistantWidget onNavigate={handleNavigate} />}
 
       {/* Clean Optimized Footer */}

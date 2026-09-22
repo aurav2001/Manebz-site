@@ -4,6 +4,7 @@ import { statutoryCompliances, regionsServed } from '../data/companyData';
 import serviceBg from '../assets/servicebg.avif';
 import { useCompany } from '../context/CompanyContext';
 import HiringRequestForm from '../components/HiringRequestForm';
+import ContactMap from '../components/ContactMap';
 
 const ContactPage = ({ onNavigate }) => {
   const { contactInfo } = useCompany();
@@ -26,7 +27,7 @@ const ContactPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="bg-white pb-20">
+    <div className="bg-white">
       
       {/* 1. HERO BANNER WITH LUXURY BREADCRUMB */}
       <section className="relative bg-[#071324] text-white pt-28 pb-14 sm:pt-36 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-md">
@@ -266,6 +267,9 @@ const ContactPage = ({ onNavigate }) => {
 
       {/* Companies post staffing requirements straight into the Admin/HR queue. */}
       <HiringRequestForm onNavigate={onNavigate} />
+
+      {/* Office map sits last so it meets the footer. */}
+      <ContactMap />
     </div>
   );
 };

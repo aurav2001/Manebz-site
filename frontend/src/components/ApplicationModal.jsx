@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { X, Send, Upload, CheckCircle2, Award, FileText, AlertCircle, Database, Shield } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useCompany } from '../context/CompanyContext';
 
 const ApplicationModal = ({ job, isFutureOpening, onClose }) => {
+  const { addJobApplication, addTalentVaultApplication } = useCompany();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -49,21 +51,43 @@ const ApplicationModal = ({ job, isFutureOpening, onClose }) => {
     e.preventDefault();
     if (!validate()) return;
 
-    const ref = `MNB-HR-${Math.floor(100000 + Math.random() * 900000)}`;
+    const ref = `MNB-APP-${Math.floor(100000 + Math.random() * 900000)}`;
     setGeneratedRefId(ref);
 
-    // Save to localStorage
+    // Sync to CompanyContext (which also pushes to MySQL backend and sends notifications)
     try {
-      const existing = JSON.parse(localStorage.getItem('manabs_career_applications') || '[]');
-      existing.push({
-        refId: ref,
-        date: new Date().toISOString(),
-        isFutureOpening,
-        ...formData
-      });
-      localStorage.setItem('manabs_career_applications', JSON.stringify(existing));
+      if (isFutureOpening) {
+        addTalentVaultApplication({
+          id: `MNB-TALENT-${Math.floor(100000 + Math.random() * 900000)}`,
+          fullName: formData.fullName.trim(),
+          phone: formData.phone.trim(),
+          email: formData.email ? formData.email.trim() : '',
+          targetDepartment: formData.targetRole || 'Integrated Facilities',
+          preferredLocation: formData.preferredLocation,
+          experience: formData.experienceYears,
+          resumeFileName: formData.resumeFileName || formData.resumeName,
+          resumeDataUrl: formData.resumeDataUrl,
+          notes: formData.coverNote,
+        });
+      } else {
+        addJobApplication({
+          refId: ref,
+          jobId: job?.id || 'job-general',
+          jobTitle: job?.title || formData.targetRole || 'General Opening',
+          department: job?.department || 'Operations',
+          fullName: formData.fullName.trim(),
+          phone: formData.phone.trim(),
+          email: formData.email ? formData.email.trim() : '',
+          experience: formData.experienceYears,
+          location: formData.preferredLocation,
+          resumeFileName: formData.resumeFileName || formData.resumeName,
+          resumeDataUrl: formData.resumeDataUrl,
+          message: formData.coverNote,
+          notes: formData.coverNote,
+        });
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Error dispatching application to company context:', err);
     }
 
     // Trigger celebratory confetti
@@ -132,12 +156,12 @@ const ApplicationModal = ({ job, isFutureOpening, onClose }) => {
                 {/* Mobile / Phone */}
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                    Phone / WhatsApp Number <span className="text-red-600">*</span>
+                    Mobile Number <span className="text-red-600">*</span>
                   </label>
                   <input
                     type="tel"
                     required
-                    placeholder="+91 91234 56789"
+                    placeholder="+91 98XXX XXXXX"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-red-500 text-xs text-gray-900"
@@ -295,7 +319,7 @@ const ApplicationModal = ({ job, isFutureOpening, onClose }) => {
               </h3>
               <p className="text-xs text-gray-600 max-w-md mx-auto mt-1 leading-relaxed">
                 {isFutureOpening 
-                  ? 'Your profile is now stored in the MANEBZ National Resource Cell. Our HR recruitment team will proactively reach out to you via Phone/WhatsApp as new opportunities open.'
+                  ? 'Your profile is now stored in the MANEBZ National Resource Cell. Our HR recruitment team will proactively reach out to you by phone or email as new opportunities open.'
                   : `Your application for ${job?.title} has been received and routed to our hiring supervisor.`}
               </p>
             </div>

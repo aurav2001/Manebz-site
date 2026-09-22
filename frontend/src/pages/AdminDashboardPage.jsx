@@ -69,6 +69,7 @@ import PanelLogin from '../components/admin/PanelLogin';
 import UsersEditor from '../components/admin/UsersEditor';
 import EmployeeRecords from '../components/admin/EmployeeRecords';
 import HiringRequests from '../components/admin/HiringRequests';
+import EmailDeliveryCard from '../components/admin/EmailDeliveryCard';
 
 // Which roles may open each panel section. The sidebar filters on this, and a guard
 // below snaps anyone who lands somewhere they should not be — reloading with a stored
@@ -2524,6 +2525,8 @@ const AdminDashboardPage = ({ onNavigate }) => {
                   <span>Send Test Alert Chime</span>
                 </button>
               </div>
+
+              <EmailDeliveryCard showToast={showToast} />
 
               {/* Webhook & Notification Settings Form */}
               <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-6">

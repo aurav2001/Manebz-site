@@ -1,4 +1,5 @@
 import { getPool } from '../config/db.js';
+import { notifyJobApplication } from '../services/mailer.js';
 
 let fallbackApplications = [];
 
@@ -20,14 +21,37 @@ export const submitApplication = async (req, res) => {
       notes
     } = req.body;
 
-    if (!fullName || !email || !phone || !jobTitle) {
+    if (!fullName || !phone) {
       return res.status(400).json({
         success: false,
-        message: 'Full name, email, phone, and target role are required'
+        message: 'Full name and phone number are required'
       });
     }
 
+    const safeEmail = (email && email.trim()) ? email.trim() : `${phone.trim().replace(/\D/g, '') || Date.now()}@candidate.manebz.com`;
+    const safeJobTitle = (jobTitle && jobTitle.trim()) ? jobTitle.trim() : 'General Candidate';
+
     const applicationId = `APP-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+    // Trigger async email notification in background
+    notifyJobApplication({
+      applicationId,
+      fullName: fullName.trim(),
+      email: safeEmail,
+      phone: phone.trim(),
+      jobId,
+      jobTitle: safeJobTitle,
+      department,
+      experience,
+      location,
+      qualification,
+      currentCtc,
+      expectedCtc,
+      resumeUrl,
+      notes
+    }).catch(err => {
+      console.warn('⚠️ [Career] Email notification error:', err.message);
+    });
     const pool = getPool();
 
     if (pool) {
@@ -42,10 +66,10 @@ export const submitApplication = async (req, res) => {
       const [result] = await pool.execute(query, [
         applicationId,
         fullName.trim(),
-        email.trim(),
+        safeEmail,
         phone.trim(),
         jobId || null,
-        jobTitle.trim(),
+        safeJobTitle,
         department || 'Operations',
         experience || 'Fresher / Entry',
         location || 'Delhi NCR',
@@ -62,10 +86,10 @@ export const submitApplication = async (req, res) => {
         data: {
           id: result.insertId,
           application_id: applicationId,
-          full_name: fullName,
-          email,
-          phone,
-          job_title: jobTitle,
+          full_name: fullName.trim(),
+          email: safeEmail,
+          phone: phone.trim(),
+          job_title: safeJobTitle,
           status: 'Under Review',
           created_at: new Date().toISOString()
         }
@@ -74,11 +98,11 @@ export const submitApplication = async (req, res) => {
       const record = {
         id: Date.now(),
         application_id: applicationId,
-        full_name: fullName,
-        email,
-        phone,
+        full_name: fullName.trim(),
+        email: safeEmail,
+        phone: phone.trim(),
         job_id: jobId,
-        job_title: jobTitle,
+        job_title: safeJobTitle,
         department,
         experience,
         location,

@@ -105,7 +105,7 @@ const InquirySection = () => {
                   <PhoneCall className="w-4 h-4 text-cyan-400" />
                   <div>
                     <span className="text-slate-400 block text-[10px]">Direct Phone line</span>
-                    <a href={toTelHref(contactInfo.phonePrimary)} className="hover:text-cyan-300 font-medium">+91 11 2345 6789 / +91 80 4455 8800</a>
+                    <a href={toTelHref(contactInfo.phonePrimary)} className="hover:text-cyan-300 font-medium">{contactInfo.phonePrimary}{contactInfo.phoneSecondary ? ` / ${contactInfo.phoneSecondary}` : ''}</a>
                   </div>
                 </div>
 
@@ -200,7 +200,7 @@ const InquirySection = () => {
                     <input
                       type="tel"
                       required
-                      placeholder="+91 91234 56789"
+                      placeholder="+91 98XXX XXXXX"
                       value={inquiryForm.phone}
                       onChange={(e) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
                       className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-cyan-400 text-xs text-white placeholder-slate-400 focus:outline-none"

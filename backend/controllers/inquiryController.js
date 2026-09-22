@@ -1,4 +1,5 @@
 import { getPool } from '../config/db.js';
+import { notifyInquiryForm } from '../services/mailer.js';
 
 // In-memory fallback if MySQL is offline during setup
 let fallbackInquiries = [];
@@ -12,6 +13,19 @@ export const createInquiry = async (req, res) => {
     }
 
     const inquiryId = `INQ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+    // Trigger async email notification in background
+    notifyInquiryForm({
+      inquiryId,
+      name,
+      phone,
+      email,
+      service,
+      message,
+      source: source || 'Website Modal',
+    }).catch(err => {
+      console.warn('⚠️ [Inquiry] Email notification error:', err.message);
+    });
     const pool = getPool();
 
     if (pool) {

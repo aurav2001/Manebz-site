@@ -3,11 +3,18 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { initDB } from './config/db.js';
 import apiRouter from './routes/api.js';
 import { UPLOAD_DIR, ensureUploadDir } from './controllers/uploadController.js';
+import { getMailStatus, verifySmtp } from './services/mailer.js';
 
 dotenv.config();
+// Same guard as config/db.js: import.meta.url is undefined inside the CJS bundle.
+if (import.meta.url) {
+  dotenv.config({ path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '.env') });
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -106,6 +113,20 @@ app.use((err, req, res, next) => {
 // 500 page instead of the API. A schema migration on first boot made that window long
 // enough to hit. Every controller already falls back when getPool() is null, so the few
 // requests that land before MySQL is ready get an empty result, not an error page.
+// Email status is worth one log line at boot: it is the first thing to check
+// when "the form was submitted but no mail came".
+const logMailStatus = () => getMailStatus().then(async (m) => {
+  if (!m.smtpConfigured) {
+    console.info(`📭 [Mailer] SMTP not configured — notifications to ${m.notifyTo} will ${m.fallback ? 'use ' + m.fallback : 'be skipped'}. Set SMTP_USER / SMTP_PASS in .env.`);
+    return;
+  }
+  const v = await verifySmtp();
+  console.info(v.ok
+    ? `📬 [Mailer] SMTP ready: ${m.user} via ${m.host}:${m.port} → notifications to ${m.notifyTo}`
+    : `⚠️ [Mailer] SMTP configured but login failed (${m.host}:${m.port}): ${v.error}`);
+}).catch(() => {});
+
+
 const startServer = () => {
   app.listen(PORT, () => {
     console.log(`🚀 [MANABS Backend] Server running on http://localhost:${PORT}`);
@@ -116,9 +137,11 @@ const startServer = () => {
     if (ok) console.log(`🖼️  [Uploads] Media folder ready at ${UPLOAD_DIR}`);
   });
 
-  initDB().catch((err) => {
-    console.error('❌ [MANABS Backend] Database initialisation failed:', err.message || err);
-  });
+  initDB()
+    .catch((err) => {
+      console.error('❌ [MANABS Backend] Database initialisation failed:', err.message || err);
+    })
+    .then(logMailStatus);
 };
 
 startServer();

@@ -11,6 +11,8 @@ import {
   CheckCircle2,
   FileCheck2
 } from 'lucide-react';
+import { useCompany } from '../context/CompanyContext';
+import { toTelHref } from '../data/siteContact';
 
 const homeFAQs = [
   {
@@ -52,6 +54,7 @@ const homeFAQs = [
 ];
 
 const FAQSection = ({ onNavigate }) => {
+  const { contactInfo } = useCompany();
   const [openId, setOpenId] = useState('faq-1');
   const [activeCategory, setActiveCategory] = useState('all');
 
@@ -179,7 +182,7 @@ const FAQSection = ({ onNavigate }) => {
               <ArrowRight className="w-4 h-4" />
             </button>
             <a
-              href="tel:+919810000000"
+              href={toTelHref(contactInfo.phonePrimary)}
               className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors flex items-center justify-center cursor-pointer"
               title="Call Us Directly"
             >

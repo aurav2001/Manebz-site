@@ -1,4 +1,5 @@
 import { getPool } from '../config/db.js';
+import { getMailStatus, verifySmtp, sendTestMail } from '../services/mailer.js';
 
 let fallbackSettings = {};
 
@@ -46,5 +47,35 @@ export const saveSettings = async (req, res) => {
   } catch (error) {
     console.error('Error saving settings:', error);
     return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+// GET /settings/mail-status — is SMTP configured, where do notifications go.
+export const mailStatus = async (req, res) => {
+  try {
+    return res.status(200).json({ success: true, data: await getMailStatus() });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// POST /settings/test-email { to?, verifyOnly? } — proves the credentials work.
+export const testEmail = async (req, res) => {
+  try {
+    const { to, verifyOnly } = req.body || {};
+    if (to && !/^[^s@]+@[^s@]+.[^s@]+$/.test(String(to))) {
+      return res.status(400).json({ success: false, message: 'Enter a valid email address' });
+    }
+    const result = verifyOnly
+      ? await verifySmtp()
+      : await sendTestMail({ to, requestedBy: req.user?.email || req.user?.name });
+    if (!result.ok) return res.status(502).json({ success: false, message: result.error, data: result });
+    return res.status(200).json({
+      success: true,
+      message: verifyOnly ? 'SMTP login OK' : `Test email sent to ${result.to}`,
+      data: result,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
   }
 };

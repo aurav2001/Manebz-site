@@ -216,9 +216,11 @@ const Footer = ({ onNavigate }) => {
                   <a href={toTelHref(contactInfo.phonePrimary)} className="hover:text-white font-bold transition-colors">
                     {contactInfo.phonePrimary}
                   </a>
-                  <a href={toTelHref(contactInfo.phoneSecondary)} className="text-slate-400 hover:text-white text-[11px] transition-colors">
-                    {contactInfo.phoneSecondary}
-                  </a>
+                  {contactInfo.phoneSecondary && (
+                    <a href={toTelHref(contactInfo.phoneSecondary)} className="text-slate-400 hover:text-white text-[11px] transition-colors">
+                      {contactInfo.phoneSecondary}
+                    </a>
+                  )}
                 </div>
               </div>
 

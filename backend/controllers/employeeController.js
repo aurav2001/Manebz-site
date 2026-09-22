@@ -240,7 +240,27 @@ export const deleteEmployee = async (req, res) => {
 export const getEmployeeStats = async (req, res) => {
   try {
     const pool = getPool();
-    if (!pool) return res.status(200).json({ success: true, data: { total: 0, today: 0, byRecruiter: [] } });
+    if (!pool) {
+      // Same shape as the SQL branch, computed from the in-memory records.
+      const now = Date.now();
+      const dayStart = new Date().setHours(0, 0, 0, 0);
+      const byRecruiter = Object.values(fallbackRecords.reduce((acc, r) => {
+        const k = r.addedBy || 'unknown';
+        acc[k] ??= { userId: r.addedBy, name: r.addedByName, total: 0, lastAddedAt: null };
+        acc[k].total += 1;
+        if (!acc[k].lastAddedAt || r.createdAt > acc[k].lastAddedAt) acc[k].lastAddedAt = r.createdAt;
+        return acc;
+      }, {})).sort((a, b) => b.total - a.total);
+      return res.status(200).json({
+        success: true,
+        data: {
+          total: fallbackRecords.length,
+          today: fallbackRecords.filter((r) => new Date(r.createdAt).getTime() >= dayStart).length,
+          week: fallbackRecords.filter((r) => now - new Date(r.createdAt).getTime() < 7 * 86400000).length,
+          byRecruiter,
+        },
+      });
+    }
 
     const [[totals]] = await pool.query(`
       SELECT

@@ -240,6 +240,8 @@ export const api = {
   settings: {
     get: () => request('/settings'),
     save: (settings) => request('/settings', { method: 'POST', body: settings }),
+    mailStatus: () => request('/settings/mail-status'),
+    testEmail: (to, verifyOnly = false) => request('/settings/test-email', { method: 'POST', body: { to, verifyOnly } }),
   }
 };
 

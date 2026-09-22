@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Save, RotateCcw, Phone, Mail, MapPin, MessageCircle, AlertTriangle } from 'lucide-react';
-import { defaultContactInfo, toTelHref, toWhatsAppHref, toDigits } from '../../data/siteContact';
+import { Save, RotateCcw, Phone, Mail, MapPin, AlertTriangle } from 'lucide-react';
+import { defaultContactInfo, toTelHref, toMapEmbedSrc, LEGACY_PLACEHOLDERS } from '../../data/siteContact';
 
 // The values the site shipped with. Anything still matching these is a placeholder that
 // was never replaced with a real number, and the editor says so out loud.
-const PLACEHOLDERS = new Set([
-  defaultContactInfo.phonePrimary,
-  defaultContactInfo.phoneSecondary,
-  defaultContactInfo.whatsapp,
-  defaultContactInfo.emailPrimary,
-  defaultContactInfo.addressLine,
-]);
+const PLACEHOLDERS = new Set(Object.values(LEGACY_PLACEHOLDERS).flat());
 
 const Field = ({ label, value, onChange, placeholder, hint, textarea, warn }) => (
   <div>
@@ -70,7 +64,7 @@ const ContactDetailsEditor = ({ contactInfo, onSave, onReset, showToast }) => {
   };
 
   const stillSample = [
-    draft.phonePrimary, draft.phoneSecondary, draft.whatsapp,
+    draft.phonePrimary, draft.phoneSecondary,
     draft.emailPrimary, draft.addressLine,
   ].filter(isPlaceholder).length;
 
@@ -118,7 +112,7 @@ const ContactDetailsEditor = ({ contactInfo, onSave, onReset, showToast }) => {
             <Phone className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-extrabold text-gray-900">Phone &amp; WhatsApp</h3>
+            <h3 className="text-base font-extrabold text-gray-900">Phone</h3>
             <p className="text-xs text-gray-500 mt-0.5">
               Used by the navbar call button, footer, contact page and chat widget.
             </p>
@@ -129,36 +123,22 @@ const ContactDetailsEditor = ({ contactInfo, onSave, onReset, showToast }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <Field label="Main phone / landline" value={draft.phonePrimary}
               warn={isPlaceholder(draft.phonePrimary)}
-              placeholder="+91 11 4000 0000"
+              placeholder="0120 4253056"
               onChange={(v) => set('phonePrimary', v)} />
             <Field label="Second phone (optional)" value={draft.phoneSecondary}
               warn={isPlaceholder(draft.phoneSecondary)}
-              placeholder="+91 98000 00000"
+              placeholder="Leave empty if there is only one line"
+              hint="Shown next to the main number wherever it is not empty."
               onChange={(v) => set('phoneSecondary', v)} />
           </div>
 
-          <Field label="WhatsApp number" value={draft.whatsapp}
-            warn={isPlaceholder(draft.whatsapp)}
-            placeholder="+91 98000 00000"
-            hint="Include the country code. Spaces and dashes are fine — they are stripped automatically."
-            onChange={(v) => set('whatsapp', v)} />
-
-          {/* Shows exactly what the buttons will do, so a typo is obvious before saving. */}
+          {/* Shows exactly what the call button will do, so a typo is obvious before saving. */}
           <div className="rounded-2xl bg-gray-50 border border-gray-200 p-4 space-y-2 text-[11px]">
-            <p className="font-bold text-gray-700 uppercase tracking-wide">Links these produce</p>
+            <p className="font-bold text-gray-700 uppercase tracking-wide">Link this produces</p>
             <p className="text-gray-600 break-all">
               <Phone className="w-3 h-3 inline mr-1.5 text-sky-600" />
               {toTelHref(draft.phonePrimary)}
             </p>
-            <p className="text-gray-600 break-all">
-              <MessageCircle className="w-3 h-3 inline mr-1.5 text-emerald-600" />
-              {toWhatsAppHref(draft.whatsapp)}
-            </p>
-            {toDigits(draft.whatsapp).length < 11 && draft.whatsapp && (
-              <p className="text-amber-700 font-semibold">
-                WhatsApp numbers need the country code (e.g. 91 for India) — this looks short.
-              </p>
-            )}
           </div>
         </div>
       </div>
@@ -206,6 +186,17 @@ const ContactDetailsEditor = ({ contactInfo, onSave, onReset, showToast }) => {
           <Field label="Working hours" value={draft.hours}
             placeholder="24/7 Site Operations • Office: Mon–Sat, 9:30 AM – 6:30 PM"
             onChange={(v) => set('hours', v)} />
+          <Field label="Google Maps embed link (optional)" textarea value={draft.mapEmbedUrl}
+            placeholder='https://www.google.com/maps/embed?pb=… — or paste the whole <iframe> code'
+            hint="Google Maps → search your office → Share → “Embed a map” → Copy HTML. Paste it here as-is. Leave empty to show a map of the address above."
+            onChange={(v) => set('mapEmbedUrl', v)} />
+          <div>
+            <p className="block font-bold text-gray-800 uppercase mb-1.5 text-[11px] tracking-wide">Map preview</p>
+            <div className="rounded-xl overflow-hidden border border-gray-200 bg-gray-100">
+              <iframe title="Office map preview" src={toMapEmbedSrc(draft)} className="w-full h-56 block" style={{ border: 0 }} loading="lazy" />
+            </div>
+            <p className="mt-1.5 text-[11px] text-gray-500">This is exactly what the contact page shows above the footer.</p>
+          </div>
         </div>
       </div>
     </div>

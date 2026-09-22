@@ -1,24 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import logoImg from '../assets/logo.jpg';
-import { 
-  MessageSquare, 
-  X, 
-  Send, 
-  Phone, 
-  Zap, 
-  Bot, 
-  User, 
-  CheckCircle2, 
-  ArrowRight, 
-  ChevronRight, 
+import {
+  MessageSquare,
+  X,
+  Send,
+  Phone,
+  Zap,
+  Bot,
+  User,
+  CheckCircle2,
+  ArrowRight,
+  ChevronRight,
   ExternalLink,
-  ShieldCheck, 
-  Building2, 
-  Clock, 
+  ShieldCheck,
+  Building2,
+  Clock,
   RefreshCw,
   Mic,
   MicOff,
   Star,
+  Mail,
   ThumbsUp,
   MapPin,
   Briefcase,
@@ -26,14 +27,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
-import { toTelHref, toWhatsAppHref } from '../data/siteContact';
-
-// WhatsApp icon SVG component
-const WhatsAppIcon = ({ className = "w-5 h-5" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-  </svg>
-);
+import { toTelHref, toMailtoHref } from '../data/siteContact';
 
 const QUICK_PROMPTS = [
   { icon: '🏢', label: 'Housekeeping & IFM', prompt: 'Housekeeping aur Facility Management service ke baare mein batao aur charges kya hain?' },
@@ -47,9 +41,9 @@ const QUICK_PROMPTS = [
 const SmartAssistantWidget = ({ onNavigate }) => {
   const { addInquiry, contactInfo } = useCompany();
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'whatsapp'
+  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'contact'
   const [hasUnread, setHasUnread] = useState(true);
-  
+
   const [messages, setMessages] = useState([
     {
       id: 'msg-1',
@@ -60,7 +54,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  
+
   // Voice Recognition States
   const [isListening, setIsListening] = useState(false);
   const [voiceLang, setVoiceLang] = useState('hi-IN'); // 'hi-IN' | 'en-IN'
@@ -70,8 +64,8 @@ const SmartAssistantWidget = ({ onNavigate }) => {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
-  
-  // Lead capture & WhatsApp Auto-Forwarding
+
+  // Lead capture & email forwarding
   const [leadForm, setLeadForm] = useState({ name: '', phone: '', email: '', requirement: '' });
   const [showLeadPrompt, setShowLeadPrompt] = useState(false);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
@@ -158,7 +152,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
 
     if (q.includes('thank') || q.includes('shukriya') || q.includes('dhanyawad') || q.includes('ok thanks') || q.includes('great')) {
       return {
-        text: 'Aapka swagat hai! 🌟 Agar aapko koi bhi formal quotation ya proposal chahiye, to aap directly WhatsApp ya callback ke zariye humse contact kar sakte hain.',
+        text: 'Aapka swagat hai! 🌟 Agar aapko koi bhi formal quotation ya proposal chahiye, to aap directly call ya email ke zariye humse contact kar sakte hain.',
         promptLead: false
       };
     }
@@ -183,7 +177,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     // 4. PAYROLL, SALARY, PF, ESI, STATUTORY COMPLIANCE
     if (q.includes('payroll') || q.includes('salary') || q.includes('pf') || q.includes('esi') || q.includes('compliance') || q.includes('epf') || q.includes('gratuity') || q.includes('bonus') || q.includes('challan') || q.includes('labour law') || q.includes('audit')) {
       return {
-        text: '⚖️ **100% Statutory Compliance & Payroll Guarantee:**\n\n• **Zero Client Liability:** Monthly PF & ESI verified government challans are submitted before the 15th of every month.\n• **Automated Payroll Suite:** Biometric attendance integration, TDS calculations, Form 16, Bonus, and Gratuity provisioning.\n• **Audit Ready:** 100% Labour Commissioner audit compliance dockets.\n\n👉 *Hum transparent payroll outsourcing provide karte hain. Detailed breakups ke liye humare Calculator ya Direct WhatsApp ka use karein.*',
+        text: '⚖️ **100% Statutory Compliance & Payroll Guarantee:**\n\n• **Zero Client Liability:** Monthly PF & ESI verified government challans are submitted before the 15th of every month.\n• **Automated Payroll Suite:** Biometric attendance integration, TDS calculations, Form 16, Bonus, and Gratuity provisioning.\n• **Audit Ready:** 100% Labour Commissioner audit compliance dockets.\n\n👉 *Hum transparent payroll outsourcing provide karte hain. Detailed breakups ke liye humein call ya email karein.*',
         promptLead: true,
         showCalcLink: true
       };
@@ -225,8 +219,8 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     // 9. COMPANY HERITAGE, EXPERIENCE, CLIENTS
     if (q.includes('company') || q.includes('experience') || q.includes('heritage') || q.includes('owner') || q.includes('director') || q.includes('kab start') || q.includes('clients') || q.includes('manabs') || q.includes('manebz')) {
       return {
-        text: '🏢 **About MANEBZ:**\n\n• **Established:** 27th February 2014 (10+ Years Corporate Pioneer Heritage).\n• **Clients:** 500+ Top Indian Corporate Clients & MNCs.\n• **Retention:** 99.4% Client Retention Rate.\n• **Quality Standards:** ISO 9001 & EMS Eco-friendly operational framework.\n\n👉 *Would you like to speak directly with our Senior Management on WhatsApp?*',
-        action: 'whatsapp',
+        text: '🏢 **About MANEBZ:**\n\n• **Established:** 27th February 2014 (10+ Years Corporate Pioneer Heritage).\n• **Clients:** 500+ Top Indian Corporate Clients & MNCs.\n• **Retention:** 99.4% Client Retention Rate.\n• **Quality Standards:** ISO 9001 & EMS Eco-friendly operational framework.\n\n👉 *Would you like to speak directly with our Senior Management? Call or email us below.*',
+        action: 'contact',
         promptLead: true
       };
     }
@@ -239,18 +233,18 @@ const SmartAssistantWidget = ({ onNavigate }) => {
       };
     }
 
-    // 11. CONTACT / PHONE / MEETING / DIRECT WHATSAPP
-    if (q.includes('whatsapp') || q.includes('contact') || q.includes('phone') || q.includes('number') || q.includes('call') || q.includes('meeting') || q.includes('office') || q.includes('address')) {
+    // 11. CONTACT / PHONE / MEETING / EMAIL
+    if (q.includes('whatsapp') || q.includes('email') || q.includes('mail') || q.includes('contact') || q.includes('phone') || q.includes('number') || q.includes('call') || q.includes('meeting') || q.includes('office') || q.includes('address')) {
       return {
-        text: `📞 **Connect with MANEBZ Central Command:**\n\n• **Direct WhatsApp:** ${contactInfo.whatsapp}\n• **Central Helpline:** ${contactInfo.phonePrimary}\n• **Email Desk:** ${contactInfo.emailPrimary}\n\n👉 *Aap niche diye gaye button par click karke direct WhatsApp chat start kar sakte hain.*`,
-        action: 'whatsapp',
+        text: `📞 **Connect with MANEBZ Central Command:**\n\n• **Central Helpline:** ${contactInfo.phonePrimary}\n• **Email Desk:** ${contactInfo.emailPrimary}\n• **Office:** ${contactInfo.addressLine}\n\n👉 *Niche diye gaye buttons se seedha call ya email kar sakte hain.*`,
+        action: 'contact',
         promptLead: true
       };
     }
 
     // DEFAULT SMART FALLBACK
     return {
-      text: `Aapne **"${userQuery}"** ke baare mein pucha hai.\n\nMANEBZ provide karti hai:\n1. Integrated Facility Management & Mechanized Housekeeping\n2. Corporate Staffing & 100% Compliant Payroll\n3. Logistics, Warehousing & MEP Maintenance\n\n👉 *Aapki specific requirement ke according formal quotation aur proposal ke liye apna Name & Phone number share karein ya WhatsApp par connect karein.*`,
+      text: `Aapne **"${userQuery}"** ke baare mein pucha hai.\n\nMANEBZ provide karti hai:\n1. Integrated Facility Management & Mechanized Housekeeping\n2. Corporate Staffing & 100% Compliant Payroll\n3. Logistics, Warehousing & MEP Maintenance\n\n👉 *Aapki specific requirement ke according formal quotation aur proposal ke liye apna Name & Phone number share karein ya humein call / email karein.*`,
       promptLead: true
     };
   };
@@ -298,7 +292,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     }, 700);
   };
 
-  // Feature 5: WhatsApp Lead Auto-Forwarding
+  // Feature 5: Lead capture with one-click email forwarding
   const handleLeadSubmit = (e) => {
     e.preventDefault();
     if (!leadForm.phone || !leadForm.name) return;
@@ -307,44 +301,45 @@ const SmartAssistantWidget = ({ onNavigate }) => {
     addInquiry({
       name: leadForm.name,
       phone: leadForm.phone,
-      email: leadForm.email || 'chatbot-lead@manabs.com',
+      email: leadForm.email || 'chatbot-lead@manebz.com',
       service: leadForm.requirement || 'AI Chatbot Immediate Inquiry'
     });
 
     setLeadSubmitted(true);
     setShowLeadPrompt(false);
 
-    // 2. Prepare formatted WhatsApp auto-forwarding text
-    const formattedLeadText = `*🔔 NEW CORPORATE INQUIRY (MANEBZ)*\n\n👤 *Client Name:* ${leadForm.name}\n📱 *Phone / WhatsApp:* ${leadForm.phone}\n🏢 *Requirement:* ${leadForm.requirement || 'Integrated Facility & Corporate Staffing'}\n⚡ *Status:* Immediate Callback Requested (15 Min)\n\n_Sent via MANEBZ Smart AI Assistant_`;
+    // 2. Prepare the email body the visitor can forward with one click
+    const formattedLeadText = `NEW CORPORATE INQUIRY (MANEBZ)\n\nClient Name: ${leadForm.name}\nPhone: ${leadForm.phone}\nRequirement: ${leadForm.requirement || 'Integrated Facility & Corporate Staffing'}\nStatus: Immediate Callback Requested (15 Min)\n\nSent via MANEBZ Smart AI Assistant`;
 
-    // 3. Add confirmation message with 1-click WhatsApp Forwarding Button
+    // 3. Add confirmation message with 1-click email forwarding button
     setMessages(prev => [
       ...prev,
       {
         id: `bot-lead-${Date.now()}`,
         sender: 'bot',
-        text: `✅ **Lead Registered Successfully!**\n\nThank you **${leadForm.name}**! Aapka inquiry ticket register ho chuka hai. Humare Senior Operations Manager **${leadForm.phone}** par agle 15 minutes mein call karenge.\n\n👉 **Direct WhatsApp Forwarding:** Niche click karke ye inquiry direct WhatsApp par send kar sakte hain.`,
-        customWhatsAppText: formattedLeadText,
+        text: `✅ **Lead Registered Successfully!**\n\nThank you **${leadForm.name}**! Aapka inquiry ticket register ho chuka hai. Humare Senior Operations Manager **${leadForm.phone}** par agle 15 minutes mein call karenge.\n\n👉 **Email Forwarding:** Niche click karke ye inquiry seedha humari email desk ko bhej sakte hain.`,
+        customEmailText: formattedLeadText,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ]);
   };
 
-  const openWhatsApp = (customMessage = null) => {
-    const defaultMsg = customMessage || (
-      leadForm.name 
-        ? `*NEW INQUIRY*\nName: ${leadForm.name}\nPhone: ${leadForm.phone}\nRequirement: ${leadForm.requirement || 'Corporate Services'}`
+  // Opens the visitor's mail app with the inquiry pre-filled — the WhatsApp hand-off this
+  // replaced needed a mobile number the company does not publish.
+  const openEmail = (customMessage = null, subject = 'Corporate inquiry via MANEBZ website') => {
+    const body = customMessage || (
+      leadForm.name
+        ? `NEW INQUIRY\nName: ${leadForm.name}\nPhone: ${leadForm.phone}\nRequirement: ${leadForm.requirement || 'Corporate Services'}`
         : 'Hello MANEBZ Team, I would like to request an instant corporate facility and staffing proposal.'
     );
-    const url = toWhatsAppHref(contactInfo.whatsapp, defaultMsg);
-    window.open(url, '_blank', 'noopener,noreferrer');
+    window.location.href = toMailtoHref(contactInfo.emailPrimary, subject, body);
   };
 
   // Feature 6: Rating Submit
   const handleRatingSelect = (score) => {
     setRating(score);
     setRatingSubmitted(true);
-    
+
     setTimeout(() => {
       setMessages(prev => [
         ...prev,
@@ -360,11 +355,11 @@ const SmartAssistantWidget = ({ onNavigate }) => {
 
   return (
     <div className={`fixed font-sans transition-all duration-300 ${
-      isOpen 
-        ? 'z-50 inset-x-3 bottom-20 top-20 sm:top-auto sm:bottom-6 sm:right-6 sm:inset-auto sm:w-[410px] sm:h-[590px] flex items-end justify-end' 
+      isOpen
+        ? 'z-50 inset-x-3 bottom-20 top-20 sm:top-auto sm:bottom-6 sm:right-6 sm:inset-auto sm:w-[410px] sm:h-[590px] flex items-end justify-end'
         : 'z-30 bottom-20 right-4 sm:bottom-6 sm:right-6'
     }`}>
-      
+
       {/* 1. FLOATING ACTION LAUNCHER BUTTON */}
       {!isOpen && (
         <div className="relative group">
@@ -372,25 +367,25 @@ const SmartAssistantWidget = ({ onNavigate }) => {
           {hasUnread && (
             <div className="hidden sm:flex absolute -top-10 right-0 bg-slate-900 text-white text-xs font-bold py-1 px-3 rounded-full shadow-xl border border-slate-700 whitespace-nowrap animate-bounce items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>💬 MANEBZ AI & WhatsApp</span>
+              <span>💬 MANEBZ AI & Help Desk</span>
             </div>
           )}
 
           <button
             onClick={() => setIsOpen(true)}
             className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white p-2.5 shadow-[0_10px_35px_rgba(0,0,0,0.18)] hover:shadow-[0_15px_45px_rgba(220,38,38,0.35)] border-2 border-red-600 flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer relative group overflow-visible"
-            aria-label="Open MANEBZ AI Assistant & WhatsApp"
+            aria-label="Open MANEBZ AI Assistant & Help Desk"
           >
             {/* Original Company Logo */}
-            <img 
-              src={logoImg} 
-              alt="MANEBZ Logo" 
+            <img
+              src={logoImg}
+              alt="MANEBZ Logo"
               className="w-full h-full object-contain"
             />
 
-            {/* Floating WhatsApp pill badge */}
-            <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-md">
-              <WhatsAppIcon className="w-3 h-3 text-white" />
+            {/* Floating call pill badge */}
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-sky-600 border-2 border-white flex items-center justify-center shadow-md">
+              <Phone className="w-3 h-3 text-white" />
             </div>
 
             {/* Glowing online pulse */}
@@ -402,17 +397,17 @@ const SmartAssistantWidget = ({ onNavigate }) => {
         </div>
       )}
 
-      {/* 2. SMART CHATBOT & WHATSAPP MODAL WINDOW */}
+      {/* 2. SMART CHATBOT & HELP DESK MODAL WINDOW */}
       {isOpen && (
         <div className="w-full sm:w-[410px] h-full sm:h-[590px] max-h-[85vh] bg-white rounded-3xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
-          
+
           {/* Header */}
           <div className="bg-gradient-to-r from-slate-950 via-[#0a192f] to-red-950 text-white p-4 sm:p-5 flex items-center justify-between shrink-0 shadow-md">
             <div className="flex items-center gap-3">
               <div className="relative bg-white px-2 py-1 rounded-xl shadow-inner border border-white/20 flex items-center justify-center">
-                <img 
-                  src={logoImg} 
-                  alt="MANEBZ Logo" 
+                <img
+                  src={logoImg}
+                  alt="MANEBZ Logo"
                   className="h-6 w-auto object-contain rounded"
                 />
               </div>
@@ -421,7 +416,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                   <h3 className="font-extrabold text-sm text-white tracking-tight">MANEBZ Smart AI</h3>
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.2 rounded font-mono font-bold">24/7 ONLINE</span>
                 </div>
-                <p className="text-[11px] text-slate-300">Voice Assistant & WhatsApp Hotline</p>
+                <p className="text-[11px] text-slate-300">Voice Assistant & Help Desk</p>
               </div>
             </div>
 
@@ -459,8 +454,8 @@ const SmartAssistantWidget = ({ onNavigate }) => {
             <button
               onClick={() => setActiveTab('chat')}
               className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'chat' 
-                  ? 'bg-white text-slate-900 shadow-sm' 
+                activeTab === 'chat'
+                  ? 'bg-white text-slate-900 shadow-sm'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
             >
@@ -468,15 +463,15 @@ const SmartAssistantWidget = ({ onNavigate }) => {
               <span>AI Voice Assistant</span>
             </button>
             <button
-              onClick={() => setActiveTab('whatsapp')}
+              onClick={() => setActiveTab('contact')}
               className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'whatsapp' 
-                  ? 'bg-emerald-600 text-white shadow-sm' 
-                  : 'text-slate-500 hover:text-emerald-700'
+                activeTab === 'contact'
+                  ? 'bg-sky-600 text-white shadow-sm'
+                  : 'text-slate-500 hover:text-sky-700'
               }`}
             >
-              <WhatsAppIcon className="w-3.5 h-3.5 text-current" />
-              <span>Direct WhatsApp</span>
+              <Phone className="w-3.5 h-3.5 text-current" />
+              <span>Call & Email Desk</span>
             </button>
           </div>
 
@@ -485,11 +480,11 @@ const SmartAssistantWidget = ({ onNavigate }) => {
             <>
               {/* Messages Scroll Area */}
               <div className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-slate-50 text-xs">
-                
+
                 {messages.map((m) => {
                   const isBot = m.sender === 'bot';
                   return (
-                    <div 
+                    <div
                       key={m.id}
                       className={`flex gap-2.5 ${isBot ? 'justify-start' : 'justify-end'}`}
                     >
@@ -500,8 +495,8 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                       )}
 
                       <div className={`max-w-[82%] rounded-2xl p-3 shadow-sm ${
-                        isBot 
-                          ? 'bg-white text-slate-800 border border-gray-200' 
+                        isBot
+                          ? 'bg-white text-slate-800 border border-gray-200'
                           : 'bg-gradient-to-r from-red-600 to-red-700 text-white'
                       }`}>
                         <div className="whitespace-pre-line leading-relaxed font-medium">
@@ -524,28 +519,35 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                           </div>
                         )} */}
 
-                        {/* Feature 5: WhatsApp Auto-Forward Button */}
-                        {m.customWhatsAppText && (
+                        {/* Feature 5: one-click email forwarding of the captured lead */}
+                        {m.customEmailText && (
                           <div className="mt-2.5 pt-2 border-t border-gray-100 space-y-1.5">
                             <button
-                              onClick={() => openWhatsApp(m.customWhatsAppText)}
-                              className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-600/30 transition-all cursor-pointer animate-pulse"
+                              onClick={() => openEmail(m.customEmailText, 'New corporate inquiry — immediate callback requested')}
+                              className="w-full py-2.5 px-3 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-sky-600/30 transition-all cursor-pointer animate-pulse"
                             >
-                              <WhatsAppIcon className="w-4 h-4" />
-                              <span>Forward Details to WhatsApp</span>
+                              <Mail className="w-4 h-4" />
+                              <span>Forward Details by Email</span>
                               <ArrowRight className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         )}
 
-                        {m.action === 'whatsapp' && (
-                          <div className="mt-2.5 pt-2 border-t border-gray-100">
-                            <button
-                              onClick={() => openWhatsApp()}
-                              className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 shadow-md transition-colors cursor-pointer"
+                        {m.action === 'contact' && (
+                          <div className="mt-2.5 pt-2 border-t border-gray-100 grid grid-cols-2 gap-1.5">
+                            <a
+                              href={toTelHref(contactInfo.phonePrimary)}
+                              className="py-2 px-3 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 shadow-md transition-colors cursor-pointer"
                             >
-                              <WhatsAppIcon className="w-3.5 h-3.5" />
-                              <span>Open WhatsApp ({contactInfo.whatsapp})</span>
+                              <Phone className="w-3.5 h-3.5" />
+                              <span>Call {contactInfo.phonePrimary}</span>
+                            </a>
+                            <button
+                              onClick={() => openEmail()}
+                              className="py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 shadow-md transition-colors cursor-pointer"
+                            >
+                              <Mail className="w-3.5 h-3.5" />
+                              <span>Email Us</span>
                             </button>
                           </div>
                         )}
@@ -593,7 +595,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                       <input
                         type="tel"
                         required
-                        placeholder="Mobile Number (WhatsApp) *"
+                        placeholder="Mobile Number *"
                         value={leadForm.phone}
                         onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })}
                         className="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 focus:border-red-500 focus:outline-none"
@@ -609,7 +611,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                         type="submit"
                         className="w-full py-2.5 bg-gradient-to-r from-red-600 to-sky-600 text-white font-bold text-xs rounded-xl shadow-md hover:opacity-95 transition-opacity cursor-pointer flex items-center justify-center gap-1.5"
                       >
-                        <span>Submit & Forward to WhatsApp</span>
+                        <span>Submit Inquiry</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     </form>
@@ -635,12 +637,12 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                           onClick={() => handleRatingSelect(star)}
                           className="p-1 hover:scale-125 transition-transform cursor-pointer"
                         >
-                          <Star 
+                          <Star
                             className={`w-4 h-4 ${
-                              (hoverRating || rating) >= star 
-                                ? 'fill-amber-400 text-amber-400' 
+                              (hoverRating || rating) >= star
+                                ? 'fill-amber-400 text-amber-400'
                                 : 'text-slate-500'
-                            }`} 
+                            }`}
                           />
                         </button>
                       ))}
@@ -693,7 +695,7 @@ const SmartAssistantWidget = ({ onNavigate }) => {
 
               {/* Clean Voice & Text Input Bar (No Overlapping Elements) */}
               <div className="p-2.5 bg-white border-t border-gray-200 shrink-0">
-                <form 
+                <form
                   onSubmit={(e) => {
                     e.preventDefault();
                     handleSend();
@@ -708,15 +710,15 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                       placeholder={isListening ? "Listening... speak now" : "Type question or click mic..."}
                       className="w-full pl-3 pr-9 py-2.5 rounded-xl border border-gray-300 text-xs focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-200 transition-all"
                     />
-                    
+
                     {/* Clean Inline Voice Mic Button */}
                     <button
                       type="button"
                       onClick={toggleVoiceInput}
                       title="Speak in Hindi / English"
                       className={`absolute right-1.5 p-1.5 rounded-lg transition-all cursor-pointer ${
-                        isListening 
-                          ? 'bg-red-600 text-white animate-pulse' 
+                        isListening
+                          ? 'bg-red-600 text-white animate-pulse'
                           : 'text-slate-400 hover:text-red-600 hover:bg-slate-100'
                       }`}
                     >
@@ -736,22 +738,22 @@ const SmartAssistantWidget = ({ onNavigate }) => {
             </>
           )}
 
-          {/* TAB 2: DIRECT WHATSAPP INSTANT DESK */}
-          {activeTab === 'whatsapp' && (
+          {/* TAB 2: CALL & EMAIL DESK */}
+          {activeTab === 'contact' && (
             <div className="flex-1 p-5 bg-slate-50 flex flex-col justify-between overflow-y-auto">
               <div className="space-y-4 text-center">
-                <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
-                  <WhatsAppIcon className="w-9 h-9" />
+                <div className="w-16 h-16 rounded-3xl bg-sky-100 text-sky-600 flex items-center justify-center mx-auto shadow-inner">
+                  <Mail className="w-9 h-9" />
                 </div>
 
                 <div>
-                  <h4 className="font-extrabold text-base text-slate-900">Direct WhatsApp Operations Desk</h4>
+                  <h4 className="font-extrabold text-base text-slate-900">Operations Desk</h4>
                   <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
-                    Chat directly with our senior facility directors and payroll coordinators for immediate quotes.
+                    Pick a template to email our operations desk with your requirement pre-filled, or call the office directly.
                   </p>
                 </div>
 
-                {/* WhatsApp Ready Quick Templates */}
+                {/* Ready-made email templates */}
                 <div className="space-y-2 text-left pt-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-1">
                     Select Quick Inquiry Template:
@@ -765,34 +767,32 @@ const SmartAssistantWidget = ({ onNavigate }) => {
                   ].map((tpl, i) => (
                     <button
                       key={i}
-                      onClick={() => openWhatsApp(tpl.text)}
-                      className="w-full p-3 bg-white rounded-2xl border border-gray-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all text-xs font-bold text-slate-800 flex items-center justify-between group cursor-pointer text-left shadow-sm"
+                      onClick={() => openEmail(tpl.text, tpl.label.replace(/^\S+\s/, ''))}
+                      className="w-full p-3 bg-white rounded-2xl border border-gray-200 hover:border-sky-500 hover:bg-sky-50/50 transition-all text-xs font-bold text-slate-800 flex items-center justify-between group cursor-pointer text-left shadow-sm"
                     >
                       <span>{tpl.label}</span>
-                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-sky-600 group-hover:translate-x-0.5 transition-all shrink-0" />
                     </button>
                   ))}
                 </div>
               </div>
 
               <div className="pt-4 space-y-2">
-                <button
-                  onClick={() => openWhatsApp()}
-                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                <a
+                  href={toTelHref(contactInfo.phonePrimary)}
+                  className="w-full py-3.5 bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-lg shadow-sky-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
-                  <WhatsAppIcon className="w-4 h-4" />
-                  <span>Start WhatsApp Chat ({contactInfo.whatsapp})</span>
+                  <Phone className="w-4 h-4" />
+                  <span>Call {contactInfo.phonePrimary}</span>
+                </a>
+                <button
+                  onClick={() => openEmail()}
+                  className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Email {contactInfo.emailPrimary}</span>
                 </button>
-
-                <div className="text-center">
-                  <a
-                    href={toTelHref(contactInfo.phonePrimary)}
-                    className="text-[11px] font-bold text-slate-500 hover:text-slate-800 inline-flex items-center gap-1.5"
-                  >
-                    <Phone className="w-3.5 h-3.5 text-sky-600" />
-                    <span>Or Call Central Helpline: {contactInfo.phonePrimary}</span>
-                  </a>
-                </div>
+                <p className="text-center text-[11px] text-slate-500">{contactInfo.hours}</p>
               </div>
             </div>
           )}

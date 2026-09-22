@@ -39,3 +39,4 @@ backend/uploads/
 
 # Office lock files
 ~$*
+*.mp4

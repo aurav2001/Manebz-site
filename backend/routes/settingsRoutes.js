@@ -1,5 +1,5 @@
 import express from 'express';
-import { getSettings, saveSettings } from '../controllers/settingsController.js';
+import { getSettings, saveSettings, mailStatus, testEmail } from '../controllers/settingsController.js';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const adminOnly = [requireAuth, requireRole('admin')];
@@ -11,5 +11,9 @@ const router = express.Router();
 router.route('/')
   .get(adminOnly, getSettings)
   .post(adminOnly, saveSettings);
+
+// Email delivery diagnostics — admin only, same as the settings they depend on.
+router.get('/mail-status', adminOnly, mailStatus);
+router.post('/test-email', adminOnly, testEmail);
 
 export default router;

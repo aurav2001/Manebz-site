@@ -1,7 +1,15 @@
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+// Load .env from cwd, and also from the backend root when running as ESM source.
+// In the esbuild CJS bundle import.meta.url is undefined, and there the .env sits
+// next to app.js in cwd anyway.
 dotenv.config();
+if (import.meta.url) {
+  dotenv.config({ path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../.env') });
+}
 
 const {
   DB_HOST = 'localhost',
@@ -12,6 +20,7 @@ const {
 } = process.env;
 
 let pool = null;
+let lastDbError = null;
 
 export const initDB = async () => {
   try {
@@ -462,15 +471,27 @@ export const initDB = async () => {
       }
       pool = null;
     }
-    console.error('❌ [MySQL] Database Connection Failed:', error.message || error.code || error);
+    lastDbError = error.message || error.code || String(error);
+    console.error('❌ [MySQL] Database Connection Failed:', lastDbError);
     console.warn('⚠️ Server will run in Fallback Mode. Ensure MySQL is started or check backend/.env');
     return null;
   }
 };
 
 export const getPool = () => pool;
+export const getDbDiagnosticInfo = () => ({
+  error: lastDbError,
+  config: {
+    host: DB_HOST,
+    port: Number(DB_PORT),
+    user: DB_USER,
+    database: DB_NAME,
+    hasPassword: Boolean(DB_PASSWORD && DB_PASSWORD.length > 0)
+  }
+});
 
 export default {
   initDB,
-  getPool
+  getPool,
+  getDbDiagnosticInfo
 };

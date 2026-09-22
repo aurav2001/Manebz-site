@@ -541,7 +541,7 @@ const Navbar = ({ currentPage, onNavigate }) => {
                   <input
                     type="tel"
                     required
-                    placeholder="+91 91234 56789"
+                    placeholder="+91 98XXX XXXXX"
                     value={quoteForm.phone}
                     onChange={(e) => setQuoteForm({ ...quoteForm, phone: e.target.value })}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200 text-sm transition-all"
