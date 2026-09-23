@@ -18,6 +18,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import CalculatorPage from './pages/CalculatorPage';
 import BlogPage from './pages/BlogPage';
 import SmartAssistantWidget from './components/SmartAssistantWidget';
+import SessionPulse from './components/SessionPulse';
 
 // Error Boundary for seamless chunk recovery
 class ChunkErrorBoundary extends Component {
@@ -217,6 +218,8 @@ function AppContent() {
 
       {/* Smart Assistant & Help Desk Lead Widget */}
       {!isAdminPage && <SmartAssistantWidget onNavigate={handleNavigate} />}
+
+      <SessionPulse />
 
       {/* Clean Optimized Footer */}
       {!isAdminPage && <Footer onNavigate={handleNavigate} />}

@@ -66,6 +66,31 @@ const resolveRecipient = (settings = {}, to) =>
 const resolveFrom = (cfg) =>
   process.env.MAIL_FROM || `"MANEBZ" <${cfg.user || 'no-reply@manebz.com'}>`;
 
+const resolveReplyTo = (settings = {}, replyTo) =>
+  replyTo || process.env.MAIL_REPLY_TO || settings.adminEmail || undefined;
+
+/**
+ * Microsoft 365 (and Google Workspace) refuse a From header that is not the mailbox we
+ * authenticated with unless that mailbox has explicit "Send As" permission. Rather than
+ * losing the notification, resend it from the authenticated address and keep the intended
+ * sender as Reply-To. Any other failure is rethrown untouched.
+ */
+const sendWithFromFallback = async (transporter, cfg, message) => {
+  try {
+    return await transporter.sendMail(message);
+  } catch (err) {
+    const reason = String(err.response || err.message || '');
+    const denied = /SendAsDenied|5\.2\.252|5\.7\.60|not allowed to send as/i.test(reason);
+    if (!denied || !cfg.user) throw err;
+    console.warn(`⚠️ [Mailer] ${message.from} may not send; retrying as ${cfg.user}.`);
+    return transporter.sendMail({
+      ...message,
+      from: `"MANEBZ" <${cfg.user}>`,
+      replyTo: message.replyTo || message.from,
+    });
+  }
+};
+
 const maskUser = (user) => (user ? user.replace(/^(.{2}).*(@.*)$/, '$1***$2') : '');
 
 /**
@@ -84,6 +109,7 @@ export const getMailStatus = async () => {
     user: maskUser(cfg.user),
     from: cfg.configured ? resolveFrom(cfg) : null,
     notifyTo: resolveRecipient(settings),
+    replyTo: resolveReplyTo(settings) || null,
     fallback,
     source: process.env.SMTP_USER ? 'env' : settings.smtpUser ? 'settings' : null,
   };
@@ -118,9 +144,10 @@ export const sendTestMail = async ({ to, requestedBy } = {}) => {
     return { ok: false, to: recipient, error: 'SMTP is not configured. Add SMTP_USER and SMTP_PASS to backend/.env and restart the app.' };
   }
   try {
-    const info = await transporter.sendMail({
+    const info = await sendWithFromFallback(transporter, cfg, {
       from: resolveFrom(cfg),
       to: recipient,
+      replyTo: resolveReplyTo(settings),
       subject: 'MANEBZ panel — test email',
       text: `This is a test email from the MANEBZ panel.
 
@@ -196,16 +223,17 @@ export const sendMail = async ({ to, subject, text, html, replyTo, meta = {} }) 
   try {
     const settings = await readSettings();
     const recipient = resolveRecipient(settings, to);
-    const fromAddress = resolveFrom(getSmtpConfig(settings));
+    const cfg = getSmtpConfig(settings);
+    const fromAddress = resolveFrom(cfg);
 
     // 1. Try SMTP transporter
     const transporter = getSmtpTransporter(settings);
     if (transporter) {
       try {
-        const info = await transporter.sendMail({
+        const info = await sendWithFromFallback(transporter, cfg, {
           from: fromAddress,
           to: recipient,
-          replyTo: replyTo || undefined,
+          replyTo: resolveReplyTo(settings, replyTo),
           subject,
           text: text || '',
           html: html || undefined,
