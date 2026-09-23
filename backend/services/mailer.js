@@ -1,5 +1,11 @@
 import nodemailer from 'nodemailer';
+import dns from 'node:dns';
 import { getPool } from '../config/db.js';
+
+// Force IPv4 first to prevent ENETUNREACH on hosting/cPanel lacking IPv6 routes
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 /**
  * Universal Mailer Service for MANABS / MANEBZ

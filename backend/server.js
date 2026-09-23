@@ -1,5 +1,11 @@
 import express from 'express';
+import dns from 'node:dns';
 import cors from 'cors';
+
+// Force IPv4 first to prevent ENETUNREACH on hosting/cPanel lacking IPv6 routes
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
